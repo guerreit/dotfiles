@@ -1,5 +1,7 @@
 # Add `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH";
+PATH="$PATH:$HOME/bin"
+PATH="$PATH:$HOME/.rvm/bin"
+export PATH
 
 # Load the shell dotfiles, and then some:
 # * ~/.profile can be used to extend `$PATH`.
@@ -35,7 +37,3 @@ fi
 
 # homebrew completion
 source `brew --repository`/Library/Contributions/brew_bash_completion.sh
-
-# Add tab completion for `defaults read|write NSGlobalDomain`
-# You could just use `-g` instead, but I like being explicit
-complete -W "NSGlobalDomain" defaults;
