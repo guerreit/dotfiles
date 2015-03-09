@@ -11,6 +11,11 @@
   # Add untracked, remove deleted, and show status
   adda = !git add -A && git status
 
+  # Show verbose output about tags, branches or remotes
+	tags = tag -l
+	branches = branch -a
+	remotes = remote -v
+
   # Fetch a repository ($1) and checkout its ref ($2) HEAD
   # Use: `git browse https://github.com/necolas/dotfiles <commit-ish>`
   browse = !bash -c 'git fetch $1 ${2:-HEAD} && git checkout FETCH_HEAD' -
@@ -20,10 +25,8 @@
   # Diff overview
   diffst = diff --stat
 
-  # Custom graph log (append any tree-ish)
-  graph = log --pretty=nice --date-order --graph
-  # Custom graph log for all branches
-  grapha = log --pretty=nice --date-order --graph --all
+  # Switch to a branch, creating it if necessary
+	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
   # Custom pretty log
   logp = log --pretty=nice --date-order
