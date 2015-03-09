@@ -8,4 +8,5 @@ brew cask isntall dash
 brew cask install divvy
 brew cask install flux
 brew cask install google-chrome
+brew cask install totalterminal
 brew cask install vlc
