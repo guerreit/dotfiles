@@ -45,9 +45,6 @@ defaults write com.apple.dock mru-spaces -bool false
 # Dock: enable the 2D Dock
 defaults write com.apple.dock no-glass -bool true
 
-# Dock: position the Dock on the left
-defaults write com.apple.dock orientation left
-
 # Dock: set the icon size of Dock items to 36 pixels
 defaults write com.apple.dock tilesize -int 36
 
@@ -82,18 +79,15 @@ defaults write com.apple.finder EmptyTrashSecurely -bool true
 # Finder: disable window and Get Info animations
 defaults write com.apple.finder DisableAllAnimations -bool true
 
-# Finder: allow quitting via ⌘ + Q; doing so will also hide desktop icons
-defaults write com.apple.finder QuitMenuItem -bool true
-
 # Finder: show the ~/Library folder (in OS X Lion)
 chflags nohidden ~/Library
 
 # Finder: show hidden files by default
 defaults write com.apple.finder AppleShowAllFiles -bool true
 
-# Finder: use list view in all windows by default
+# Finder: use column view in all windows by default
 # Four-letter codes for the other view modes: `icnv`, `clmv`, `Flwv`
-defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
 
 # Show icons for hard drives, servers, and removable media on the desktop
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
