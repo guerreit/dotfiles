@@ -14,9 +14,11 @@ brew tap homebrew/versions
 
 brew install bash
 brew install bash-completion
-brew install vim --override-system-vi
 brew install git
+brew install heroku-toolbelt
+brew install mongodb
 brew install node
+brew install vim --override-system-vi
 brew install z
 
 # Remove outdated versions from the cellar
