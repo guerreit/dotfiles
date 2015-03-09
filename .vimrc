@@ -16,6 +16,12 @@ set showcmd
 " Show whether in insert or replace mode
 set showmode
 
+" Searching
+" search as characters are entered
+set incsearch
+" highlight matches
+set hlsearch
+
 " Always show status line
 set laststatus=2
 " Broken down into easily includeable segments
@@ -62,7 +68,7 @@ set listchars+=nbsp:_
 set backupdir=$HOME/.vim/backups
 set directory=$HOME/.vim/swaps
 if exists("&undodir")
-    set undodir=$HOME/.vim/undo
+  set undodir=$HOME/.vim/undo
 endif
 set viminfo+=n$HOME/.vim/.viminfo
 
