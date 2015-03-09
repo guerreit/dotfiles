@@ -3,9 +3,6 @@
 " !silent is used to suppress error messages if the config line
 " references plugins/colorschemes that might be missing
 
-" Disable Vi compatibility
-set nocompatible
-
 " Enable syntax highlighting
 syntax enable
 
