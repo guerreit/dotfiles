@@ -6,7 +6,7 @@ done
 unset file
 
 # init z https://github.com/rupa/z
-. ~/.z
+# . ~/.z
 
 # generic colouriser
 GRC=`which grc`
