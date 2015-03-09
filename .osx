@@ -85,9 +85,6 @@ defaults write com.apple.finder DisableAllAnimations -bool true
 # Finder: show the ~/Library folder (in OS X Lion)
 chflags nohidden ~/Library
 
-# Finder: show hidden files by default
-defaults write com.apple.finder AppleShowAllFiles -bool true
-
 # Finder: use column view in all windows by default
 # Four-letter codes for the other view modes: `icnv`, `clmv`, `Flwv`
 defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
