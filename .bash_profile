@@ -1,7 +1,7 @@
 # Load ~/.extra, ~/.bash_prompt, ~/.exports, ~/.aliases and ~/.functions
 # ~/.extra can be used for settings you don’t want to commit
 for file in ~/.{extra,bash_prompt,exports,aliases,functions}; do
-	[ -r "$file" ] && source "$file"
+[ -r "$file" ] && source "$file"
 done
 unset file
 
@@ -12,18 +12,18 @@ unset file
 GRC=`which grc`
 if [ "$TERM" != dumb ] && [ -n "$GRC" ]
 then
-    alias colourify="$GRC -es --colour=auto"
-    alias configure='colourify ./configure'
-    alias diff='colourify diff'
-    alias make='colourify make'
-    alias gcc='colourify gcc'
-    alias g++='colourify g++'
-    alias as='colourify as'
-    alias gas='colourify gas'
-    alias ld='colourify ld'
-    alias netstat='colourify netstat'
-    alias ping='colourify ping'
-    alias traceroute='colourify /usr/sbin/traceroute'
+  alias colourify="$GRC -es --colour=auto"
+  alias configure='colourify ./configure'
+  alias diff='colourify diff'
+  alias make='colourify make'
+  alias gcc='colourify gcc'
+  alias g++='colourify g++'
+  alias as='colourify as'
+  alias gas='colourify gas'
+  alias ld='colourify ld'
+  alias netstat='colourify netstat'
+  alias ping='colourify ping'
+  alias traceroute='colourify /usr/sbin/traceroute'
 fi
 
 # Case-insensitive globbing (used in pathname expansion)
@@ -41,8 +41,9 @@ shopt -s histappend
 
 # bash completion.
 if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
-    . $(brew --prefix)/share/bash-completion/bash_completion
+  . $(brew --prefix)/share/bash-completion/bash_completion
 fi
+
 # homebrew completion
 source `brew --repository`/Library/Contributions/brew_bash_completion.sh
 

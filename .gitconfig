@@ -1,74 +1,70 @@
 [alias]
-	c = commit -am
-	up = pull
-	p = push
-	s = status -s
-	df = diff --color --color-words --abbrev
-	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+  # https://git.wiki.kernel.org/articles/a/l/i/Aliases.html
 
-	# Show the diff between the latest commit and the current state
-	d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+  # `git remote prune origin`: remove remote-tracking branches that were deleted from the remote repo
+  # `git gc`: cleanup unnecessary files and optimize the local repository
+  # `git clean -df`: remove untracked files and directories from the working tree
+  # `git stash clear`: remove all stashed states
+  trim = !git remote prune origin && git gc
+  cleanup = !git clean -df && git stash clear
 
-	# Merge GitHub pull request on top of the `master` branch
-	mpr = "!f() { \
-		if [ $(printf \"%s\" \"$1\" | grep '^[0-9]\\+$' > /dev/null; printf $?) -eq 0 ]; then \
-			git fetch origin refs/pull/$1/head:pr/$1 && \
-			git rebase master pr/$1 && \
-			git checkout master && \
-			git merge pr/$1 && \
-			git branch -D pr/$1 && \
-			git commit --amend -m \"$(git log -1 --pretty=%B)\n\nCloses #$1.\"; \
-		fi \
-	}; f"
+  # Add untracked, remove deleted, and show status
+  adda = !git add -A && git status
 
+  # Fetch a repository ($1) and checkout its ref ($2) HEAD
+  # Use: `git browse https://github.com/necolas/dotfiles <commit-ish>`
+  browse = !bash -c 'git fetch $1 ${2:-HEAD} && git checkout FETCH_HEAD' -
 
+  # Diff what is staged for the next commit
+  diffc = diff --cached
+  # Diff overview
+  diffst = diff --stat
+
+  # Custom graph log (append any tree-ish)
+  graph = log --pretty=nice --date-order --graph
+  # Custom graph log for all branches
+  grapha = log --pretty=nice --date-order --graph --all
+
+  # Custom pretty log
+  logp = log --pretty=nice --date-order
+
+  # Diffstat log
+  logst = log --stat
+  # Short format diffstat log
+  logsf = log --stat --format=oneline --abbrev-commit
+
+  # Fetch and checkout a GitHub Pull Request from a remote (defaults to `origin`)
+  # Use: `git gh-pr 123` or `git gh-pr 123 upstream`
+  gh-pr = !bash -c 'git fetch -fu ${2:-origin} refs/pull/$1/head:gh-pr/$1 && git checkout gh-pr/$1' -
+
+  # Find out who is currently active on the repository
+  # Displays committers in descending order of number of commits
+  who = shortlog --numbered --summary --email --no-merges --since="3 months"
 
 [color]
-	ui = always
+  # color opts: normal, black, red, green, yellow, blue, magenta, cyan, or white
+  ui = auto
+  interactive = auto
 
 [core]
-	excludesfile = ~/.gitignore
-	attributesfile = ~/.gitattributes
-[color "branch"]
-	current = yellow reverse
-	local = yellow
-	remote = green
-[color "diff"]
-	meta = yellow bold
-	frag = magenta bold
-	old = red bold
-	new = green bold
-[color "status"]
-	added = yellow
-	changed = green
-	untracked = cyan
-[merge]
-    tool = opendiff
+  # Use custom `.gitignore` and `.gitattributes`
+  excludesfile = ~/.gitignore
+  attributesfile = ~/.gitattributes
 
+[credential]
+  helper = osxkeychain
 
-# rewrites
-[url "git@github.com:"]
-	insteadOf = "gh:"
-	pushInsteadOf = "github:"
-	pushInsteadOf = "git://github.com/"
-    pushInsteadOf = "https://github.com/"
-[url "git://github.com/"]
-	insteadOf = "github:"
-[url "git@gist.github.com:"]
-	insteadOf = "gst:"
-	pushInsteadOf = "gist:"
-	pushInsteadOf = "git://gist.github.com/"
-	pushInsteadOf = "https://gist.github.com/"
+[diff]
+  tool = mvimdiff
 
+[difftool]
+  prompt = false
 
-# Any GitHub repo with my username should be checked out r/w by default
-# http://rentzsch.tumblr.com/post/564806957/public-but-hackable-git-submodules
+[pretty]
+  # tut: http://gitimmersion.com/lab_10.html
+  # ref: http://linux.die.net/man/1/git-log
+  # Result: <short-sha> <commit-message> (<pointer-names>) -- <commit-author-name>; <relative-time>
+  nice = "%C(yellow)%h%C(reset) %C(white)%s%C(cyan)%d%C(reset) -- %an; %ar"
 
-[url "git@github.com:paulirish/"]
-  insteadOf = "git://github.com/paulirish/"
-[help]
-	autocorrect = 1
-
-# push easily. http://stackoverflow.com/a/23918418/89484
 [push]
-	default = current
+  default = current
