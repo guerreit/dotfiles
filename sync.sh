@@ -1,9 +1,12 @@
 #!/bin/bash
 cd "$(dirname "$0")"
+
 git pull
+
 function doIt() {
 	rsync --exclude ".git/" --exclude ".DS_Store" --exclude "sync.sh" --exclude "Brewfile" --exclude "Caskfile" --exclude "setup-a-new-machine.sh" --exclude "README.md" -av . ~
 }
+
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
 	doIt
 else
@@ -13,5 +16,6 @@ else
 		doIt
 	fi
 fi
+
 unset doIt
 source ~/.bash_profile

@@ -2,9 +2,6 @@
 
 # bash_aliases
 
-# Allow aliases to be with sudo
-alias sudo="sudo "
-
 # Easier navigation: .., ..., ~ and -
 alias ..="cd .."
 alias ...="cd ../.."
@@ -22,12 +19,8 @@ alias la="ls -AGFoh"
 # List all except . and ..., color, mark file types, long form no use group, order by last modified, file size
 alias lat="ls -AGFoth"
 
-# Concatenate and print content of files (add line numbers)
-alias catn="cat -n"
-
-# Open file in existing MacVim window
-alias gvim="open -a MacVim"
-alias mvim="open -a MacVim"
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 
 # IP addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
@@ -46,7 +39,3 @@ alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo 
 # Show/hide hidden files in Finder
 alias showdotfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
 alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
-
-# Hide/show all desktop icons (useful when presenting)
-alias showdeskicons="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
-alias hidedeskicons="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"

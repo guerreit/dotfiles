@@ -1,9 +1,4 @@
-# Paul's dotfiles
-
-This repo is mostly for me but you're welcome to make suggestions. [mathias's readme](https://github.com/mathiasbynens/dotfiles/) is the project to fork.  I'm mostly catching up to him, @alrra, @paulmillr, @gf3.
-
-
-My basic new machine setup is captured in `setup-a-new-machine.sh` which adds homebrew, z, nave, etc.
+# DOTFILES
 
 ## private config
 
