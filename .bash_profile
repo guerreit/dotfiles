@@ -12,7 +12,7 @@ done;
 unset file;
 
 # init z https://github.com/rupa/z
-. ~/z/z.sh
+. `brew --prefix`/etc/profile.d/z.sh
 
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob;
