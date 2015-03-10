@@ -6,7 +6,7 @@ export PATH
 # Load the shell dotfiles, and then some:
 # * ~/.profile can be used to extend `$PATH`.
 # * ~/.profile can be used for other settings you don’t want to commit.
-for file in ~/.{aliases,profile,bash_prompt,aliases}; do
+for file in ~/.{aliases,bash_prompt,inputrc,profile}; do
 	[ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file;
