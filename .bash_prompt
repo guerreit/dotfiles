@@ -55,8 +55,8 @@ prompt_git() {
 
     printf "%s" "$1$branchName$s"
   else
-    return
-  fi
+	  return
+	fi
 }
 
 set_prompts() {
@@ -111,7 +111,7 @@ set_prompts() {
 
   # logged in as root
   if [[ "$USER" == "root" ]]; then
-    userStyle="\[$bold$red\]"
+	  userStyle="\[$bold$red\]"
   else
     userStyle="\[$orange\]"
   fi
