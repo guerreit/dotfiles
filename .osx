@@ -22,6 +22,12 @@ sudo scutil --set HostName "garrettBook"
 # Restart automatically if the computer freezes
 sudo systemsetup -setrestartfreeze on
 
+# Set standby delay to 24 hours (default is 1 hour)
+sudo pmset -a standbydelay 86400
+
+# Never go into computer sleep mode
+sudo systemsetup -setcomputersleep Off > /dev/null
+
 # Check for software updates daily, not just once per week
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
