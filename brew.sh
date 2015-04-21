@@ -13,8 +13,8 @@ brew upgrade
 brew tap homebrew/versions
 
 brew install bash
-brew install bash-completion
 brew install brew-cask
+brew install bash-completion
 brew install git
 brew install heroku-toolbelt
 brew install mongodb
