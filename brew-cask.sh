@@ -8,7 +8,5 @@ brew cask install divvy
 brew cask install flux
 brew cask install google-chrome
 brew cask install google-drive
-brew cask install libreoffice
 brew cask install spotify
-brew cask install totalterminal
 brew cask install vlc
