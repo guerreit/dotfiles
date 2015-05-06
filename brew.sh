@@ -1,4 +1,4 @@
-# Install command-line tools using Homebrew
+#!/bin/bash
 
 # Get brew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -6,8 +6,8 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 # Make sure we’re using the latest Homebrew
 brew update
 
-# Upgrade any already-installed formulae
-brew upgrade
+# Upgrade any already-installed brews
+brew upgrade --all
 
 # versions
 brew tap homebrew/versions
@@ -20,6 +20,7 @@ brew install heroku-toolbelt
 brew install mongodb
 brew install node
 brew install vim --override-system-vi
+brew install wget
 brew install z
 
 # Remove outdated versions from the cellar
