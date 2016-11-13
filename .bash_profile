@@ -6,8 +6,8 @@ export PATH
 # Load the shell dotfiles, and then some:
 # * ~/.profile can be used to extend `$PATH`.
 # * ~/.profile can be used for other settings you don’t want to commit.
-for file in ~/.{aliases,bash_prompt,inputrc,profile}; do
-	[ -r "$file" ] && [ -f "$file" ] && source "$file";
+for file in ~/.{path,profile,inputrc,bash_prompt,exports,aliases,functions,extra}; do                                                                                     
+  [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file;
 
@@ -31,9 +31,6 @@ for option in autocd globstar; do
 done;
 
 # bash completion.
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-  . `brew --prefix`/etc/bash_completion
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    . $(brew --prefix)/etc/bash_completion
 fi
-
-# homebrew completion
-source `brew --repository`/Library/Contributions/brew_bash_completion.sh
