@@ -12,9 +12,9 @@
   adda = !git add -A && git status
 
   # Show verbose output about tags, branches or remotes
-	tags = tag -l
-	branches = branch -a
-	remotes = remote -v
+  tags = tag -l
+  branches = branch -a
+  remotes = remote -v
 
   # Switch to a branch, creating it if necessary
   go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
@@ -25,9 +25,9 @@
   interactive = auto
 
 [color "status"]
-	added = yellow
-	changed = green
-	untracked = cyan
+  added = yellow
+  changed = green
+  untracked = cyan
 
 [core]
   # Use custom `.gitignore` and `.gitattributes`
@@ -38,12 +38,12 @@
   helper = osxkeychain
 
 [help]
-	# Automatically correct and execute mistyped commands
-	autocorrect = 1
+  # Automatically correct and execute mistyped commands
+  autocorrect = 1
 
 [merge]
-	# Include summaries of merged commits in newly created merge commit messages
-	log = true
+  # Include summaries of merged commits in newly created merge commit messages
+  log = true
 
 [push]
   default = current
