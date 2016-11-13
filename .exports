@@ -29,4 +29,4 @@ export LESS_TERMCAP_md="${yellow}";
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X';
 
-export HOMEBREW_GITHUB_API_TOKEN="5dee1d805033f3184bf8e779c27313baf0b32297"
+export HOMEBREW_GITHUB_API_TOKEN="721a2464318d651837febb8e9c62024f75c73821"
