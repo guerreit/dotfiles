@@ -22,18 +22,6 @@ set incsearch
 " highlight matches
 set hlsearch
 
-" Always show status line
-set laststatus=2
-" Broken down into easily includeable segments
-" Filename
-set statusline=%<%f\
-" Options
-set statusline+=%w%h%m%r
-" Current dir
-set statusline+=\ [%{getcwd()}]
-" Right aligned file nav info
-set statusline+=%=%-14.(%l,%c%V%)\ %p%%
-
 " Show a list of possible completions
 set wildmenu
 
@@ -51,8 +39,6 @@ set expandtab
 set number
 " Highlight current line
 set cursorline
-" Start scrolling three lines before the horizontal window border
-set scrolloff=3
 " Don’t reset cursor to start of line when moving around.
 set nostartofline
 
@@ -62,7 +48,6 @@ set list
 set listchars=tab:▸\
 set listchars+=trail:·
 set listchars+=nbsp:_
-"set listchars+=eol:¬
 
 " Centralize backups, swapfiles and undo history
 set backupdir=$HOME/.vim/backups
@@ -72,8 +57,3 @@ if exists("&undodir")
 endif
 set viminfo+=n$HOME/.vim/.viminfo
 
-" Faster viewport scrolling (3 lines at a time)
-nnoremap <C-e> 3<C-e>
-nnoremap <C-y> 3<C-y>
-vnoremap <C-e> 3<C-e>
-vnoremap <C-y> 3<C-y>
