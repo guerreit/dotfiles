@@ -24,16 +24,12 @@ endif
 
 " Start scrolling three lines before the horizontal window border
 set scrolloff=3
-
 " Searching
-" search as characters are entered
 set incsearch
 " highlight matches
 set hlsearch
-
 " Show a list of possible completions
 set wildmenu
-
 " No line wrapping
 set nowrap
 " Use 2 spaces for indentation
@@ -50,7 +46,6 @@ set number
 set cursorline
 " Don’t reset cursor to start of line when moving around.
 set nostartofline
-
 " Show 'invisible' characters
 set list
 " Set characters used to indicate 'invisible' characters
