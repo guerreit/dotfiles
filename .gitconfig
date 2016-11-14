@@ -47,3 +47,6 @@
 
 [push]
   default = current
+[user]
+	name = Garrett Jones
+	email = garrettjones@me.com
