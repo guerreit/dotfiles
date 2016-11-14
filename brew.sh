@@ -12,11 +12,14 @@ brew upgrade --all
 # versions
 brew tap homebrew/versions
 
+# cask
+brew tap caskroom/cask
+
+#bash 4
 brew install bash
 brew install bash-completion2
-brew install brew-cask
+
 brew install git
-brew install heroku-toolbelt
 brew install mongodb
 brew install node
 brew install vim --override-system-vi
