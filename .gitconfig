@@ -22,20 +22,21 @@
 [color]
   # color opts: normal, black, red, green, yellow, blue, magenta, cyan, or white
   ui = auto
-  interactive = auto
 
 [color "status"]
   added = yellow
   changed = green
   untracked = cyan
 
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
 [core]
   # Use custom `.gitignore` and `.gitattributes`
   excludesfile = ~/.gitignore
   attributesfile = ~/.gitattributes
-
-[credential]
-  helper = osxkeychain
 
 [help]
   # Automatically correct and execute mistyped commands
@@ -47,7 +48,6 @@
 
 [push]
   default = current
-
 [user]
 	name = Garrett Jones
 	email = garrettjones@me.com
