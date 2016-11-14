@@ -1,20 +1,29 @@
 " .vimrc
 
-" !silent is used to suppress error messages if the config line
-" references plugins/colorschemes that might be missing
+execute pathogen#infect()
+syntax on
+filetype plugin indent on
 
-" Enable syntax highlighting
-syntax enable
+" Make Vim more useful
+set nocompatible
 
-" Set 256 color terminal support
-set t_Co=256
-
+" Show the filename in the window titlebar
+set title
 " Show the cursor line and column number
 set ruler
 " Show partial commands in status line
 set showcmd
 " Show whether in insert or replace mode
 set showmode
+
+" Use relative line numbers
+if exists("&relativenumber")
+set relativenumber
+  au BufReadPost * set relativenumber
+endif
+
+" Start scrolling three lines before the horizontal window border
+set scrolloff=3
 
 " Searching
 " search as characters are entered
@@ -56,4 +65,3 @@ if exists("&undodir")
   set undodir=$HOME/.vim/undo
 endif
 set viminfo+=n$HOME/.vim/.viminfo
-
