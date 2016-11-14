@@ -40,9 +40,6 @@ alias brews="brew list -1"
 alias casks="brew cask list -1"
 alias cask="brew cask"
 
-# Trim new lines and copy to clipboard
-alias c="tr -d '\n' | pbcopy"
-
 # Stopwatch
 alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'
 
