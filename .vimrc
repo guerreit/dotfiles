@@ -3,6 +3,12 @@
 execute pathogen#infect()
 syntax on
 filetype plugin indent on
+syntax enable
+
+" Solarized stuff
+" colorscheme solarized
+" let g:solarized_termtrans=1
+" set background=dark
 
 " Make Vim more useful
 set nocompatible
@@ -16,22 +22,6 @@ set showcmd
 " Show whether in insert or replace mode
 set showmode
 
-" Use relative line numbers
-if exists("&relativenumber")
-set relativenumber
-  au BufReadPost * set relativenumber
-endif
-
-" Start scrolling three lines before the horizontal window border
-set scrolloff=3
-" Searching
-set incsearch
-" highlight matches
-set hlsearch
-" Show a list of possible completions
-set wildmenu
-" No line wrapping
-set nowrap
 " Use 2 spaces for indentation
 set shiftwidth=2
 " Use 2 spaces for soft tab
@@ -40,12 +30,30 @@ set softtabstop=2
 set tabstop=2
 " Expand tab to spaces
 set expandtab
+
+" Use relative line numbers
+if exists("&relativenumber")
+set relativenumber
+  au BufReadPost * set relativenumber
+endif
+
+" Start scrolling three lines before the horizontal window border
+set scrolloff=3
+
+" Searching
+set incsearch
+" highlight matches
+set hlsearch
+" Show a list of possible completions
+set wildmenu
+
 " Enable line numbers
 set number
 " Highlight current line
 set cursorline
 " Don’t reset cursor to start of line when moving around.
 set nostartofline
+
 " Show 'invisible' characters
 set list
 " Set characters used to indicate 'invisible' characters
