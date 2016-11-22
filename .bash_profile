@@ -11,6 +11,10 @@ for file in ~/.{path,profile,inputrc,bash_prompt,exports,aliases,functions,extra
 done;
 unset file;
 
+# NVM
+export NVM_DIR="$HOME/.nvm"
+. "/usr/local/opt/nvm/nvm.sh"
+
 # init z https://github.com/rupa/z
 . `brew --prefix`/etc/profile.d/z.sh
 
