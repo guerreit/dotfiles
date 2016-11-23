@@ -27,7 +27,6 @@ alias la="ls -laF ${colorflag}"
 alias ls="command ls ${colorflag}"
 
 # BREW & CASK
-alias bubu="brew update && brew upgrade && brew cleanup"
 alias brews="brew list -1"
 alias casks="brew cask list -1"
 alias cask="brew cask"
