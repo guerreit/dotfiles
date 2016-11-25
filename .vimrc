@@ -5,11 +5,6 @@ syntax on
 filetype plugin indent on
 syntax enable
 
-" Solarized stuff
-" colorscheme solarized
-" let g:solarized_termtrans=1
-" set background=dark
-
 " Make Vim more useful
 set nocompatible
 
