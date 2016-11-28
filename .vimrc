@@ -7,7 +7,6 @@ syntax enable
 
 " Make Vim more useful
 set nocompatible
-
 " Show the filename in the window titlebar
 set title
 " Show the cursor line and column number
@@ -16,7 +15,6 @@ set ruler
 set showcmd
 " Show whether in insert or replace mode
 set showmode
-
 " Use 2 spaces for indentation
 set shiftwidth=2
 " Use 2 spaces for soft tab
@@ -32,16 +30,12 @@ set relativenumber
   au BufReadPost * set relativenumber
 endif
 
-" Start scrolling three lines before the horizontal window border
-set scrolloff=3
-
 " Searching
 set incsearch
 " highlight matches
 set hlsearch
 " Show a list of possible completions
 set wildmenu
-
 " Enable line numbers
 set number
 " Highlight current line
