@@ -6,12 +6,6 @@ function md() {
 }
 
 
-# find shorthand
-function f() {
-  find . -name "$1" 2>&1 | grep -v 'Permission denied'
-}
-
-
 # Start an HTTP server from a directory, optionally specifying the port
 function server() {
   local port="${1:-8000}"
@@ -19,12 +13,6 @@ function server() {
   # statik is good because it won't expose hidden folders/files by default.
   # npm install -g statik
   statik --port "$port" .
-}
-
-
-# Copy w/ progress
-cp_p () {
-  rsync -WavP --human-readable --progress $1 $2
 }
 
 
