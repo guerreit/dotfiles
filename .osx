@@ -57,8 +57,8 @@ defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -boo
 # Dock: enable the 2D Dock
 defaults write com.apple.dock no-glass -bool true
 
-# Dock: set the icon size of Dock items to 40 pixels
-defaults write com.apple.dock tilesize -int 40 
+# Dock: set the icon size of Dock items to 60 pixels
+defaults write com.apple.dock tilesize -int 60 
 
 # Dock: show indicator lights for open applications
 defaults write com.apple.dock show-process-indicators -bool true
