@@ -11,6 +11,8 @@ function title {
   echo -ne "\033]0;"$*"\007"
 }
 
+
+# custom cd for loading nvm automatically
 cd() {
   builtin cd "$@" || return
   #echo $PREV_PWD
