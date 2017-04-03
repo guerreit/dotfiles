@@ -22,8 +22,6 @@ brew install bash-completion2
 brew install git
 brew install mongodb
 brew install node
-brew install vim --override-system-vi
-brew install wget
 brew install z
 
 # Switch to using brew-installed bash as default shell
