@@ -1,6 +1,6 @@
 # Add `~/bin` to the `$PATH`
-PATH="$PATH:$HOME/bin"
-PATH="$PATH:$HOME/.rvm/bin"
+PATH="$PATH:$HOME/bin$PATH"
+PATH="$PATH:$HOME/.rvm/bin:$PATH"
 export PATH
 
 # Load the shell dotfiles, and then some:
