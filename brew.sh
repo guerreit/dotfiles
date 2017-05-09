@@ -7,7 +7,7 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 brew update
 
 # Upgrade any already-installed brews
-brew upgrade --all
+brew upgrade
 
 # versions
 brew tap homebrew/versions
@@ -17,7 +17,8 @@ brew tap caskroom/cask
 
 #bash 4
 brew install bash
-brew install bash-completion2
+brew install bash-completion
+brew install homebrew/completions/brew-cask-completion
 
 brew install git
 brew install mongodb
