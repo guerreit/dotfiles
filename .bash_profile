@@ -1,5 +1,5 @@
 # Load the shell dotfiles, and then some:
-# * ~/.profile can be used to extend `$PATH`.
+# * ~/.path can be used to extend `$PATH`.
 # * ~/.profile can be used for other settings you don’t want to commit.
 for file in ~/.{path,profile,bash_prompt,inputrc,exports,aliases,functions,extra}; do
   [ -r "$file" ] && [ -f "$file" ] && source "$file";
