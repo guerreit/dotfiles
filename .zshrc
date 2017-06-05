@@ -53,7 +53,15 @@ ZSH_THEME="ys"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
 
-# source stuff
+# User configuration
+
+# source "z"
+. `brew --prefix`/etc/profile.d/z.sh
+
+# source nvm
+export NVM_DIR="$HOME/.nvm"
+. "/usr/local/opt/nvm/nvm.sh"
+
 source $ZSH/oh-my-zsh.sh
 source ~/.path
 source ~/.profile
@@ -61,8 +69,6 @@ source ~/.inputrc
 source ~/.exports
 source ~/.aliases
 source ~/.functions
-
-# User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
