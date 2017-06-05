@@ -14,7 +14,7 @@ function doIt() {
   --exclude "README.md" \
   --exclude "LICENSE-MIT.txt" \
   -avh --no-perms . ~;
-  source ~/.bash_profile;
+  source ~/.zshrc;
 }
 
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
