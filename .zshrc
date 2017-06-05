@@ -63,10 +63,12 @@ export NVM_DIR="$HOME/.nvm"
 . "/usr/local/opt/nvm/nvm.sh"
 
 source $ZSH/oh-my-zsh.sh
+
+# Personal shit
+source ~/.aliases
+source ~/.exports
+source ~/.functions
+source ~/.inputrc
 source ~/.path
 source ~/.profile
-source ~/.inputrc
-source ~/.exports
-source ~/.aliases
-source ~/.functions
 
