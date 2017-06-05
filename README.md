@@ -1,4 +1,4 @@
-# DOTFILES
+# DOTFILES (ZSH)
 
 ## This repo is mostly for me. [mathias's repo](https://github.com/mathiasbynens/dotfiles/) is the project to fork.
 

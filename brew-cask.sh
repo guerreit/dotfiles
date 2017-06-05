@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 brew cask install 1password
 brew cask install appcleaner

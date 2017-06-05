@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Set custom OS X defaults
 # See: github.com/mathiasbynens/dotfiles
@@ -58,7 +58,7 @@ defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -boo
 defaults write com.apple.dock no-glass -bool true
 
 # Dock: set the icon size of Dock items to 60 pixels
-defaults write com.apple.dock tilesize -int 60 
+defaults write com.apple.dock tilesize -int 60
 
 # Dock: show indicator lights for open applications
 defaults write com.apple.dock show-process-indicators -bool true
