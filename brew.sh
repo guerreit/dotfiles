@@ -15,7 +15,7 @@ brew tap homebrew/versions
 # cask
 brew tap caskroom/cask
 
-# casks i need
+# brews i need
 brew install git
 brew install mongodb
 brew install node
