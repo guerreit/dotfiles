@@ -6,21 +6,6 @@ function md() {
 }
 
 
-# custom cd for loading nvm automatically
-cd() {
-  builtin cd "$@" || return
-  #echo $PREV_PWD
-  if [ "$PWD" != "$PREV_PWD" ]; then
-    PREV_PWD="$PWD";
-    if [ -e ".nvmrc" ]; then
-      nvm use;
-    else
-      nvm use default;
-    fi
-  fi
-}
-
-
 # Start an HTTP server from a directory, optionally specifying the port
 function server() {
   local port="${1:-8000}"
