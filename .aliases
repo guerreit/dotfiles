@@ -5,6 +5,9 @@ alias brews="brew list -1"
 alias casks="brew cask list -1"
 alias cask="brew cask"
 
+# Stopwatch
+alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'
+
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; brew cask cleanup; gem update --system; gem update; gem cleanup'
 
