@@ -19,9 +19,9 @@
   # Switch to a branch, creating it if necessary
   go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
+# color opts: normal, black, red, green, yellow, blue, magenta, cyan, or white
 [color]
-  # color opts: normal, black, red, green, yellow, blue, magenta, cyan, or white
-  ui = auto
+  ui = always
 
 [color "status"]
   added = yellow
@@ -33,17 +33,25 @@
   excludesfile = ~/.gitignore
   attributesfile = ~/.gitattributes
 
+# correct typos
 [help]
-  # Automatically correct and execute mistyped commands
   autocorrect = 1
 
+# Include summaries of merged commits in newly created merge commit messages
 [merge]
-  # Include summaries of merged commits in newly created merge commit messages
   log = true
-
-[push]
-  default = current
 
 [user]
 	name = Garrett Jones
-	email = garrettjones@me.com
+	email = garrettj@slalom.com
+
+# push easily. http://stackoverflow.com/a/23918418/89484
+[push]
+	default = current
+	followTags = true
+
+[fetch]
+	prune = true
+
+[diff]
+	compactionHeuristic = true
