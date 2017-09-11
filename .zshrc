@@ -67,6 +67,5 @@ export NVM_DIR="$HOME/.nvm"
 source ~/.aliases
 source ~/.exports
 source ~/.functions
-#source ~/.path
 source ~/.profile
 
