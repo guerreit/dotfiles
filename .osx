@@ -57,7 +57,7 @@ defaults write com.apple.dock no-glass -bool false
 defaults write com.apple.dock tilesize -int 70
 
 # Dock: show indicator lights for open applications
-defaults write com.apple.dock show-process-indicators -bool false
+defaults write com.apple.dock show-process-indicators -bool true
 
 # Dock: make icons of hidden applications translucent
 defaults write com.apple.dock showhidden -bool true
