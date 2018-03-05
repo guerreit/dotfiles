@@ -46,22 +46,18 @@ defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
 # Follow the keyboard focus while zoomed in
 defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
 
-# Disable the all too sensitive backswipe on trackpads
-defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
-defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -bool false
-
 
 # Dock
 # ----------------------------------------------------------------------
 
 # Dock: enable the 2D Dock
-defaults write com.apple.dock no-glass -bool true
+defaults write com.apple.dock no-glass -bool false
 
-# Dock: set the icon size of Dock items to 60 pixels
-defaults write com.apple.dock tilesize -int 60
+# Dock: set the icon size of Dock items to 70 pixels
+defaults write com.apple.dock tilesize -int 70
 
 # Dock: show indicator lights for open applications
-defaults write com.apple.dock show-process-indicators -bool true
+defaults write com.apple.dock show-process-indicators -bool false
 
 # Dock: make icons of hidden applications translucent
 defaults write com.apple.dock showhidden -bool true
@@ -126,7 +122,7 @@ defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
 
 # Screen: save screenshots to the desktop
-defaults write com.apple.screencapture location -string "$HOME/Desktop"
+defaults write com.apple.screencapture location -string "$HOME/Desktop/screenshots"
 
 # Screen: disable shadow in screenshots
 defaults write com.apple.screencapture disable-shadow -bool true
