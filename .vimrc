@@ -1,10 +1,5 @@
 " .vimrc
 
-execute pathogen#infect()
-syntax on
-filetype plugin indent on
-syntax enable
-
 " Make Vim more useful
 set nocompatible
 " Show the filename in the window titlebar

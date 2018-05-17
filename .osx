@@ -13,20 +13,11 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # General UI/UX
 # ----------------------------------------------------------------------
 
-# Set computer name (as done via System Preferences → Sharing)
-#sudo scutil --set ComputerName "garrett"
-#sudo scutil --set HostName "garrettBook"
-#sudo scutil --set LocalHostName "0x6D746873"
-#sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "0x6D746873"
-
 # Restart automatically if the computer freezes
 sudo systemsetup -setrestartfreeze on
 
 # Set standby delay to 24 hours (default is 1 hour)
 sudo pmset -a standbydelay 86400
-
-# Never go into computer sleep mode
-sudo systemsetup -setcomputersleep Off > /dev/null
 
 # Check for software updates daily, not just once per week
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
@@ -53,8 +44,8 @@ defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
 # Dock: enable the 2D Dock
 defaults write com.apple.dock no-glass -bool false
 
-# Dock: set the icon size of Dock items to 70 pixels
-defaults write com.apple.dock tilesize -int 70
+# Dock: set the icon size of Dock items to 30 pixels
+defaults write com.apple.dock tilesize -int 30
 
 # Dock: show indicator lights for open applications
 defaults write com.apple.dock show-process-indicators -bool true
