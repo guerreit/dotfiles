@@ -18,6 +18,8 @@ set softtabstop=2
 set tabstop=2
 " Expand tab to spaces
 set expandtab
+" syntax
+syntax on
 
 " Use relative line numbers
 if exists("&relativenumber")
