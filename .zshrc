@@ -69,4 +69,4 @@ source ~/.aliases
 source ~/.exports
 source ~/.functions
 source ~/.profile
-
+source ~/.tokens
