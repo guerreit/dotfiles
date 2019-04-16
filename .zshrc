@@ -18,7 +18,7 @@ ZSH_THEME="robbyrussell"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
 # DISABLE_AUTO_UPDATE="true"
-DISABLE_UPDATE_PROMPT="true"
+# DISABLE_UPDATE_PROMPT="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
 # export UPDATE_ZSH_DAYS=13
@@ -60,11 +60,7 @@ source $ZSH/oh-my-zsh.sh
 # source "z"
 . `brew --prefix`/etc/profile.d/z.sh
 
-# source nvm
-export NVM_DIR="$HOME/.nvm"
-. "/usr/local/opt/nvm/nvm.sh"
-
-# Personal shit
+# source shit
 source ~/.aliases
 source ~/.exports
 source ~/.functions
