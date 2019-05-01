@@ -17,13 +17,5 @@ function doIt() {
   source ~/.zshrc;
 }
 
-if [ "$1" == "--force" -o "$1" == "-f" ]; then
-  doIt;
-else
-  read -q "REPLY?This may overwrite existing files in your home directory. Are you sure? (y/n)"
-  echo "";
-  if [[ $REPLY == $'\y' ]]; then
-    doIt;
-  fi;
-fi;
+doIt;
 unset doIt;
