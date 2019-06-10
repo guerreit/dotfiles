@@ -53,6 +53,7 @@ function whois() {
   /usr/bin/whois -h whois.internic.net $domain | sed '/NOTICE:/q'
 }
 
+
 # Fast swap AWS profiles
 function setawsprofile() {
   local profile=$1
