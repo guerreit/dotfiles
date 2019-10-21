@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/bin/zsh
 
 cd "$(dirname "${BASH_SOURCE}")";
 
