@@ -63,7 +63,6 @@ source $ZSH/oh-my-zsh.sh
 # source things
 source ~/.aliases
 source ~/.exports
-source ~/.editorconfig
 source ~/.functions
 source ~/.profile
 source ~/.tokens
