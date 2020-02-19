@@ -77,6 +77,7 @@ source $ZSH/oh-my-zsh.sh
 source ~/.aliases
 source ~/.profile
 source ~/.exports
+source ~/.vimrc
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
