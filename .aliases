@@ -8,13 +8,6 @@ alias cask="brew cask"
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
 alias update="sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; cask upgrade; gem update --system; gem update; gem cleanup; upgrade_oh_my_zsh"
 
-# Recursively delete `.DS_Store` files
-alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
-
-# Empty the Trash on all mounted volumes and the main HDD
-# Also, clear Apple’s System Logs to improve shell startup speed
-alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
-
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
 
@@ -27,6 +20,3 @@ alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool fals
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
-
-# Reload the shell (i.e. invoke as a login shell)
-alias reload="exec $SHELL -l"

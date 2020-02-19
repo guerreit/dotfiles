@@ -74,6 +74,10 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+source ~/.aliases
+source ~/.profile
+source ~/.exports
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -96,8 +100,4 @@ source $ZSH/oh-my-zsh.sh
 #
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh
-
-source ~/.aliases
-source ~/.exports
-source ~/.profile
+# alias ohmyzsh="mate ~/.oh-my-zsh"
