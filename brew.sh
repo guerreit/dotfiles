@@ -18,7 +18,6 @@ brew tap caskroom/cask
 # brews i need
 brew install git
 brew install node
-brew install z
 
 # Remove outdated versions from the cellar
 brew cleanup
