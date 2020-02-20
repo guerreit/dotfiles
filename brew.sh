@@ -17,7 +17,6 @@ brew tap caskroom/cask
 
 # brews i need
 brew install git
-brew install mongodb
 brew install node
 brew install z
 
