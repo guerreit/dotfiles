@@ -13,3 +13,8 @@ export LC_ALL='en_US.UTF-8';
 
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X';
+
+export CPPFLAGS="-I/usr/local/opt/openjdk@11/include";
+
+# Use latest version of python for shell
+export PYENV_VERSION=3.8.2

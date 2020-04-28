@@ -20,3 +20,5 @@ alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool fals
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+
+alias reload="source ~/.zshrc"
