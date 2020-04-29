@@ -1,9 +1,5 @@
 #!/bin/zsh
 
-# Add ruby to /usr/local/bin
-export GEM_HOME=/Users/garrettj/.gem
-export PATH="$GEM_HOME/bin:$PATH"
-
 # Make vim the default editor.
 export EDITOR='vim';
 
@@ -18,3 +14,6 @@ export CPPFLAGS="-I/usr/local/opt/openjdk@11/include";
 
 # Use latest version of python for shell
 export PYENV_VERSION=3.8.2
+
+# Use latest ruby version
+export RBENV_VERSION=2.7.1
