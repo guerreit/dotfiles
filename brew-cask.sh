@@ -1,10 +1,9 @@
 #!/bin/zsh
 
-brew cask install appcleaner
-brew cask install google-chrome
-brew cask install postman
-brew cask install slack
-brew cask install sonos
-brew cask install sourcetree
-brew cask install visual-studio-code
-brew cask install zoom
+brew install --cask appcleaner
+brew install --cask calibre
+brew install --cask google-chrome
+brew install --cask postman
+brew install --cask slack
+brew install --cask sonos-s1-controller
+brew install --cask visual-studio-code
