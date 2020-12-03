@@ -11,6 +11,7 @@ function doIt() {
   --exclude "brew.sh" \
   --exclude "brew-cask.sh" \
   --exclude "bootstrap.sh" \
+  --exclude "setup.sh" \
   --exclude "README.md" \
   --exclude "LICENSE-MIT.txt" \
   -avh --no-perms . ~;
