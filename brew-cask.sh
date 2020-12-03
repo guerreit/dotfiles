@@ -7,3 +7,4 @@ brew install --cask postman
 brew install --cask slack
 brew install --cask sonos-s1-controller
 brew install --cask visual-studio-code
+brew install --cask microsoft-teams
