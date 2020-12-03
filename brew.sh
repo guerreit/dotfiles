@@ -13,8 +13,12 @@ brew upgrade
 brew tap homebrew/cask
 
 # brews i need
+brew install aws-sam-cli
+brew install awscli
 brew install git
 brew install node
+brew install rbenv
+brew install pyenv
 
 # Remove outdated versions from the cellar
 brew cleanup
