@@ -17,6 +17,7 @@ brew install aws-sam-cli
 brew install awscli
 brew install git
 brew install node
+brew install nvm
 brew install rbenv
 brew install pyenv
 
