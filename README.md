@@ -4,4 +4,4 @@
 
 ## Install: Clone it, run the sync script
 ## Warning: This will blow out your old dotfiles.
-`source bootstrap.sh`
+`./setup.sh`
