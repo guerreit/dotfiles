@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 brew install --cask appcleaner
 brew install --cask calibre
