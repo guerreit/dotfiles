@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # BREW & CASK
 alias brews="brew list -1"

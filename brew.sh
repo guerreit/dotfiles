@@ -20,6 +20,7 @@ brew install node
 brew install nvm
 brew install rbenv
 brew install pyenv
+brew install yarn
 
 # Remove outdated versions from the cellar
 brew cleanup
