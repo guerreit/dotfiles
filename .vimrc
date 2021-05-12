@@ -1,3 +1,5 @@
+set shortmess=at
+
 set nocompatible
 set title
 set ruler
@@ -26,10 +28,3 @@ set list
 set listchars=tab:▸\
 set listchars+=trail:·
 set listchars+=nbsp:_
-
-set backupdir=$HOME/.vim/backups
-set directory=$HOME/.vim/swaps
-if exists("&undodir")
-  set undodir=$HOME/.vim/undo
-endif
-set viminfo+=n$HOME/.vim/.viminfo
