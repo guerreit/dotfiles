@@ -22,3 +22,5 @@ alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool fals
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
 alias reload="source ~/.zshrc"
+alias webstorm="open -na 'WebStorm.app'"
+alias azure-auth="better-vsts-npm-auth"
