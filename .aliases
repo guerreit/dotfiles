@@ -6,7 +6,7 @@ alias casks="brew cask list -1"
 alias cask="brew cask"
 
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
-alias update="sudo softwareupdate -i -a --restart --force; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; gem update; gem cleanup; omz update"
+alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; gem update; gem cleanup; omz update"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
@@ -24,3 +24,6 @@ alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resource
 alias reload="source ~/.zshrc"
 alias webstorm="open -na 'WebStorm.app'"
 alias azure-auth="better-vsts-npm-auth"
+
+# Generate a cuid
+alias generate-cuid='node -e "console.log(require('cuid')());"'

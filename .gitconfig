@@ -1,13 +1,6 @@
 [alias]
   # https://git.wiki.kernel.org/articles/a/l/i/Aliases.html
 
-  # `git remote prune origin`: remove remote-tracking branches that were deleted from the remote repo
-  # `git gc`: cleanup unnecessary files and optimize the local repository
-  # `git clean -df`: remove untracked files and directories from the working tree
-  # `git stash clear`: remove all stashed states
-  trim = !git remote prune origin && git gc
-  cleanup = !git clean -df && git stash clear
-
   # Add untracked, remove deleted, and show status
   adda = !git add -A && git status
 
@@ -22,11 +15,6 @@
 # color opts: normal, black, red, green, yellow, blue, magenta, cyan, or white
 [color]
   ui = always
-
-[color "status"]
-  added = yellow
-  changed = green
-  untracked = cyan
 
 [core]
   # Use custom `.gitignore` and `.gitattributes`
