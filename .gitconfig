@@ -30,16 +30,19 @@
   log = true
 
 [user]
-	name = Garrett Jones
-	email = garrettj@slalom.com
+  name = Garrett Jones
+  email = garrettj@slalom.com
 
 # push easily. http://stackoverflow.com/a/23918418/89484
 [push]
-	default = current
-	followTags = true
+  default = current
+  followTags = true
 
 [fetch]
-	prune = true
+  prune = true
 
 [diff]
-	compactionHeuristic = true
+  compactionHeuristic = true
+
+[pull]
+  rebase = false
