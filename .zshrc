@@ -76,6 +76,7 @@ source $ZSH/oh-my-zsh.sh
 
 source ~/.aliases
 source ~/.exports
+source ~/.functions
 source ~/.path
 source ~/.profile
 
@@ -102,13 +103,3 @@ source ~/.profile
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# Load pyenv
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
-fi
-
-# Load rbenv automatically by appending
-# the following to ~/.zshrc:
-eval "$(rbenv init -)"
