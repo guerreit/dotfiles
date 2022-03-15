@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/zsh
 
 # Turn off animations for new windows
 defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
