@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # BREW & CASK
 alias brews="brew list -1"
@@ -6,7 +6,7 @@ alias casks="brew cask list -1"
 alias cask="brew cask"
 
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
-alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; gem update; gem cleanup; omz update"
+alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; gem update; gem cleanup; upgrade_oh_my_bash"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
@@ -21,6 +21,5 @@ alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool fals
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
-alias reload="source ~/.bashrc"
 alias webstorm="open -na 'WebStorm.app'"
 alias azure-auth="better-vsts-npm-auth"
