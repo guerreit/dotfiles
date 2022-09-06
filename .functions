@@ -10,6 +10,8 @@ fi
 # the following to ~/.zshrc:
 eval "$(rbenv init -)"
 
+# nvm use per directory if .nvmrc file present
+# https://github.com/nvm-sh/nvm#automatically-call-nvm-use
 cdnvm() {
     command cd "$@";
     nvm_path=$(nvm_find_up .nvmrc | tr -d '\n')
