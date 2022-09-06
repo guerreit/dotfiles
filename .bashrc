@@ -97,7 +97,7 @@ source "$OSH"/oh-my-bash.sh
 # export MANPATH="/usr/local/man:$MANPATH"
 
 source .aliases
-#source .functions
+source .functions
 source .exports
 source .path
 source z.sh
