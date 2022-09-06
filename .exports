@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Make vim the default editor.
 export EDITOR='vim';
@@ -39,3 +39,6 @@ export NVM_AUTOLOAD=1
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
+
+export SHELL="/usr/local/bin/bash"
+export BASH_SILENCE_DEPRECATION_WARNING=1

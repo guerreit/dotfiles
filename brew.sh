@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Get brew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -15,6 +15,7 @@ brew tap homebrew/cask
 # brews i need
 brew install aws-sam-cli
 brew install awscli
+brew install bash
 brew install git
 brew install node
 brew install nvm

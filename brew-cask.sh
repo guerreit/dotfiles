@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # cask
 brew tap homebrew/cask

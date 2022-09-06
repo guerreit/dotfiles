@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 cd "$(dirname "${BASH_SOURCE}")";
 
@@ -17,7 +17,7 @@ function doIt() {
   --exclude "README.md" \
   --exclude "LICENSE-MIT.txt" \
   -avh --no-perms . ~;
-  source ~/.zshrc;
+  source ~/.bashrc;
 }
 
 doIt;

@@ -1,7 +1,7 @@
-#!/bin/zsh
+#!/bin/bash
 
-# Install oh-my-zsh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Install oh-my-bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 
 # Make scripts executable
 chmod u+x bootstrap.sh
