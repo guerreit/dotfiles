@@ -24,6 +24,3 @@ alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resource
 alias reload="source ~/.zshrc"
 alias webstorm="open -na 'WebStorm.app'"
 alias azure-auth="better-vsts-npm-auth"
-
-# Generate a cuid
-alias generate-cuid='node -e "console.log(require('cuid')());"'

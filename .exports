@@ -13,7 +13,7 @@ export MANPAGER='less -X';
 export CPPFLAGS="-I/usr/local/opt/openjdk@11/include";
 
 # Use latest version of python for shell
-export PYENV_VERSION=3.8.2
+export PYENV_VERSION=3.9.11
 
 # Use latest ruby version
 export RBENV_VERSION=2.7.1
@@ -33,6 +33,8 @@ export AWS_REGION=us-west-2
 export NVM_DIR="$HOME/.nvm"
   [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+export NVM_AUTOLOAD=1
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"

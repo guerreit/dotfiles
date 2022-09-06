@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Git credentials
 GIT_AUTHOR_NAME="Garrett Jones"
