@@ -1,15 +1,5 @@
 #!/bin/bash
 
-# Load pyenv
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
-fi
-
-# Load rbenv automatically by appending
-# the following to ~/.zshrc:
-eval "$(rbenv init -)"
-
 # nvm use per directory if .nvmrc file present
 # https://github.com/nvm-sh/nvm#automatically-call-nvm-use
 cdnvm() {

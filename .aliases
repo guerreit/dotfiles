@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # BREW & CASK
 alias brews="brew list -1"
@@ -23,3 +23,5 @@ alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resource
 
 alias webstorm="open -na 'WebStorm.app'"
 alias azure-auth="better-vsts-npm-auth"
+
+alias load-nvm="cat .nvmrc | nvm use"

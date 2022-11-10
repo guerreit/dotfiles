@@ -20,6 +20,7 @@ export RBENV_VERSION=2.7.1
 
 # Use fluent dev aws role
 export AWS_DEFAULT_PROFILE="fluent-dev"
+export AWS_PROFILE="fluent-dev"
 
 # Colors
 export CLICOLOR=1
