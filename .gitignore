@@ -18,3 +18,5 @@ Thumbs.db
 *.sass-cache
 *.sw?
 *.vi
+
+node_modules

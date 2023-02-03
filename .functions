@@ -46,3 +46,5 @@ cdnvm() {
 }
 alias cd='cdnvm'
 cd "$PWD"
+
+aws-login() { aws-azure-login -p "$1" }
