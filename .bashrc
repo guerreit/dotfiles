@@ -98,7 +98,7 @@ source "$OSH"/oh-my-bash.sh
 
 source .aliases
 source .exports
-#source .functions
+source .functions
 source .path
 source z.sh
 
