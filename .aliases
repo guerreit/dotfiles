@@ -25,3 +25,6 @@ alias webstorm="open -na 'WebStorm.app'"
 alias azure-auth="better-vsts-npm-auth"
 
 alias load-nvm="cat .nvmrc | nvm use"
+
+# AWS
+alias get-role="aws sts get-caller-identity"
