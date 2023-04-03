@@ -13,8 +13,6 @@ brew upgrade
 brew tap homebrew/cask
 
 # brews i need
-brew install aws-sam-cli
-brew install awscli
 brew install git
 brew install node
 brew install nvm
