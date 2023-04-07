@@ -6,10 +6,12 @@ alias casks="brew cask list -1"
 alias cask="brew cask"
 
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
-alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; gem update; gem cleanup; omz update"
+alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; gem update; gem cleanup; _omz::update"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
+
+alias src="_omz::reload"
 
 # Copy my public key to the pasteboard
 alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | printf '=> Public key copied to pasteboard.\n'"
@@ -21,6 +23,8 @@ alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool fals
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
-alias reload="source ~/.zshrc"
-alias webstorm="open -na 'WebStorm.app'"
-alias azure-auth="better-vsts-npm-auth"
+# Load nvm version if exists
+alias load-nvm="cat .nvmrc | nvm use"
+
+# AWS
+alias aws_get_role="aws sts get-caller-identity"
