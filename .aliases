@@ -7,24 +7,34 @@ alias cask="brew cask"
 
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
 alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; _omz::update"
+alias update-brews="brew update; brew upgrade; brew cleanup; brew upgrade --cask"
+alias update-os="sudo software update --all --install --force --restart"
+alias update-gems="gem update --system"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
 
 alias src="_omz::reload"
 
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+
 # Copy my public key to the pasteboard
-alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | printf '=> Public key copied to pasteboard.\n'"
+alias pubkey="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Public key copied to pasteboard.\n'"
+alias abskey="more ~/.ssh/abs_ed25519.pub | pbcopy | printf '=> Public key copied to pasteboard.\n'"
 
 # Show/hide hidden files in Finder
 alias showdotfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
 alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 
 # Lock the screen (when going AFK)
-alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+alias afk="pmset sleepnow"
 
 # Load nvm version if exists
 alias load-nvm="cat .nvmrc | nvm use"
 
 # AWS
 alias aws_get_role="aws sts get-caller-identity"
+
+# PYTHON
+alias python="/opt/homebrew/bin/python3"
