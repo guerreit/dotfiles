@@ -78,6 +78,7 @@ source $ZSH/oh-my-zsh.sh
 
 source ~/.aliases
 source ~/.exports
+source ~/.functions
 source ~/.path
 source ~/.profile
 source ~/.secrets

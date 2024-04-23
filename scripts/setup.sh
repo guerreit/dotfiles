@@ -10,7 +10,7 @@ chmod u+x brew-cask.sh
 chmod u+x osx.sh
 
 # sync files, install brews and casks
-./bootstrap.sh
-./brew.sh
-./brew-cask.sh
-./osx.sh
+./scripts/bootstrap.sh
+./scripts/brew.sh
+./scripts/brew-cask.sh
+./scripts/osx.sh
