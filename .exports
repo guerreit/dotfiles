@@ -12,32 +12,25 @@ export MANPAGER='less -X';
 
 export CPPFLAGS="-I/usr/local/opt/openjdk@11/include";
 
-# Use latest version of python for shell
-export PYENV_VERSION=3.9.11
-
-# Use latest ruby version
-export RBENV_VERSION=2.7.1
-
-# Use fluent dev aws role
-export AWS_DEFAULT_PROFILE="fluent-dev"
-export AWS_PROFILE="fluent-dev"
-
 # Colors
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
-# Dynamo DB Admin Local
-export DYNAMO_ENDPOINT=http://localhost:8111
-export AWS_REGION=us-west-2
-
-# Export NVM home, nvm, nvm auto-complete
-export NVM_DIR="$HOME/.nvm"
-  [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+# Add the following to your shell profile e.g. ~/.profile or ~/.zshrc:
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 export NVM_AUTOLOAD=1
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 
+# Docker
+export DOCKER_HOST='unix:///Users/garrettjones/.colima/default/docker.sock'
+
+# Verions
+export PYENV_VERSION=3.11.5
+export RBENV_VERSION=2.7.1

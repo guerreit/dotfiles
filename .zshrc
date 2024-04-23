@@ -80,6 +80,7 @@ source ~/.aliases
 source ~/.exports
 source ~/.path
 source ~/.profile
+source ~/.secrets
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
