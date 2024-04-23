@@ -1,15 +1,3 @@
-#!/bin/zsh
-
-# Load pyenv
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
-fi
-
-# Load rbenv automatically by appending
-# the following to ~/.zshrc:
-eval "$(rbenv init -)"
-
 # Git credentials
 GIT_AUTHOR_NAME="Garrett Jones"
 GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
