@@ -20,8 +20,8 @@ alias src="_omz::reload"
 alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 
 # Copy my public key to the pasteboard
-alias pubkey="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Public key copied to pasteboard.\n'"
-alias abskey="more ~/.ssh/abs_ed25519.pub | pbcopy | printf '=> Public key copied to pasteboard.\n'"
+alias personalkey="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Personal key copied to pasteboard.\n'"
+alias workkey="more ~/.ssh/id_ed25519_slalom.pub | pbcopy | printf '=> Work key copied to pasteboard.\n'"
 
 # Show/hide hidden files in Finder
 alias showdotfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
@@ -34,7 +34,9 @@ alias afk="pmset sleepnow"
 alias load-nvm="cat .nvmrc | nvm use"
 
 # AWS
-alias aws_get_role="aws sts get-caller-identity"
+alias aws-get-role="aws sts get-caller-identity"
+alias aws-auth="aws-azure-login --profile default --no-prompt --mode=gui"
 
-# PYTHON
-alias python="/opt/homebrew/bin/python3"
+# Ports
+alias killport='function _killport(){ lsof -ti :$1 | xargs kill; }; _killport'
+
