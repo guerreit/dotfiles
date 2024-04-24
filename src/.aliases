@@ -5,21 +5,22 @@ alias brews="brew list -1"
 alias casks="brew cask list -1"
 alias cask="brew cask"
 
-# Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
-alias update="sudo softwareupdate --all --install --force --restart; brew update; brew upgrade; brew cleanup; brew upgrade --cask; gem update --system; _omz::update"
+# Re source the shell
+alias src="_omz::reload"
+
+# Update all brews
 alias update-brews="brew update; brew upgrade; brew cleanup; brew upgrade --cask"
+# Update OSX
 alias update-os="sudo software update --all --install --force --restart"
+# Update Ruby gems
 alias update-gems="gem update --system"
+# Update everything
+alias update-all="update-brews; update-os; update-gems; src"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
 
-alias src="_omz::reload"
-
-# Recursively delete `.DS_Store` files
-alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
-
-# Copy my public key to the pasteboard
+# Copy my public key(s) to the pasteboard
 alias personalkey="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Personal key copied to pasteboard.\n'"
 alias workkey="more ~/.ssh/id_ed25519_slalom.pub | pbcopy | printf '=> Work key copied to pasteboard.\n'"
 
