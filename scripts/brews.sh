@@ -9,17 +9,19 @@ brew update
 # Upgrade any already-installed brews
 brew upgrade
 
-# cask
-brew tap homebrew/cask
-
 # brews i need
 brew install awscli
+brew install azure-cli
+brew install colima
+brew install docker
+brew install docker-compose
 brew install git
 brew install node
 brew install nvm
-brew install rbenv
+brew install poetry
 brew install pyenv
-brew install speedtest
+brew install speedtest-cli
+brew install terraform
 brew install yarn
 
 # Remove outdated versions from the cellar
