@@ -21,12 +21,11 @@ alias update-all="update-brews; update-os; src"
 alias hosts="sudo vim /etc/hosts"
 
 # SSH Keys
-## Copy my public key(s) to the pasteboard
-alias personalkey="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Personal key copied to pasteboard.\n'"
-alias workkey="more ~/.ssh/id_ed25519_slalom.pub | pbcopy | printf '=> Work key copied to pasteboard.\n'"
-
 ## list ssh keys
 alias sshkeys="ssh-add -l"
+## Copy my public key(s) to the pasteboard
+alias sshpersonal="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Personal key copied to pasteboard.\n'"
+alias sshwork="more ~/.ssh/id_ed25519_slalom.pub | pbcopy | printf '=> Work key copied to pasteboard.\n'"
 
 # Show/hide hidden files in Finder
 alias showdotfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
