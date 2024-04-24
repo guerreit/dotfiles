@@ -10,12 +10,12 @@ alias src="_omz::reload"
 
 # Update all brews
 alias update-brews="brew update; brew upgrade; brew cleanup; brew upgrade --cask"
+
 # Update OSX
-alias update-os="sudo software update --all --install --force --restart"
-# Update Ruby gems
-alias update-gems="gem update --system"
+alias update-os="sudo softwareupdate --all --install --force"
+
 # Update everything
-alias update-all="update-brews; update-os; update-gems; src"
+alias update-all="update-brews; update-os; src"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
