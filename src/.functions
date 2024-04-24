@@ -1,5 +1,5 @@
 #!/bin/zsh
 
 aws_login() {
-    aws-azure-login --profile "$1"
+    aws-azure-login --profile "$1" --no-prompt --mode=gui
 }
