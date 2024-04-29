@@ -7,4 +7,5 @@ This repo is mostly for me. Lots of things taken from: [mathiasbynens dotfiles](
 `WARNING: This will overwrite your existing dotfiles`
 
 1. Clone it
-2. run the setup script `./scripts/setup.sh`
+2. Update properties in .profile
+3. run the setup script `./scripts/setup.sh`

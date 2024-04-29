@@ -23,9 +23,9 @@ alias update-all="update-brews; update-os; update-zsh; src"
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
 
-# SSH Keys
-## list ssh keys
+# list ssh keys
 alias sshkeys="ssh-add -l"
+
 ## Copy my public key(s) to the pasteboard
 alias sshpersonal="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Personal key copied to pasteboard.\n'"
 alias sshwork="more ~/.ssh/id_ed25519_slalom.pub | pbcopy | printf '=> Work key copied to pasteboard.\n'"
@@ -46,4 +46,3 @@ alias aws-auth="aws-azure-login --profile default --no-prompt --mode=gui"
 
 # Ports
 alias killport='function _killport(){ lsof -ti :$1 | xargs kill; }; _killport'
-
