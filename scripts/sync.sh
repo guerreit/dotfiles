@@ -22,4 +22,4 @@ done
 shopt -u dotglob
 
 # Print message indicating completion
-echo "Files copied from $SRC_DIR to $ROOT_DIR"
+echo "All files copied from $SRC_DIR to $ROOT_DIR"
