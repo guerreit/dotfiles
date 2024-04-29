@@ -1,7 +1,10 @@
 # DOTFILES (ZSH)
 
-## This repo is mostly for me. Lots of things taken from: [mathiasbynens dotfiles](https://github.com/mathiasbynens/dotfiles/) and [paulirish dotfiles](https://github.com/paulirish/dotfiles)
+This repo is mostly for me. Lots of things taken from: [mathiasbynens dotfiles](https://github.com/mathiasbynens/dotfiles/) and [paulirish dotfiles](https://github.com/paulirish/dotfiles)
 
-### Warning: This will blow out your old dotfiles
+## Install
 
-- Install: Clone it, run the setup script `./setup.sh`
+`WARNING: This will overwrite your existing dotfiles`
+
+1. Clone it
+2. run the setup script `./scripts/setup.sh`
