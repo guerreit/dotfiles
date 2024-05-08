@@ -9,7 +9,7 @@ alias cask="brew cask"
 alias src="_omz::reload"
 
 # Update zsh
-alias update-zsh="_omz::update"
+alias update-omz="_omz::update"
 
 # Update all brews, casks
 alias update-brews="brew update; brew upgrade; brew cleanup; brew upgrade --cask"
