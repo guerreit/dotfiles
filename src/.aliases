@@ -2,7 +2,7 @@
 
 # BREW & CASK
 alias brews="brew list -1"
-alias casks="brew cask list -1"
+alias casks="brew list --cask -1"
 alias cask="brew cask"
 
 # Re source the shell
