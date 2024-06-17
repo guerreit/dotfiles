@@ -12,10 +12,15 @@ shopt -s dotglob
 # Loop through files in source directory
 for file in "$SRC_DIR"*
 do
-    # Copy each file to root user directory
-    cp -r "$file" "$ROOT_DIR"
-    # Echo the name of the file being copied
-    echo "Copied $file to $ROOT_DIR"
+    # Check if the file is .secrets and if it already exists in the home directory
+    if [[ "$(basename "$file")" == ".secrets" && -e "$ROOT_DIR/.secrets" ]]; then
+        echo "File $ROOT_DIR/.secrets already exists, skipping copy."
+    else
+        # Copy each file to root user directory
+        cp -r "$file" "$ROOT_DIR"
+        # Echo the name of the file being copied
+        echo "Copied $file to $ROOT_DIR"
+    fi
 done
 
 # Disable dotglob to restore default behavior
