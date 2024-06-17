@@ -1,0 +1,45 @@
+# Set default behavior to automatically normalize line endings.
+* text=auto
+
+# Explicitly declare text files you want to always be normalized and converted to LF in repo
+*.c text
+*.h text
+*.cpp text
+*.hpp text
+*.py text
+*.java text
+*.js text
+*.css text
+*.html text
+*.md text
+*.json text
+*.xml text
+
+# Denote all files that are truly binary and should be stored without any CRLF conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+
+# Custom diff handling for certain file types
+*.md diff=markdown
+*.html diff=html
+
+# Merge driver for specific file types
+*.lock merge=binary
+*.dll merge=binary
+*.exe merge=binary
+
+# Custom attributes for specific directories
+docs/** linguist-documentation
+tests/** linguist-generated
+
+# Git LFS - Large File Storage (if using Git LFS)
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text

@@ -23,7 +23,7 @@
 
 [core]
   # Use custom `.gitignore` and `.gitattributes`
-  excludesfile = /Users/garrettjones/.gitignore
+  excludesfile = ~/.gitignore
   attributesfile = ~/.gitattributes
 
 # correct typos
@@ -53,7 +53,7 @@
   rebase = false
 
 [commit]
-  template = /Users/garrettjones/.stCommitMsg
+  template = ~/.stCommitMsg
 
 [credential]
   helper = store
