@@ -1,13 +1,18 @@
 #!/bin/zsh
 
-brew upgrade --cask
+# Upgrade all installed casks
+brew upgrade --cask || { echo "brew upgrade --cask failed"; exit 1; }
 
-brew install --cask drawio
-brew install --cask microsoft-auto-update
-brew install --cask microsoft-edge
-brew install --cask microsoft-onenote
-brew install --cask microsoft-teams
-brew install --cask postman
-brew install --cask slack
-brew install --cask visual-studio-code
-brew install --cask zoom
+# Install required casks
+brew install --cask \
+    drawio \
+    microsoft-auto-update \
+    microsoft-edge \
+    microsoft-onenote \
+    microsoft-teams \
+    postman \
+    slack \
+    visual-studio-code \
+    zoom || { echo "Cask installation failed"; exit 1; }
+
+echo "Casks Installed!"

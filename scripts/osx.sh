@@ -8,3 +8,5 @@ defaults write -g NSScrollAnimationEnabled -bool false
 
 # Disable the over-the-top focus ring animation
 defaults write NSGlobalDomain NSUseAnimatedFocusRing -bool false
+
+echo "OSX Updates Complete!"
