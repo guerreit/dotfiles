@@ -27,7 +27,8 @@ brew install \
     pyenv \
     speedtest-cli \
     terraform \
-    yarn || { echo "Package installation failed"; exit 1; }
+    yarn \
+    zoxide || { echo "Package installation failed"; exit 1; }
 
 # Remove outdated versions from the cellar
 brew cleanup
