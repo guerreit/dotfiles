@@ -1,29 +1,73 @@
-#!/bin/zsh
+#!/bin/bash
 
-# Check if SSH directory exists
-if [ ! -d ~/.ssh ]; then
-    mkdir ~/.ssh
-    chmod 700 ~/.ssh
+# Variables
+PERSONAL_EMAIL="garrettjones@me.com"
+WORK_EMAIL="garrettj@slalom.com"
+SSH_DIR="$HOME/.ssh"
+CONFIG_FILE="$SSH_DIR/config"
+PERSONAL_KEY="$SSH_DIR/id_ed25519_github_personal"
+WORK_KEY="$SSH_DIR/id_ed25519_github_work"
+
+# Create SSH directory if it doesn't exist
+mkdir -p "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+
+# Generate personal SSH key if not exists
+if [ -f "$PERSONAL_KEY" ]; then
+  echo "✅ Personal SSH key already exists: $PERSONAL_KEY"
+else
+  echo "🔑 Generating personal SSH key..."
+  ssh-keygen -t ed25519 -C "$PERSONAL_EMAIL" -f "$PERSONAL_KEY" -N ""
 fi
 
-# Check if SSH key already exists
-if [ -f ~/.ssh/id_ed25519 ]; then
-    echo "SSH key already exists. Exiting."
-    exit 1
+# Generate work SSH key if not exists
+if [ -f "$WORK_KEY" ]; then
+  echo "✅ Work SSH key already exists: $WORK_KEY"
+else
+  echo "🔑 Generating work SSH key..."
+  ssh-keygen -t ed25519 -C "$WORK_EMAIL" -f "$WORK_KEY" -N ""
 fi
 
-# Prompt for email address
-read -p "Enter your email address: " email
+# Start SSH agent
+eval "$(ssh-agent -s)"
 
-# Generate SSH key
-ssh-keygen -t ed25519 -C "$email"
+# Add keys to the SSH agent
+ssh-add "$PERSONAL_KEY"
+ssh-add "$WORK_KEY"
 
-# Check if SSH agent is running
-if ! pgrep -x "ssh-agent" > /dev/null; then
-    eval "$(ssh-agent -s)"
+# Update SSH config if entries are missing
+touch "$CONFIG_FILE"
+
+if ! grep -q "Host github.com-personal" "$CONFIG_FILE"; then
+  echo -e "\n# Personal GitHub account" >> "$CONFIG_FILE"
+  echo "Host github.com-personal" >> "$CONFIG_FILE"
+  echo "  HostName github.com" >> "$CONFIG_FILE"
+  echo "  User git" >> "$CONFIG_FILE"
+  echo "  IdentityFile $PERSONAL_KEY" >> "$CONFIG_FILE"
 fi
 
-# Add SSH private key to SSH agent
-ssh-add ~/.ssh/id_ed25519
+if ! grep -q "Host github.com-work" "$CONFIG_FILE"; then
+  echo -e "\n# Work GitHub account" >> "$CONFIG_FILE"
+  echo "Host github.com-work" >> "$CONFIG_FILE"
+  echo "  HostName github.com" >> "$CONFIG_FILE"
+  echo "  User git" >> "$CONFIG_FILE"
+  echo "  IdentityFile $WORK_KEY" >> "$CONFIG_FILE"
+fi
 
-echo "SSH key has been generated and added to SSH agent."
+# Set permissions
+chmod 600 "$PERSONAL_KEY" "$PERSONAL_KEY.pub" "$WORK_KEY" "$WORK_KEY.pub"
+chmod 600 "$CONFIG_FILE"
+
+# Print public keys
+echo ""
+echo "🔓 Public key for PERSONAL GitHub (add to https://github.com/settings/ssh/new):"
+cat "$PERSONAL_KEY.pub"
+echo ""
+echo "🔓 Public key for WORK GitHub (add to https://github.com/settings/ssh/new):"
+cat "$WORK_KEY.pub"
+
+# Instructions for use
+echo ""
+echo "✅ Done. Use the following Git remote URLs:"
+echo "  Personal: git@github.com-personal:yourusername/repo.git"
+echo "  Work:     git@github.com-work:yourworkusername/repo.git"
