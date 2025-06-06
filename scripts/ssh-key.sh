@@ -1,8 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Variables
-PERSONAL_EMAIL="garrettjones@me.com"
-WORK_EMAIL="garrettj@slalom.com"
+# Color functions
+info() { echo -e "\033[1;36m[INFO]\033[0m $1"; }
+success() { echo -e "\033[1;32m[SUCCESS]\033[0m $1"; }
+error() { echo -e "\033[1;31m[ERROR]\033[0m $1" >&2; }
+
+# Usage
+if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
+  echo "Usage: ./ssh-key.sh [personal_email] [work_email]"
+  exit 0
+fi
+
+PERSONAL_EMAIL="${1:-garrettjones@me.com}"
+WORK_EMAIL="${2:-garrettj@slalom.com}"
 SSH_DIR="$HOME/.ssh"
 CONFIG_FILE="$SSH_DIR/config"
 PERSONAL_KEY="$SSH_DIR/id_ed25519_github_personal"
@@ -14,22 +25,24 @@ chmod 700 "$SSH_DIR"
 
 # Generate personal SSH key if not exists
 if [ -f "$PERSONAL_KEY" ]; then
-  echo "✅ Personal SSH key already exists: $PERSONAL_KEY"
+  success "Personal SSH key already exists: $PERSONAL_KEY"
 else
-  echo "🔑 Generating personal SSH key..."
+  info "Generating personal SSH key..."
   ssh-keygen -t ed25519 -C "$PERSONAL_EMAIL" -f "$PERSONAL_KEY" -N ""
 fi
 
 # Generate work SSH key if not exists
 if [ -f "$WORK_KEY" ]; then
-  echo "✅ Work SSH key already exists: $WORK_KEY"
+  success "Work SSH key already exists: $WORK_KEY"
 else
-  echo "🔑 Generating work SSH key..."
+  info "Generating work SSH key..."
   ssh-keygen -t ed25519 -C "$WORK_EMAIL" -f "$WORK_KEY" -N ""
 fi
 
-# Start SSH agent
-eval "$(ssh-agent -s)"
+# Start SSH agent if not running
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+  eval "$(ssh-agent -s)"
+fi
 
 # Add keys to the SSH agent
 ssh-add "$PERSONAL_KEY"
@@ -65,9 +78,7 @@ cat "$PERSONAL_KEY.pub"
 echo ""
 echo "🔓 Public key for WORK GitHub (add to https://github.com/settings/ssh/new):"
 cat "$WORK_KEY.pub"
-
-# Instructions for use
 echo ""
-echo "✅ Done. Use the following Git remote URLs:"
+success "Done. Use the following Git remote URLs:"
 echo "  Personal: git@github.com-personal:yourusername/repo.git"
 echo "  Work:     git@github.com-work:yourworkusername/repo.git"
