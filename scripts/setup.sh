@@ -41,19 +41,15 @@ for dep in curl brew chmod; do
   fi
 done
 
-# Install oh-my-zsh if not already installed
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    info "Installing oh-my-zsh..."
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || { error "Failed to install oh-my-zsh"; exit 1; }
-else
-    success "oh-my-zsh is already installed."
-fi
-
 info "Making scripts executable..."
 chmod u+x scripts/brews.sh \
          scripts/casks.sh \
          scripts/osx.sh \
-         scripts/sync.sh || { error "Failed to make scripts executable"; exit 1; }
+         scripts/sync.sh \
+         scripts/plugins.sh || { error "Failed to make scripts executable"; exit 1; }
+
+info "Installing plugins..."
+./scripts/plugins.sh || { error "plugins.sh failed"; exit 1; }
 
 info "Running brews.sh..."
 ./scripts/brews.sh || { error "brews.sh failed"; exit 1; }
