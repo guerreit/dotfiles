@@ -6,14 +6,17 @@ success() { print -P "%F{green}[SUCCESS]%f $1"; }
 error() { print -P "%F{red}[ERROR]%f $1" >&2; }
 
 # Upgrade all installed casks
-brew upgrade --cask || { error "brew upgrade --cask failed"; exit 1; }
+if ! brew upgrade --cask; then
+    error "brew upgrade --cask failed"
+    exit 1
+fi
 
 # Common casks for both profiles
 COMMON_CASKS=(visual-studio-code)
 
 # Profile-specific casks
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then
-    PROFILE_CASKS=(postman microsoft-edge microsoft-teams slack)
+    PROFILE_CASKS=(postman microsoft-edge microsoft-teams microsoft-onenote slack)
 else
     PROFILE_CASKS=()
 fi
@@ -26,7 +29,10 @@ for cask in $CASKS; do
     info "$cask already installed."
   else
     info "Installing $cask..."
-    brew install --cask $cask || { error "Failed to install $cask"; exit 1; }
+    if ! brew install --cask $cask; then
+        error "Failed to install $cask"
+        exit 1
+    fi
   fi
 done
 

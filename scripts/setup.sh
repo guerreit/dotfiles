@@ -17,7 +17,7 @@ fi
 echo "Select your profile:"
 echo "1) Personal"
 echo "2) Work"
-read -p "Enter your choice (1 or 2): " profile_choice
+read "profile_choice?Enter your choice (1 or 2): "
 
 case $profile_choice in
   1)
