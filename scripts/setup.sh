@@ -13,6 +13,27 @@ if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
   exit 0
 fi
 
+# Prompt for profile selection
+echo "Select your profile:"
+echo "1) Personal"
+echo "2) Work"
+read -p "Enter your choice (1 or 2): " profile_choice
+
+case $profile_choice in
+  1)
+    export DOTFILES_PROFILE="personal"
+    ;;
+  2)
+    export DOTFILES_PROFILE="work"
+    ;;
+  *)
+    error "Invalid choice. Please run the script again and select 1 or 2."
+    exit 1
+    ;;
+esac
+
+info "Using $DOTFILES_PROFILE profile"
+
 # Check dependencies
 for dep in curl brew chmod; do
   if ! command -v $dep &>/dev/null; then

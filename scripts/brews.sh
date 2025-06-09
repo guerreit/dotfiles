@@ -13,14 +13,25 @@ else
     success "Homebrew already installed"
 fi
 
-# Make sure we’re using the latest Homebrew
+# Make sure we're using the latest Homebrew
 brew update
 
 # Upgrade any already-installed brews
 brew upgrade
 
-# brews i need
-BREWS=(awscli azure-cli colima docker docker-compose git node nvm poetry pyenv speedtest-cli terraform yarn zoxide)
+# Common brews for both profiles
+COMMON_BREWS=(git node nvm zoxide speedtest-cli yarn)
+
+# Profile-specific brews
+if [[ "$DOTFILES_PROFILE" == "work" ]]; then
+    PROFILE_BREWS=(awscli azure-cli terraform)
+else
+    PROFILE_BREWS=()
+fi
+
+# Combine common and profile-specific brews
+BREWS=($COMMON_BREWS $PROFILE_BREWS)
+
 for pkg in $BREWS; do
   if brew list --formula | grep -q "^$pkg$"; then
     info "$pkg already installed."
