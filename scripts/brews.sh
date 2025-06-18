@@ -20,7 +20,7 @@ brew update
 brew upgrade
 
 # Common brews for both profiles
-COMMON_BREWS=(git node nvm zoxide speedtest-cli yarn)
+COMMON_BREWS=(git node nvm zoxide speedtest-cli yarn gh)
 
 # Profile-specific brews
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then
