@@ -46,7 +46,8 @@ chmod u+x scripts/brews.sh \
          scripts/casks.sh \
          scripts/osx.sh \
          scripts/sync.sh \
-         scripts/plugins.sh || { error "Failed to make scripts executable"; exit 1; }
+         scripts/plugins.sh \
+         scripts/vscode-extensions.sh || { error "Failed to make scripts executable"; exit 1; }
 
 info "Installing plugins..."
 ./scripts/plugins.sh || { error "plugins.sh failed"; exit 1; }
@@ -56,6 +57,9 @@ info "Running brews.sh..."
 
 info "Running casks.sh..."
 ./scripts/casks.sh || { error "casks.sh failed"; exit 1; }
+
+info "Configuring VS Code extensions..."
+./scripts/vscode-extensions.sh || { error "vscode-extensions.sh failed"; exit 1; }
 
 info "Running osx.sh..."
 ./scripts/osx.sh || { error "osx.sh failed"; exit 1; }
