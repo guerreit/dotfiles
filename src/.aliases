@@ -40,6 +40,11 @@ alias afk="pmset sleepnow"
 # Load nvm version if exists
 alias load-nvm="cat .nvmrc | nvm use"
 
+# Backup and restore dotfiles
+alias backup-dotfiles="~/Code/dotfiles/scripts/backup.sh"
+alias list-backups="ls -la ~/.dotfiles-backup/"
+alias restore-dotfiles='function _restore(){ echo "Restoring from $1..."; cp -r "$1"/* ~/; echo "Restore complete!"; }; _restore'
+
 # AWS
 alias aws-get-role="aws sts get-caller-identity"
 alias aws-auth="aws-azure-login --profile default --no-prompt --mode=gui"

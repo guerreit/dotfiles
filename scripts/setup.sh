@@ -47,7 +47,11 @@ chmod u+x scripts/brews.sh \
          scripts/osx.sh \
          scripts/sync.sh \
          scripts/plugins.sh \
-         scripts/vscode-extensions.sh || { error "Failed to make scripts executable"; exit 1; }
+         scripts/vscode-extensions.sh \
+         scripts/backup.sh || { error "Failed to make scripts executable"; exit 1; }
+
+info "Creating backup of existing dotfiles..."
+./scripts/backup.sh || { error "backup.sh failed"; exit 1; }
 
 info "Installing plugins..."
 ./scripts/plugins.sh || { error "plugins.sh failed"; exit 1; }
