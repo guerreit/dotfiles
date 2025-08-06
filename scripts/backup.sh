@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # Color functions
-info() { print -P "%F{cyan}[INFO]%f $1"; }
-success() { print -P "%F{green}[SUCCESS]%f $1"; }
-error() { print -P "%F{red}[ERROR]%f $1" >&2; }
+info() { echo "[INFO] $1"; }
+success() { echo "[SUCCESS] $1"; }
+error() { echo "[ERROR] $1" >&2; }
 
 # Create backup directory with timestamp
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
@@ -36,7 +36,7 @@ for file in "${DOTFILES[@]}"; do
   if [ -f "$HOME/$file" ]; then
     cp "$HOME/$file" "$BACKUP_DIR/"
     info "Backed up $file"
-    ((backup_count++))
+    backup_count=$((backup_count + 1))
   fi
 done
 
