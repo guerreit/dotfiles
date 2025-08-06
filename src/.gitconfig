@@ -34,9 +34,6 @@
 [merge]
   log = true
 
-[user]
-  name = Garrett Jones
-  email = garrettj@slalom.com
 
 # push easily. http://stackoverflow.com/a/23918418/89484
 [push]
