@@ -18,7 +18,7 @@ alias update-brews="brew update; brew upgrade; brew cleanup; brew upgrade --cask
 alias update-os="sudo softwareupdate --all --install --force"
 
 # Update everything
-alias update-all="update-brews; update-os; update-zsh; src"
+alias update-all="update-brews; update-os; update-omz; src"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
