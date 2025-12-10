@@ -73,62 +73,69 @@ CURRENT_EMAIL=$(git config user.email 2>/dev/null || echo "(not set)")
 echo "Active Configuration:"
 echo "  Name:  $CURRENT_NAME"
 echo "  Email: $CURRENT_EMAIL"
-
-# Determine active role
-ACTIVE_ROLE="unknown"
-if [[ -f "$HOME/.gitconfig.roles" ]]; then
-  source "$HOME/.gitconfig.roles" 2>/dev/null || true
-
-  if [[ "$CURRENT_EMAIL" == "${GIT_PERSONAL_EMAIL:-}" ]]; then
-    ACTIVE_ROLE="personal"
-  elif [[ "$CURRENT_EMAIL" == "${GIT_WORK_EMAIL:-}" ]]; then
-    ACTIVE_ROLE="work"
-  fi
-fi
-
-echo "  Role:  $ACTIVE_ROLE"
 echo ""
 
-# Show detection method if in a git repository
+# Load default role first
+if [[ -f "$HOME/.gitconfig.roles" ]]; then
+  source "$HOME/.gitconfig.roles" 2>/dev/null || true
+fi
+
+# Determine active role based on directory patterns
+ACTIVE_ROLE="${GIT_DEFAULT_ROLE:-personal}"
+MATCHED_PATTERN="none"
+EXPECTED_NAME=""
+EXPECTED_EMAIL=""
+
 if git rev-parse --git-dir &>/dev/null 2>&1; then
   CURRENT_DIR=$(pwd)
   echo "Detection Context:"
   echo "  Current Directory: $CURRENT_DIR"
 
-  # Check which pattern matched
-  MATCHED_PATTERN="none"
-  if [[ -f "$HOME/.gitconfig.roles" ]]; then
-    source "$HOME/.gitconfig.roles" 2>/dev/null || true
+  # Check which pattern matched to determine role
+  if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
+    for pattern in "${GIT_WORK_PATTERNS[@]}"; do
+      # Expand ~ to home directory
+      expanded_pattern="${pattern/#\~/$HOME}"
+      # Convert glob pattern to regex for matching
+      # Simple conversion: ** -> .*, * -> [^/]*
+      regex_pattern="${expanded_pattern//\*\*/.*}"
+      regex_pattern="${regex_pattern//\*/[^/]*}"
 
-    if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
-      for pattern in "${GIT_WORK_PATTERNS[@]}"; do
-        # Expand ~ to home directory
-        expanded_pattern="${pattern/#\~/$HOME}"
-        # Convert glob pattern to regex for matching
-        # Simple conversion: ** -> .*, * -> [^/]*
-        regex_pattern="${expanded_pattern//\*\*/.*}"
-        regex_pattern="${regex_pattern//\*/[^/]*}"
-
-        if [[ "$CURRENT_DIR" =~ ^${regex_pattern} ]]; then
-          MATCHED_PATTERN="$pattern"
-          break
-        fi
-      done
-    fi
+      if [[ "$CURRENT_DIR" =~ ^${regex_pattern} ]]; then
+        MATCHED_PATTERN="$pattern"
+        ACTIVE_ROLE="work"
+        break
+      fi
+    done
   fi
 
   if [[ "$MATCHED_PATTERN" != "none" ]]; then
     echo "  Matched Pattern:  $MATCHED_PATTERN"
-    echo "  Detection Method: Directory pattern match"
+    echo "  Detection Method: Directory pattern match (overrides default)"
   else
-    echo "  Matched Pattern:  (none - using default)"
-    echo "  Detection Method: Default configuration"
+    echo "  Matched Pattern:  (none - using default role)"
+    echo "  Detection Method: Default role from configuration"
   fi
   echo ""
 else
   warning "Not in a Git repository - showing global configuration"
   echo ""
 fi
+
+# Set expected credentials based on determined role
+if [[ "$ACTIVE_ROLE" == "work" ]]; then
+  EXPECTED_NAME="${GIT_WORK_NAME:-}"
+  EXPECTED_EMAIL="${GIT_WORK_EMAIL:-}"
+else
+  EXPECTED_NAME="${GIT_PERSONAL_NAME:-}"
+  EXPECTED_EMAIL="${GIT_PERSONAL_EMAIL:-}"
+fi
+
+echo "Expected Configuration for Role:"
+echo "  Role:  $ACTIVE_ROLE"
+echo "  Name:  $EXPECTED_NAME"
+echo "  Email: $EXPECTED_EMAIL"
+echo ""
 
 # Show configured patterns
 if [[ -f "$HOME/.gitconfig.roles" ]]; then
@@ -196,6 +203,18 @@ if [[ "$CURRENT_NAME" == "(not set)" || "$CURRENT_EMAIL" == "(not set)" ]]; then
   ISSUES_FOUND=true
 else
   success "Git identity is configured"
+
+  # Validate that current config matches expected role
+  if [[ -n "$EXPECTED_NAME" && -n "$EXPECTED_EMAIL" ]]; then
+    if [[ "$CURRENT_NAME" != "$EXPECTED_NAME" ]]; then
+      warning "Name mismatch: current='$CURRENT_NAME' expected='$EXPECTED_NAME'"
+      ISSUES_FOUND=true
+    fi
+    if [[ "$CURRENT_EMAIL" != "$EXPECTED_EMAIL" ]]; then
+      warning "Email mismatch: current='$CURRENT_EMAIL' expected='$EXPECTED_EMAIL'"
+      ISSUES_FOUND=true
+    fi
+  fi
 fi
 
 # Check for includeIf directives in .gitconfig
@@ -219,17 +238,8 @@ if [[ "$ISSUES_FOUND" == "true" ]]; then
   echo ""
   exit 1
 else
-  echo "Status: ✓ Configuration is valid and active"
+  echo "Status: ✓ Configuration is valid and matches expected role"
   echo ""
-
-  if [[ "$ACTIVE_ROLE" == "unknown" ]]; then
-    warning "Could not determine active role from current email"
-    echo ""
-    echo "Next Steps:"
-    echo "  - Verify email addresses in ~/.gitconfig.roles match your setup"
-    echo "  - Run: cd ~/dotfiles && ./scripts/sync.sh"
-    echo ""
-  fi
 fi
 
 # Dry run mode information

@@ -221,12 +221,21 @@ EOF
     echo "" >> "$temp_gitconfig"
   fi
 
-  # Add default personal include
-  cat >> "$temp_gitconfig" <<'EOF'
+  # Add default include based on GIT_DEFAULT_ROLE
+  local default_role="${GIT_DEFAULT_ROLE:-personal}"
+  if [[ "$default_role" == "work" ]]; then
+    cat >> "$temp_gitconfig" <<'EOF'
+# Default to work configuration
+[include]
+	path = ~/.gitconfig.work
+EOF
+  else
+    cat >> "$temp_gitconfig" <<'EOF'
 # Default to personal configuration
 [include]
 	path = ~/.gitconfig.personal
 EOF
+  fi
 
   mv "$temp_gitconfig" "$base_gitconfig"
   success "Generated .gitconfig with conditional includes"
@@ -240,31 +249,16 @@ determine_profile() {
 }
 
 set_git_global_config() {
+  # Remove any existing global user.name and user.email settings
+  # These will be managed by the conditional includes in .gitconfig
+  info "Removing global user.name and user.email (managed by conditional includes)..."
+  
+  git config --global --unset user.name 2>/dev/null || true
+  git config --global --unset user.email 2>/dev/null || true
+  
   local profile=$(determine_profile)
-
-  info "Setting Git global configuration for $profile profile..."
-
-  if [[ "$profile" == "work" ]]; then
-    if ! git config --global user.name "$GIT_WORK_NAME" 2>/dev/null; then
-      error "Failed to set Git global user.name"
-      return 1
-    fi
-    if ! git config --global user.email "$GIT_WORK_EMAIL" 2>/dev/null; then
-      error "Failed to set Git global user.email"
-      return 1
-    fi
-    success "Git global config set to work identity: $GIT_WORK_NAME <$GIT_WORK_EMAIL>"
-  else
-    if ! git config --global user.name "$GIT_PERSONAL_NAME" 2>/dev/null; then
-      error "Failed to set Git global user.name"
-      return 1
-    fi
-    if ! git config --global user.email "$GIT_PERSONAL_EMAIL" 2>/dev/null; then
-      error "Failed to set Git global user.email"
-      return 1
-    fi
-    success "Git global config set to personal identity: $GIT_PERSONAL_NAME <$GIT_PERSONAL_EMAIL>"
-  fi
+  success "Git identity will be automatically selected based on repository location"
+  success "Default role: $profile"
 
   return 0
 }
