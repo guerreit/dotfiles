@@ -252,10 +252,10 @@ set_git_global_config() {
   # Remove any existing global user.name and user.email settings
   # These will be managed by the conditional includes in .gitconfig
   info "Removing global user.name and user.email (managed by conditional includes)..."
-  
+
   git config --global --unset user.name 2>/dev/null || true
   git config --global --unset user.email 2>/dev/null || true
-  
+
   local profile=$(determine_profile)
   success "Git identity will be automatically selected based on repository location"
   success "Default role: $profile"
