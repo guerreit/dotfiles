@@ -48,7 +48,8 @@ chmod u+x scripts/brews.sh \
          scripts/sync.sh \
          scripts/plugins.sh \
          scripts/vscode-extensions.sh \
-         scripts/backup.sh || { error "Failed to make scripts executable"; exit 1; }
+         scripts/backup.sh \
+         scripts/git-config-status.sh || { error "Failed to make scripts executable"; exit 1; }
 
 info "Creating backup of existing dotfiles..."
 ./scripts/backup.sh || { error "backup.sh failed"; exit 1; }
@@ -69,6 +70,10 @@ info "Running osx.sh..."
 ./scripts/osx.sh || { error "osx.sh failed"; exit 1; }
 
 info "Syncing dotfiles with sync.sh..."
-./scripts/sync.sh || { error "sync.sh failed"; exit 1; }
+./scripts/sync.sh "$DOTFILES_PROFILE" || { error "sync.sh failed"; exit 1; }
 
 success "Setup complete!"
+
+# Display Git configuration status
+info "Checking Git configuration..."
+./scripts/git-config-status.sh || true

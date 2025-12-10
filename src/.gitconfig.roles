@@ -1,0 +1,48 @@
+# .gitconfig.roles - Role-based Git Configuration
+# ====================================================
+# This file configures automatic Git identity switching based on repository location.
+# Edit this file to customize your Git identities and directory patterns.
+#
+# How it works:
+# - Repositories under "work patterns" use your work identity
+# - All other repositories use your personal identity
+# - Git automatically detects which identity to use based on directory path
+#
+# After editing this file, run: ./scripts/sync.sh
+
+# Personal Identity
+# -----------------
+# Used for repositories that don't match any work patterns
+GIT_PERSONAL_NAME="Garrett Jones"
+GIT_PERSONAL_EMAIL="garrettjones@me.com"
+
+# Work Identity
+# -------------
+# Used for repositories under work directory patterns
+GIT_WORK_NAME="Garrett Jones"
+GIT_WORK_EMAIL="garrettj@slalom.com"
+
+# Work Directory Patterns
+# ------------------------
+# Repositories under these paths will automatically use your work identity
+# Patterns support wildcards:
+#   - Use ** for recursive matching (e.g., ~/work/** matches all repos under ~/work/)
+#   - Use * for single-level matching
+#   - Paths must be absolute or start with ~/
+#
+# Examples:
+#   ~/work/**           - All repos under ~/work/
+#   ~/clients/**        - All repos under ~/clients/
+#   ~/code/company/**   - All repos under ~/code/company/
+#
+GIT_WORK_PATTERNS=(
+  "~/work/**"
+  "~/clients/**"
+  "~/code/work/**"
+)
+
+# Default Role
+# ------------
+# Which identity to use when no patterns match (personal|work)
+# Recommended: "personal"
+GIT_DEFAULT_ROLE="work"
