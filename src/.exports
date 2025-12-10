@@ -52,22 +52,32 @@ npx() {
 # Auto-load nvm when .nvmrc is present
 autoload -U add-zsh-hook
 load-nvmrc() {
-  # Only run if nvm is actually loaded
-  if command -v nvm &> /dev/null; then
-    local node_version="$(nvm version)"
-    local nvmrc_path="$(nvm_find_nvmrc)"
+  # Check if .nvmrc exists in current directory
+  if [ -f .nvmrc ]; then
+    # Check if nvm is fully loaded (not just the wrapper function)
+    if type nvm_find_nvmrc &> /dev/null; then
+      # NVM is fully loaded, use it normally
+      local node_version="$(nvm version)"
+      local nvmrc_path="$(nvm_find_nvmrc)"
 
-    if [ -n "$nvmrc_path" ]; then
-      local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+      if [ -n "$nvmrc_path" ]; then
+        local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
 
-      if [ "$nvmrc_node_version" = "N/A" ]; then
-        nvm install
-      elif [ "$nvmrc_node_version" != "$node_version" ]; then
+        if [ "$nvmrc_node_version" = "N/A" ]; then
+          nvm install
+        elif [ "$nvmrc_node_version" != "$node_version" ]; then
+          nvm use
+        fi
+      fi
+    else
+      # NVM not loaded yet, trigger lazy load by calling nvm, then use the version
+      [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+      [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+      # Now use the version from .nvmrc
+      if type nvm &> /dev/null; then
         nvm use
       fi
-    elif [ "$node_version" != "$(nvm version default)" ]; then
-      echo "Reverting to nvm default version"
-      nvm use default
     fi
   fi
 }
