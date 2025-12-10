@@ -233,6 +233,42 @@ EOF
   success "Generated .gitconfig.personal and .gitconfig.work"
 }
 
+determine_profile() {
+  # Determine active profile with priority: argument > file > default
+  local profile="${PROFILE_CHOICE:-${GIT_DEFAULT_ROLE:-personal}}"
+  echo "$profile"
+}
+
+set_git_global_config() {
+  local profile=$(determine_profile)
+
+  info "Setting Git global configuration for $profile profile..."
+
+  if [[ "$profile" == "work" ]]; then
+    if ! git config --global user.name "$GIT_WORK_NAME" 2>/dev/null; then
+      error "Failed to set Git global user.name"
+      return 1
+    fi
+    if ! git config --global user.email "$GIT_WORK_EMAIL" 2>/dev/null; then
+      error "Failed to set Git global user.email"
+      return 1
+    fi
+    success "Git global config set to work identity: $GIT_WORK_NAME <$GIT_WORK_EMAIL>"
+  else
+    if ! git config --global user.name "$GIT_PERSONAL_NAME" 2>/dev/null; then
+      error "Failed to set Git global user.name"
+      return 1
+    fi
+    if ! git config --global user.email "$GIT_PERSONAL_EMAIL" 2>/dev/null; then
+      error "Failed to set Git global user.email"
+      return 1
+    fi
+    success "Git global config set to personal identity: $GIT_PERSONAL_NAME <$GIT_PERSONAL_EMAIL>"
+  fi
+
+  return 0
+}
+
 validate_git_config() {
   info "Validating generated Git configuration..."
 
@@ -291,6 +327,12 @@ if check_git_version; then
     if ! validate_git_config; then
       error "Git configuration validation failed - aborting sync"
       error "Please fix .gitconfig.roles and try again"
+      exit 1
+    fi
+
+    # Set global Git config based on profile
+    if ! set_git_global_config; then
+      error "Failed to set Git global configuration"
       exit 1
     fi
   else

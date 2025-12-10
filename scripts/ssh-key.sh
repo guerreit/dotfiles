@@ -5,15 +5,47 @@ set -euo pipefail
 info() { echo -e "\033[1;36m[INFO]\033[0m $1"; }
 success() { echo -e "\033[1;32m[SUCCESS]\033[0m $1"; }
 error() { echo -e "\033[1;31m[ERROR]\033[0m $1" >&2; }
+warning() { echo -e "\033[1;33m[WARNING]\033[0m $1"; }
+
+# Source email addresses from configuration file
+source_emails() {
+  local roles_file="src/.gitconfig.roles"
+
+  # Try to source the roles file
+  if [[ -f "$roles_file" ]]; then
+    if source "$roles_file" 2>/dev/null; then
+      # Extract emails if variables are set
+      if [[ -n "${GIT_PERSONAL_EMAIL:-}" ]]; then
+        PERSONAL_EMAIL="$GIT_PERSONAL_EMAIL"
+      fi
+      if [[ -n "${GIT_WORK_EMAIL:-}" ]]; then
+        WORK_EMAIL="$GIT_WORK_EMAIL"
+      fi
+    else
+      warning "Failed to source $roles_file, using default email addresses"
+    fi
+  else
+    warning "Configuration file $roles_file not found, using default email addresses"
+  fi
+}
 
 # Usage
 if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
   echo "Usage: ./ssh-key.sh [personal_email] [work_email]"
+  echo ""
+  echo "If no arguments provided, emails will be read from src/.gitconfig.roles"
+  echo "or default to hardcoded values if the file is not available."
   exit 0
 fi
 
+# Default email addresses (fallback)
 PERSONAL_EMAIL="${1:-garrettjones@me.com}"
 WORK_EMAIL="${2:-garrettj@slalom.com}"
+
+# Source emails from configuration file if no arguments provided
+if [[ $# -eq 0 ]]; then
+  source_emails
+fi
 SSH_DIR="$HOME/.ssh"
 CONFIG_FILE="$SSH_DIR/config"
 PERSONAL_KEY="$SSH_DIR/id_ed25519_github_personal"
