@@ -3,3 +3,29 @@
 aws_login() {
     aws-azure-login --profile "$1" --no-prompt --mode=gui
 }
+
+# SSH key management functions
+ssh-add-work() {
+    local work_key="$HOME/.ssh/id_ed25519_slalom"
+    if [[ -f "$work_key" ]]; then
+        ssh-add "$work_key" && echo "✓ Work SSH key added to agent"
+    else
+        echo "✗ Work SSH key not found: $work_key" >&2
+        return 1
+    fi
+}
+
+ssh-add-personal() {
+    local personal_key="$HOME/.ssh/id_ed25519"
+    if [[ -f "$personal_key" ]]; then
+        ssh-add "$personal_key" && echo "✓ Personal SSH key added to agent"
+    else
+        echo "✗ Personal SSH key not found: $personal_key" >&2
+        return 1
+    fi
+}
+
+ssh-add-all() {
+    ssh-add-personal
+    ssh-add-work
+}
