@@ -339,10 +339,29 @@ else
 fi
 
 # Exclude list
-EXCLUDES=(--exclude ".DS_Store" --exclude ".git" --exclude ".gitignore")
+EXCLUDES=(--exclude ".DS_Store" --exclude ".git" --exclude ".gitignore" --exclude ".ssh_config")
 
 # Use rsync for robust syncing
 rsync -avh --no-perms --no-owner --no-group --progress $EXCLUDES "$SRC_DIR" "$ROOT_DIR" || { error "rsync failed"; exit 1; }
+
+# Setup SSH config
+if [[ -f "$SRC_DIR.ssh_config" ]]; then
+  info "Setting up SSH configuration..."
+  mkdir -p "$ROOT_DIR/.ssh"
+  chmod 700 "$ROOT_DIR/.ssh"
+
+  if [[ -f "$ROOT_DIR/.ssh/config" ]]; then
+    # Backup existing config
+    cp "$ROOT_DIR/.ssh/config" "$BACKUP_DIR/.ssh_config.backup"
+    info "Backed up existing SSH config to $BACKUP_DIR/.ssh_config.backup"
+  fi
+
+  cp "$SRC_DIR.ssh_config" "$ROOT_DIR/.ssh/config"
+  chmod 600 "$ROOT_DIR/.ssh/config"
+  success "SSH config installed to ~/.ssh/config"
+else
+  warning "SSH config template not found in $SRC_DIR.ssh_config"
+fi
 
 success "All files copied from $SRC_DIR to $ROOT_DIR (backup in $BACKUP_DIR)"
 

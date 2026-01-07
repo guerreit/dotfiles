@@ -1,0 +1,29 @@
+# SSH Configuration for Multiple Keys
+# This file will be copied to ~/.ssh/config during setup
+
+# Default settings for all hosts
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentitiesOnly yes
+
+# Personal github account
+Host github.com-guerreit
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+
+# Slalom work github account
+Host github.com-garrettj-slalom
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_slalom
+  IdentitiesOnly yes
+
+# Default github (uses personal key)
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
