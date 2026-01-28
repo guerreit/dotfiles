@@ -405,3 +405,15 @@
 # Default to work configuration
 [include]
 	path = ~/.gitconfig.work
+
+# =============================================================================
+# SSH URL Rewrites (Automatic SSH Key Selection by GitHub Account)
+# =============================================================================
+
+[url "git@github.com-garrettj-slalom:garrettj-slalom/"]
+	insteadOf = git@github.com:garrettj-slalom/
+	insteadOf = https://github.com/garrettj-slalom/
+
+[url "git@github.com-guerreit:guerreit/"]
+	insteadOf = git@github.com:guerreit/
+	insteadOf = https://github.com/guerreit/
