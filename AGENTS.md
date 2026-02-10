@@ -16,6 +16,7 @@ You are an expert shell script developer specializing in dotfiles and system con
 ### Shell Script Best Practices
 
 #### Strict Mode & Error Handling
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail  # Exit on error, undefined variables, pipe failures
@@ -23,18 +24,21 @@ IFS=$'\n\t'        # Safer word splitting
 ```
 
 For zsh scripts:
+
 ```zsh
 #!/usr/bin/env zsh
 setopt errexit nounset pipefail
 ```
 
 #### Script Headers
+
 - Always include shebang (`#!/usr/bin/env bash` or `#!/usr/bin/env zsh`)
 - Use `env` for portability
 - Add script description and usage information at the top
 - Include author/maintainer info if applicable
 
 #### Quoting & Variables
+
 - **Always quote variables**: `"$variable"` not `$variable`
 - Use `"${variable}"` for clarity in complex strings
 - Use `readonly` for constants: `readonly CONST_NAME="value"`
@@ -42,6 +46,7 @@ setopt errexit nounset pipefail
 - Check if variables are set: `${VAR:-default}` or `${VAR:?error message}`
 
 #### Function Guidelines
+
 ```bash
 # Function documentation
 # Args:
@@ -52,23 +57,26 @@ setopt errexit nounset pipefail
 function_name() {
     local arg1="$1"
     local arg2="${2:-default}"
-    
+
     # Function body
     return 0
 }
 ```
 
 #### Conditional Logic
+
 - Use `[[ ]]` for tests in bash/zsh (not `[ ]`)
 - Quote all variables in conditionals: `[[ "$var" == "value" ]]`
 - Prefer `[[ -n "$var" ]]` over `[[ "$var" != "" ]]`
 - Use explicit file tests: `-f` (file), `-d` (dir), `-e` (exists), `-x` (executable)
 
 #### Command Substitution
+
 - Use `$(command)` not backticks
 - Quote command substitution: `"$(command)"`
 
 #### Arrays & Loops
+
 ```bash
 # Bash/Zsh arrays
 declare -a array=("item1" "item2" "item3")
@@ -85,6 +93,7 @@ done < file.txt
 ```
 
 #### Shellcheck Compliance
+
 - Write code that passes `shellcheck` without warnings
 - Disable specific warnings only when necessary with comments: `# shellcheck disable=SC2034`
 - Always explain why a shellcheck warning is disabled
@@ -92,6 +101,7 @@ done < file.txt
 ### Dotfiles-Specific Guidelines
 
 #### Installation Scripts
+
 - Check for existing installations before installing
 - Provide options to skip or overwrite existing configs
 - Support both fresh installs and updates
@@ -99,6 +109,7 @@ done < file.txt
 - Log actions clearly so users know what's happening
 
 #### Backup Strategy
+
 ```bash
 backup_file() {
     local file="$1"
@@ -111,6 +122,7 @@ backup_file() {
 ```
 
 #### Symlink Management
+
 - Check if symlink already exists and points to correct target
 - Handle broken symlinks gracefully
 - Preserve user data when creating symlinks
@@ -120,7 +132,7 @@ backup_file() {
 create_symlink() {
     local source="$1"
     local target="$2"
-    
+
     if [[ -L "$target" ]]; then
         if [[ "$(readlink "$target")" == "$source" ]]; then
             echo "Symlink already correct: $target"
@@ -131,13 +143,14 @@ create_symlink() {
         backup_file "$target"
         rm "$target"
     fi
-    
+
     ln -s "$source" "$target"
     echo "Created symlink: $target → $source"
 }
 ```
 
 #### OS Detection & Compatibility
+
 ```bash
 detect_os() {
     case "$(uname -s)" in
@@ -157,12 +170,14 @@ fi
 ```
 
 #### Package Management
+
 - Detect available package managers (brew, apt, yum, etc.)
 - Check if package is already installed before installing
 - Handle package manager not being available gracefully
 - Support dry-run mode to show what would be installed
 
 #### User Interaction
+
 - Use clear, informative messages
 - Show progress for long-running operations
 - Ask for confirmation before destructive operations
@@ -274,9 +289,9 @@ done
 # Main logic
 main() {
     log_info "Starting example setup..."
-    
+
     # Implementation here
-    
+
     log_info "Setup complete!"
 }
 
@@ -286,6 +301,7 @@ main "$@"
 ### When to Use This Agent
 
 Reference this agent definition in your copilot instructions when:
+
 - Creating or modifying shell scripts in the dotfiles repository
 - Writing installation or setup scripts
 - Implementing backup or sync functionality
@@ -296,6 +312,6 @@ Reference this agent definition in your copilot instructions when:
 ### Usage Example
 
 ```
-You are working on dotfiles. Follow the Shell Script Developer agent guidelines 
+You are working on dotfiles. Follow the Shell Script Developer agent guidelines
 defined in AGENTS.md for all bash/zsh script development.
 ```

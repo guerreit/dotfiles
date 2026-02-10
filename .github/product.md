@@ -23,7 +23,9 @@ Developers face several recurring challenges when setting up new machines or mai
 This repository solves these problems through:
 
 ### 1. **One-Command Setup**
+
 A single `./scripts/setup.sh` command orchestrates the entire environment configuration:
+
 - Homebrew package installation (CLI tools and GUI apps)
 - Shell environment (Oh My Zsh, plugins, themes)
 - Editor configuration (Vim, VS Code extensions)
@@ -32,27 +34,35 @@ A single `./scripts/setup.sh` command orchestrates the entire environment config
 - Dotfile synchronization with automatic backups
 
 ### 2. **Profile-Aware Installation**
+
 Choose "Personal" or "Work" during setup to:
+
 - Install different sets of CLI tools and GUI applications
 - Configure appropriate default Git identities
 - Maintain role separation while using a single repository
 
 ### 3. **Automatic Git Identity Management**
+
 A sophisticated role-based system ensures you always commit with the correct identity:
+
 - Define personal and work Git identities in a single source file (`src/.gitconfig.roles`)
 - Configure directory patterns (e.g., `~/work/**` uses work identity)
 - Automatically apply the correct identity based on where you're working
 - Validate configuration with `git-config-status.sh`
 
 ### 4. **Safety-First Philosophy**
+
 Multiple layers of protection prevent data loss:
+
 - Automatic timestamped backups before any file is overwritten
 - Idempotent scripts that can be safely re-run
 - Validation steps before applying changes
 - Clear logging of all actions taken
 
 ### 5. **Developer Experience Focus**
+
 Designed for real-world usage patterns:
+
 - Optional SSH key generation for personal/work separation
 - Terminal theme integration (Solarized)
 - Editor plugins and extensions pre-configured

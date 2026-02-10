@@ -1,9 +1,11 @@
 # /implement-feature
 
 ## Prompt Overview
+
 This prompt helps implement new features or debug existing functionality in the dotfiles repository while following all established conventions, architecture patterns, and best practices.
 
 ## Context Loading
+
 Before beginning any implementation, review these critical context files:
 
 1. **Architecture & Conventions**: Read `.github/copilot-instructions.md` to understand:
@@ -27,6 +29,7 @@ Before beginning any implementation, review these critical context files:
 ## Implementation Workflow
 
 ### Phase 1: Analysis & Planning (REQUIRED)
+
 Before writing any code, complete these steps:
 
 1. **Understand the Request**
@@ -49,7 +52,8 @@ Before writing any code, complete these steps:
 
 ### Phase 2: Implementation (Follow Best Practices)
 
-#### For Shell Scripts (scripts/*.sh)
+#### For Shell Scripts (scripts/\*.sh)
+
 Follow ALL guidelines from `AGENTS.md`:
 
 ```bash
@@ -78,6 +82,7 @@ main "$@"
 ```
 
 **Critical Requirements**:
+
 - **Quote all variables**: `"$variable"` never `$variable`
 - **Use strict mode**: `set -euo pipefail`
 - **Test file existence**: Use `-f`, `-d`, `-e` before operations
@@ -86,13 +91,15 @@ main "$@"
 - **Log clearly**: Use color functions for user feedback
 - **Handle errors**: Don't leave system in broken state
 
-#### For Source Files (src/.*)
+#### For Source Files (src/.\*)
+
 - These are templates that get synced to `$HOME`
 - Modify in `src/`, then run `./scripts/sync.sh` to deploy
 - Never edit deployed files in `$HOME` directly
 - Consider both personal and work profiles
 
 #### For Git Identity Features
+
 - **Source of truth**: `src/.gitconfig.roles`
 - **Pattern matching**: Add/modify `GIT_WORK_PATTERNS` array
 - **Config generation**: Update `generate_git_configs()` in `sync.sh`
@@ -121,6 +128,7 @@ main "$@"
 ### Phase 4: Testing & Validation
 
 **Before Committing**:
+
 1. **Syntax Check**: Run `zsh -n scripts/your-script.sh`
 2. **Shellcheck**: Ensure code passes linting
 3. **Dry Run**: Test with dry-run flags if available
@@ -130,12 +138,13 @@ main "$@"
 7. **Idempotency**: Run script twice, verify no side effects
 
 **For Git Identity Changes**:
+
 ```bash
 # Test in different directories
 cd ~/Code/personal-project
 ./scripts/git-config-status.sh
 
-cd ~/work/company-project  
+cd ~/work/company-project
 ./scripts/git-config-status.sh
 
 # Verify correct identity is detected
@@ -146,6 +155,7 @@ git config user.email
 ### Phase 5: Documentation
 
 Update relevant documentation:
+
 1. **README.md**: If adding user-facing features or new scripts
 2. **Code Comments**: Explain "why" not "what"
 3. **Function Headers**: Document args, return values, side effects
@@ -154,6 +164,7 @@ Update relevant documentation:
 ## Common Implementation Patterns
 
 ### Adding a New Script
+
 ```bash
 # 1. Create script in scripts/ directory
 touch scripts/new-feature.sh
@@ -165,6 +176,7 @@ chmod u+x scripts/new-feature.sh
 ```
 
 ### Adding Profile-Specific Package
+
 ```bash
 # In scripts/brews.sh or scripts/casks.sh
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then
@@ -185,6 +197,7 @@ done
 ```
 
 ### Adding Git Identity Pattern
+
 ```bash
 # In src/.gitconfig.roles
 # Add work directory patterns
@@ -199,6 +212,7 @@ GIT_WORK_PATTERNS=(
 ```
 
 ### Creating Backup Before Changes
+
 ```bash
 backup_file() {
     local file="$1"
@@ -217,6 +231,7 @@ backup_file "$HOME/.zshrc"
 ## Debugging Existing Features
 
 ### Systematic Debugging Approach
+
 1. **Identify the Issue**
    - What's the expected behavior?
    - What's the actual behavior?
@@ -244,26 +259,32 @@ backup_file "$HOME/.zshrc"
 ### Common Issues & Solutions
 
 **Issue**: Script fails with "command not found"
+
 - **Check**: Is the command in PATH? Use `which command` or `command -v command`
 - **Fix**: Install missing dependency or add path to PATH
 
 **Issue**: Variable expansion not working
+
 - **Check**: Are variables quoted? Using correct syntax?
 - **Fix**: Always use `"$variable"` or `"${variable}"`
 
 **Issue**: File not found errors
+
 - **Check**: Using absolute or relative paths? Does file exist?
 - **Fix**: Use absolute paths or check existence with `[[ -f "$file" ]]`
 
 **Issue**: Git identity not switching
+
 - **Check**: Run `./scripts/git-config-status.sh` to see active identity
 - **Fix**: Verify patterns in `src/.gitconfig.roles`, run `sync.sh`
 
 **Issue**: Script not idempotent (fails on second run)
+
 - **Check**: Does it test for existing state before acting?
 - **Fix**: Add checks like "if not installed, then install"
 
 **Issue**: Backup not created
+
 - **Check**: Is backup function being called? Correct file path?
 - **Fix**: Ensure backup happens BEFORE modification
 
@@ -288,6 +309,7 @@ Before finalizing any implementation:
 ## Example Usage
 
 **Adding a new feature**:
+
 ```
 I want to add a script that installs Python packages from a requirements.txt file.
 It should support both global and virtual environment installation.
@@ -300,6 +322,7 @@ Context needed:
 ```
 
 **Debugging an issue**:
+
 ```
 The Git identity is not switching correctly in subdirectories.
 Expected: Work identity in ~/work/project/subdir
