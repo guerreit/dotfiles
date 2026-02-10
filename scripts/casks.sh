@@ -12,7 +12,7 @@ if ! brew upgrade --cask; then
 fi
 
 # Common casks for both profiles
-COMMON_CASKS=(visual-studio-code)
+COMMON_CASKS=(visual-studio-code spotify)
 
 # Profile-specific casks
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then

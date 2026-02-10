@@ -3,7 +3,6 @@
 # BREW & CASK
 alias brews="brew list -1"
 alias casks="brew list --cask -1"
-alias cask="brew cask"
 
 # Re source the shell
 alias src="_omz::reload"
@@ -11,14 +10,17 @@ alias src="_omz::reload"
 # Update zsh
 alias update-omz="_omz::update"
 
-# Update all brews, casks
-alias update-brews="brew update; brew upgrade; brew cleanup; brew upgrade --cask"
+# Update Homebrew and all CLI tools (formulae)
+alias update-brews="brew update; brew upgrade; brew cleanup"
+
+# Update all GUI apps (casks)
+alias update-casks="brew upgrade --cask"
 
 # Update OSX
 alias update-os="sudo softwareupdate --all --install --force"
 
 # Update everything
-alias update-all="update-brews; update-os; update-omz; src"
+alias update-all="update-brews; update-casks; update-os; update-omz; src"
 
 # get to hosts
 alias hosts="sudo vim /etc/hosts"
