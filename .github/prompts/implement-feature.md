@@ -1,4 +1,8 @@
-# /implement-feature
+---
+description: Implement features or fix bugs in dotfiles following all architecture patterns and best practices
+---
+
+# implement-feature
 
 ## Prompt Overview
 
