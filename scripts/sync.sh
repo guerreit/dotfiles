@@ -178,8 +178,17 @@ EOF
 
   # Copy existing .gitconfig content up to any existing includeIf sections
   if [[ -f "$base_gitconfig" ]]; then
-    # Remove any existing includeIf or include sections at the end
-    sed '/^# Role-based configuration/,$d' "$base_gitconfig" > "$temp_gitconfig"
+    # Remove any existing role-based configuration sections
+    # Look for the delimiter line before the "Role-based Configuration" heading
+    # This is more reliable than trying to match the heading itself
+    local line_num=$(grep -n "^# Role-based Configuration (Automatic Git Identity Switching)" "$base_gitconfig" | head -1 | cut -d: -f1)
+    if [[ -n "$line_num" && "$line_num" -gt 2 ]]; then
+      # Delete from 2 lines before the heading (to include the delimiter) to the end
+      head -n $((line_num - 3)) "$base_gitconfig" > "$temp_gitconfig"
+    else
+      # No existing section found, just copy the whole file
+      cp "$base_gitconfig" "$temp_gitconfig"
+    fi
   else
     error ".gitconfig template not found at $base_gitconfig"
     return 1
