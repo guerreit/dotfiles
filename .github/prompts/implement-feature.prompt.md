@@ -1,18 +1,6 @@
 ---
 description: Implement features or fix bugs in the dotfiles repository
-name: implement
-agent: agent
-tools:
-  - semantic_search
-  - grep_search
-  - read_file
-  - replace_string_in_file
-  - multi_replace_string_in_file
-  - run_in_terminal
-  - file_search
-  - list_dir
-  - create_file
----
+name: implement-feature
 
 You are implementing a feature or fixing a bug in a **role-aware macOS dotfiles system**. This is a production system used on real machines. Safety, idempotency, and backups are CRITICAL.
 

@@ -14,7 +14,7 @@ alias update-omz="_omz::update"
 alias update-brews="brew update; brew upgrade; brew cleanup"
 
 # Update all GUI apps (casks)
-alias update-casks="brew upgrade --cask"
+alias update-casks="brew upgrade --cask --greedy"
 
 # Update OSX
 alias update-os="sudo softwareupdate --all --install --force"
