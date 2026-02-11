@@ -32,21 +32,58 @@ A reproducible macOS development environment for both personal and work profiles
    - Tweak `src/.ssh_config` if your SSH hostnames differ.
    - Keep `src/.profile` for any legacy shell exports, but Git identity now lives in `.gitconfig.roles`.
 4. **Run the installer**
+
    ```sh
-   ./scripts/setup.sh
+   ./dotfiles setup
    ```
 
    - Pick Personal or Work, confirm the optional SSH-key generation prompt, and watch the tooling install.
+
 5. **Restart your terminal session** so Zsh loads the new configuration.
 6. **Verify Git identities** with:
    ```sh
-   ./scripts/git-config-status.sh
+   ./dotfiles status
    ```
-7. Re-run `./scripts/sync.sh [personal|work]` whenever you edit files under `src/`.
+7. Re-run `./dotfiles sync [personal|work]` whenever you edit files under `src/`.
 
-## What `setup.sh` Runs
+## CLI Interface
 
-`setup.sh` orchestrates the entire flow:
+The `dotfiles` CLI provides a unified interface for all dotfiles operations:
+
+```sh
+./dotfiles <command> [options]
+```
+
+**Available Commands:**
+
+- `setup` – Complete first-time setup (guided installation)
+- `sync [profile]` – Sync dotfiles from src/ to $HOME (profile: personal/work)
+- `backup` – Create timestamped backup of existing dotfiles
+- `status` – Show current Git identity and configuration status
+- `ssh-keys` – Generate SSH keys for personal and work accounts
+- `theme` – Install terminal theme (Solarized Dark)
+- `install-brews` – Install Homebrew formulae
+- `install-casks` – Install Homebrew casks
+- `install-plugins` – Install Oh My Zsh plugins
+- `install-vscode` – Install VS Code extensions
+- `osx` – Apply macOS system preferences
+
+**Examples:**
+
+```sh
+./dotfiles help              # Show all commands
+./dotfiles setup             # First-time setup
+./dotfiles sync personal     # Sync with personal profile
+./dotfiles status            # Check Git identity
+./dotfiles backup            # Backup before changes
+./dotfiles ssh-keys          # Generate SSH keys
+```
+
+> 💡 **Tip:** The CLI is a wrapper around the scripts in `scripts/` directory. You can still run scripts directly if needed (e.g., `./scripts/setup.sh`), but the CLI provides a cleaner, more consistent interface.
+
+## What Setup Does
+
+The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates the entire flow:
 
 1. Persist your profile choice into `src/.gitconfig.roles` so the default Git role matches the selected profile.
 2. Optional SSH key generation via `scripts/ssh-key.sh` (personal + work Ed25519 keys, added to the agent and keychain).
@@ -82,14 +119,14 @@ GIT_WORK_PATTERNS=(
 GIT_DEFAULT_ROLE="personal"
 ```
 
-After editing the file, run `./scripts/sync.sh` to regenerate every Git config artifact. The script:
+After editing the file, run `./dotfiles sync` to regenerate every Git config artifact. The script:
 
 - Writes `~/.gitconfig.personal` and `~/.gitconfig.work`
 - Rebuilds the `includeIf` section inside `~/.gitconfig`
 - Wipes any lingering global `user.*` settings that would override conditional includes
 - Validates the generated files before copying them into `$HOME`
 
-Use `./scripts/git-config-status.sh --dry-run` anytime to see which pattern would match the current directory, confirm the expected identity, and verify all files exist.
+Use `./dotfiles status --dry-run` anytime to see which pattern would match the current directory, confirm the expected identity, and verify all files exist.
 
 > 🔁 **Profiles vs roles**
 > _Profiles_ (Personal/Work) drive which packages/apps install. _Roles_ (personal/work) determine which Git identity is active. `setup.sh` keeps them in sync by updating `GIT_DEFAULT_ROLE`, but you can always override by rerunning `setup.sh` or editing `.gitconfig.roles` followed by `sync.sh`.
@@ -152,16 +189,21 @@ Use `./scripts/git-config-status.sh --dry-run` anytime to see which pattern woul
 
 ## Supporting Scripts
 
-- `scripts/setup.sh` – main entry point described above
-- `scripts/brews.sh` / `scripts/casks.sh` – Homebrew formulae and casks
-- `scripts/plugins.sh` – Oh My Zsh + Vim dependency installer
-- `scripts/vscode-extensions.sh` – VS Code extension manager
-- `scripts/osx.sh` – macOS defaults tweaks
-- `scripts/sync.sh` – rsync deployment + Git config generation
-- `scripts/backup.sh` – manual backup helper (also invoked automatically)
-- `scripts/git-config-status.sh` – validate the role-aware Git configuration
-- `scripts/ssh-key.sh` – SSH key bootstrap
-- `scripts/terminal-theme.sh` – Terminal profile importer
+All scripts can be run directly or through the `./dotfiles` CLI (recommended):
+
+- `scripts/setup.sh` (or `./dotfiles setup`) – main entry point for full installation
+- `scripts/sync.sh` (or `./dotfiles sync`) – rsync deployment + Git config generation
+- `scripts/backup.sh` (or `./dotfiles backup`) – manual backup helper (also invoked automatically)
+- `scripts/git-config-status.sh` (or `./dotfiles status`) – validate role-aware Git configuration
+- `scripts/ssh-key.sh` (or `./dotfiles ssh-keys`) – SSH key bootstrap
+- `scripts/brews.sh` (or `./dotfiles install-brews`) – Homebrew formulae installer
+- `scripts/casks.sh` (or `./dotfiles install-casks`) – Homebrew casks installer
+- `scripts/plugins.sh` (or `./dotfiles install-plugins`) – Oh My Zsh + Vim plugins
+- `scripts/vscode-extensions.sh` (or `./dotfiles install-vscode`) – VS Code extensions
+- `scripts/osx.sh` (or `./dotfiles osx`) – macOS defaults tweaks
+- `scripts/terminal-theme.sh` (or `./dotfiles theme`) – Terminal profile importer
+
+> 💡 **CLI vs Direct Scripts:** The `dotfiles` CLI provides better error handling, consistent output, and a cleaner interface. Direct script execution is still supported for advanced use cases.
 
 ## Safety Nets & Recovery
 

@@ -1,0 +1,190 @@
+#!/usr/bin/env zsh
+#
+# Dotfiles CLI
+# Description: Unified command-line interface for dotfiles management
+# Usage: ./dotfiles <command> [options]
+#
+
+set -euo pipefail
+
+# Constants
+readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+readonly SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
+
+# Color functions
+info() { print -P "%F{cyan}[INFO]%f $1"; }
+success() { print -P "%F{green}[SUCCESS]%f $1"; }
+error() { print -P "%F{red}[ERROR]%f $1" >&2; }
+warning() { print -P "%F{yellow}[WARNING]%f $1"; }
+
+# Version
+readonly VERSION="1.0.0"
+
+# Help text
+show_help() {
+  cat <<EOF
+Dotfiles CLI v${VERSION}
+========================
+
+A unified interface for managing your dotfiles configuration.
+
+Usage:
+  dotfiles <command> [options]
+
+Commands:
+  setup              Run the full dotfiles setup (first-time installation)
+  sync [profile]     Sync dotfiles from src/ to \$HOME (profile: personal/work)
+  backup             Create a timestamped backup of existing dotfiles
+  status             Show current Git identity and configuration status
+  ssh-keys           Generate SSH keys for personal and work accounts
+  theme              Install terminal theme (Solarized Dark)
+  install-brews      Install Homebrew formulae (requires profile selection)
+  install-casks      Install Homebrew casks (requires profile selection)
+  install-plugins    Install and configure Oh My Zsh plugins
+  install-vscode     Install VS Code extensions
+  osx                Apply macOS system preferences
+
+Options:
+  -h, --help         Show this help message
+  -v, --version      Show version information
+  --dry-run          Test mode (supported by: status)
+
+Examples:
+  dotfiles setup                    # First-time setup with guided install
+  dotfiles sync personal            # Sync dotfiles for personal profile
+  dotfiles status                   # Check current Git identity
+  dotfiles backup                   # Create backup before making changes
+  dotfiles ssh-keys                 # Generate SSH keys
+
+Notes:
+  - Run 'setup' for first-time installation (includes all components)
+  - Run 'sync' after editing any files in src/ to deploy changes
+  - Use 'status' to verify Git identity switching is working correctly
+  - Create a 'backup' before making significant changes
+
+For more information, see README.md
+
+EOF
+}
+
+# Version info
+show_version() {
+  echo "Dotfiles CLI v${VERSION}"
+}
+
+# Execute script with error handling
+run_script() {
+  local script="$1"
+  shift
+  local script_path="${SCRIPTS_DIR}/${script}"
+
+  if [[ ! -f "$script_path" ]]; then
+    error "Script not found: $script"
+    return 1
+  fi
+
+  if [[ ! -x "$script_path" ]]; then
+    error "Script is not executable: $script"
+    info "Run: chmod +x $script_path"
+    return 1
+  fi
+
+  # Execute the script with any additional arguments
+  "$script_path" "$@"
+}
+
+# Main command dispatcher
+main() {
+  # No arguments - show help
+  if [[ $# -eq 0 ]]; then
+    show_help
+    return 0
+  fi
+
+  local command="$1"
+  shift
+
+  case "$command" in
+    setup)
+      info "Running full dotfiles setup..."
+      run_script "setup.sh" "$@"
+      ;;
+
+    sync)
+      info "Syncing dotfiles..."
+      run_script "sync.sh" "$@"
+      ;;
+
+    backup)
+      info "Creating backup..."
+      run_script "backup.sh" "$@"
+      ;;
+
+    status|git-status)
+      run_script "git-config-status.sh" "$@"
+      ;;
+
+    ssh-keys|ssh)
+      info "Setting up SSH keys..."
+      run_script "ssh-key.sh" "$@"
+      ;;
+
+    theme)
+      info "Installing terminal theme..."
+      run_script "terminal-theme.sh" "$@"
+      ;;
+
+    install-brews|brews)
+      if [[ -z "${DOTFILES_PROFILE:-}" ]]; then
+        warning "DOTFILES_PROFILE not set. Use: DOTFILES_PROFILE=personal dotfiles install-brews"
+        warning "Or run 'dotfiles setup' for guided installation."
+        return 1
+      fi
+      info "Installing Homebrew formulae (profile: ${DOTFILES_PROFILE})..."
+      run_script "brews.sh" "$@"
+      ;;
+
+    install-casks|casks)
+      if [[ -z "${DOTFILES_PROFILE:-}" ]]; then
+        warning "DOTFILES_PROFILE not set. Use: DOTFILES_PROFILE=personal dotfiles install-casks"
+        warning "Or run 'dotfiles setup' for guided installation."
+        return 1
+      fi
+      info "Installing Homebrew casks (profile: ${DOTFILES_PROFILE})..."
+      run_script "casks.sh" "$@"
+      ;;
+
+    install-plugins|plugins)
+      info "Installing Oh My Zsh plugins..."
+      run_script "plugins.sh" "$@"
+      ;;
+
+    install-vscode|vscode)
+      info "Installing VS Code extensions..."
+      run_script "vscode-extensions.sh" "$@"
+      ;;
+
+    osx|macos)
+      info "Applying macOS system preferences..."
+      run_script "osx.sh" "$@"
+      ;;
+
+    -h|--help|help)
+      show_help
+      ;;
+
+    -v|--version|version)
+      show_version
+      ;;
+
+    *)
+      error "Unknown command: $command"
+      echo ""
+      echo "Run 'dotfiles help' to see available commands."
+      return 1
+      ;;
+  esac
+}
+
+# Execute main function
+main "$@"
