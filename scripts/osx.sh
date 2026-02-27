@@ -32,5 +32,34 @@ if ! defaults write NSGlobalDomain NSUseAnimatedFocusRing -bool false; then
   print -P "%F{red}[ERROR]%f Failed to disable focus ring animation." >&2
 fi
 
+# Configure screenshot location
+readonly SCREENSHOT_DIR="${HOME}/Desktop/screenshots"
+info "Configuring screenshots to save to ${SCREENSHOT_DIR}..."
+
+# Create screenshots directory if it doesn't exist
+if [[ ! -d "$SCREENSHOT_DIR" ]]; then
+  if mkdir -p "$SCREENSHOT_DIR"; then
+    info "Created directory: ${SCREENSHOT_DIR}"
+  else
+    print -P "%F{red}[ERROR]%f Failed to create screenshot directory." >&2
+  fi
+fi
+
+# Set screenshot location
+if ! defaults write com.apple.screencapture location "$SCREENSHOT_DIR"; then
+  print -P "%F{red}[ERROR]%f Failed to set screenshot location." >&2
+fi
+
+# Disable screenshot thumbnail preview (optional - remove if you want the preview)
+if ! defaults write com.apple.screencapture show-thumbnail -bool false; then
+  print -P "%F{red}[ERROR]%f Failed to disable screenshot thumbnail." >&2
+fi
+
+# Apply screenshot changes
+info "Applying screenshot settings..."
+if ! killall SystemUIServer 2>/dev/null; then
+  print -P "%F{yellow}[WARN]%f Could not restart SystemUIServer." >&2
+fi
+
 success "OSX Updates Complete!"
 info "Some changes may require a logout/restart to take effect."
