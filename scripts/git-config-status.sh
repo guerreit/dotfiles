@@ -1,6 +1,18 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly REPO_ROLES_FILE="$REPO_ROOT/src/.gitconfig.roles"
+readonly HOME_ROLES_FILE="$HOME/.gitconfig.roles"
+
+ROLES_FILE=""
+if [[ -f "$REPO_ROLES_FILE" ]]; then
+  ROLES_FILE="$REPO_ROLES_FILE"
+elif [[ -f "$HOME_ROLES_FILE" ]]; then
+  ROLES_FILE="$HOME_ROLES_FILE"
+fi
+
 # Color functions
 info() { print -P "%F{cyan}[INFO]%f $1"; }
 success() { print -P "%F{green}✓%f $1"; }
@@ -76,8 +88,8 @@ echo "  Email: $CURRENT_EMAIL"
 echo ""
 
 # Load default role first
-if [[ -f "$HOME/.gitconfig.roles" ]]; then
-  source "$HOME/.gitconfig.roles" 2>/dev/null || true
+if [[ -n "$ROLES_FILE" ]]; then
+  source "$ROLES_FILE" 2>/dev/null || true
 fi
 
 # Determine active role based on directory patterns
@@ -138,8 +150,12 @@ echo "  Email: $EXPECTED_EMAIL"
 echo ""
 
 # Show configured patterns
-if [[ -f "$HOME/.gitconfig.roles" ]]; then
-  source "$HOME/.gitconfig.roles" 2>/dev/null || true
+if [[ -n "$ROLES_FILE" ]]; then
+  source "$ROLES_FILE" 2>/dev/null || true
+
+  echo "Roles Configuration File:"
+  echo "  $ROLES_FILE"
+  echo ""
 
   echo "Configured Work Patterns:"
   if [[ -n "${GIT_WORK_PATTERNS:-}" && ${#GIT_WORK_PATTERNS[@]} -gt 0 ]]; then
@@ -182,11 +198,11 @@ else
   success "~/.gitconfig.work exists"
 fi
 
-if [[ ! -f "$HOME/.gitconfig.roles" ]]; then
-  error "Missing ~/.gitconfig.roles"
+if [[ -z "$ROLES_FILE" ]]; then
+  error "Missing roles configuration (expected $REPO_ROLES_FILE or $HOME_ROLES_FILE)"
   ISSUES_FOUND=true
 else
-  success "~/.gitconfig.roles exists"
+  success "Roles configuration exists ($ROLES_FILE)"
 fi
 
 # Validate .gitconfig syntax
@@ -232,8 +248,8 @@ if [[ "$ISSUES_FOUND" == "true" ]]; then
   echo "Status: ✗ Configuration issues detected"
   echo ""
   echo "Remediation Steps:"
-  echo "  1. Run: cd ~/dotfiles && ./scripts/sync.sh"
-  echo "  2. Edit ~/.gitconfig.roles to customize your identities"
+  echo "  1. Run: $REPO_ROOT/scripts/sync.sh"
+  echo "  2. Edit $REPO_ROLES_FILE to customize your identities"
   echo "  3. Run this script again to verify"
   echo ""
   exit 1

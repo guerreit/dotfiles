@@ -18,7 +18,8 @@ warn() { print -P "%F{yellow}[WARN]%f $1"; }
 # Check if VS Code is installed
 if ! command -v code &> /dev/null; then
   warn "VS Code CLI not found. Please install VS Code first or ensure 'code' command is available."
-  exit 1
+  warn "Skipping VS Code extension installation."
+  exit 0
 fi
 
 # Essential extensions to install
