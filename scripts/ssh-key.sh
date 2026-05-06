@@ -103,13 +103,20 @@ fi
 chmod 600 "$PERSONAL_KEY" "$PERSONAL_KEY.pub" "$WORK_KEY" "$WORK_KEY.pub"
 chmod 600 "$CONFIG_FILE"
 
-# Print public keys
+# Print public keys and copy to clipboard
 echo ""
 echo "🔓 Public key for PERSONAL GitHub (add to https://github.com/settings/ssh/new):"
 cat "$PERSONAL_KEY.pub"
+pbcopy < "$PERSONAL_KEY.pub"
+info "Personal public key copied to clipboard. Paste it at https://github.com/settings/ssh/new, then press Enter to continue..."
+read -r _
+
 echo ""
 echo "🔓 Public key for WORK GitHub (add to https://github.com/settings/ssh/new):"
 cat "$WORK_KEY.pub"
+pbcopy < "$WORK_KEY.pub"
+info "Work public key copied to clipboard. Paste it at https://github.com/settings/ssh/new when ready."
+
 echo ""
 success "Done. Use the following Git remote URLs:"
 echo "  Personal: git@github.com-personal:yourusername/repo.git"

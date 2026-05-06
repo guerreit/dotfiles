@@ -7,23 +7,24 @@ Host *
   UseKeychain yes
   IdentitiesOnly yes
 
-# Personal github account
-Host github.com-guerreit
+# Personal GitHub account
+Host github.com-personal
   HostName github.com
   User git
-  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_ed25519_github_personal
   IdentitiesOnly yes
 
-# Slalom work github account
-Host github.com-garrettj-slalom
+# Work GitHub account
+Host github.com-work
   HostName github.com
   User git
-  IdentityFile ~/.ssh/id_ed25519_slalom
+  IdentityFile ~/.ssh/id_ed25519_github_work
   IdentitiesOnly yes
 
-# Default github (uses personal key)
+# Default github (tries personal then work)
 Host github.com
   HostName github.com
   User git
-  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_ed25519_github_personal
+  IdentityFile ~/.ssh/id_ed25519_github_work
   IdentitiesOnly yes

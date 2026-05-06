@@ -6,7 +6,7 @@ aws_login() {
 
 # SSH key management functions
 ssh-add-work() {
-    local work_key="$HOME/.ssh/id_ed25519_slalom"
+    local work_key="$HOME/.ssh/id_ed25519_github_work"
     if [[ -f "$work_key" ]]; then
         ssh-add "$work_key" && echo "✓ Work SSH key added to agent"
     else
@@ -16,7 +16,7 @@ ssh-add-work() {
 }
 
 ssh-add-personal() {
-    local personal_key="$HOME/.ssh/id_ed25519"
+    local personal_key="$HOME/.ssh/id_ed25519_github_personal"
     if [[ -f "$personal_key" ]]; then
         ssh-add "$personal_key" && echo "✓ Personal SSH key added to agent"
     else
