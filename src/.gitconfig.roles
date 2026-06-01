@@ -45,4 +45,4 @@ GIT_WORK_PATTERNS=(
 # ------------
 # Which identity to use when no patterns match (personal|work)
 # Recommended: "personal"
-GIT_DEFAULT_ROLE="work"
+GIT_DEFAULT_ROLE="personal"

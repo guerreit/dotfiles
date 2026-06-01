@@ -14,6 +14,13 @@ Host github.com-personal
   IdentityFile ~/.ssh/id_ed25519_github_personal
   IdentitiesOnly yes
 
+# Legacy personal alias used by existing remotes
+Host github.com-guerreit
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_github_personal
+  IdentitiesOnly yes
+
 # Work GitHub account
 Host github.com-work
   HostName github.com

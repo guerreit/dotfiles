@@ -99,6 +99,14 @@ if ! grep -q "Host github.com-work" "$CONFIG_FILE"; then
   echo "  IdentityFile $WORK_KEY" >> "$CONFIG_FILE"
 fi
 
+if ! grep -q "Host github.com-guerreit" "$CONFIG_FILE"; then
+  echo -e "\n# Legacy personal alias used by existing remotes" >> "$CONFIG_FILE"
+  echo "Host github.com-guerreit" >> "$CONFIG_FILE"
+  echo "  HostName github.com" >> "$CONFIG_FILE"
+  echo "  User git" >> "$CONFIG_FILE"
+  echo "  IdentityFile $PERSONAL_KEY" >> "$CONFIG_FILE"
+fi
+
 # Set permissions
 chmod 600 "$PERSONAL_KEY" "$PERSONAL_KEY.pub" "$WORK_KEY" "$WORK_KEY.pub"
 chmod 600 "$CONFIG_FILE"
