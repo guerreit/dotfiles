@@ -222,13 +222,14 @@ EOF
   if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
     echo "# Work directory patterns" >> "$temp_gitconfig"
     for pattern in "${GIT_WORK_PATTERNS[@]}"; do
-      # Expand ~ to home directory for gitdir (Git requires absolute paths)
-      local expanded_pattern="${pattern/#\~/$HOME}"
-      # Add trailing slash if pattern ends with /** to ensure proper matching
-      if [[ "$expanded_pattern" == *"/**" ]]; then
-        expanded_pattern="${expanded_pattern%/**}/"
+      # Preserve patterns as configured in .gitconfig.roles so generated
+      # config stays machine-portable and does not churn on username paths.
+      local rendered_pattern="$pattern"
+      # Add trailing slash if pattern ends with /** to ensure proper matching.
+      if [[ "$rendered_pattern" == *"/**" ]]; then
+        rendered_pattern="${rendered_pattern%/**}/"
       fi
-      echo "[includeIf \"gitdir:$expanded_pattern\"]" >> "$temp_gitconfig"
+      echo "[includeIf \"gitdir:$rendered_pattern\"]" >> "$temp_gitconfig"
       echo "	path = ~/.gitconfig.work" >> "$temp_gitconfig"
     done
     echo "" >> "$temp_gitconfig"

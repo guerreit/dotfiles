@@ -79,11 +79,11 @@
 # =============================================================================
 
 # Work directory patterns
-[includeIf "gitdir:/Users/computer/work/"]
+[includeIf "gitdir:~/work/"]
 	path = ~/.gitconfig.work
-[includeIf "gitdir:/Users/computer/clients/"]
+[includeIf "gitdir:~/clients/"]
 	path = ~/.gitconfig.work
-[includeIf "gitdir:/Users/computer/code/work/"]
+[includeIf "gitdir:~/code/work/"]
 	path = ~/.gitconfig.work
 
 # Default to personal configuration
