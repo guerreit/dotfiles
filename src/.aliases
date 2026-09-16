@@ -29,8 +29,8 @@ alias hosts="sudo vim /etc/hosts"
 alias sshkeys="ssh-add -l"
 
 ## Copy my public key(s) to the pasteboard
-alias sshpersonal="more ~/.ssh/id_ed25519.pub | pbcopy | printf '=> Personal key copied to pasteboard.\n'"
-alias sshwork="more ~/.ssh/id_ed25519_slalom.pub | pbcopy | printf '=> Work key copied to pasteboard.\n'"
+alias sshpersonal="pbcopy < ~/.ssh/id_ed25519_github_personal.pub && printf '=> Personal key copied to pasteboard.\n'"
+alias sshwork="pbcopy < ~/.ssh/id_ed25519_github_work.pub && printf '=> Work key copied to pasteboard.\n'"
 
 # Show/hide hidden files in Finder
 alias showdotfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"

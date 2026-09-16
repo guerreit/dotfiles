@@ -92,18 +92,26 @@ if [[ -n "$ROLES_FILE" ]]; then
   source "$ROLES_FILE" 2>/dev/null || true
 fi
 
-# Determine active role based on directory patterns
+# Determine active role using directory fallbacks, then remote-owner overrides.
 ACTIVE_ROLE="${GIT_DEFAULT_ROLE:-personal}"
 MATCHED_PATTERN="none"
+MATCHED_OWNER="none"
+RAW_REMOTE=""
+EFFECTIVE_REMOTE=""
+EXPECTED_SSH_ALIAS=""
 EXPECTED_NAME=""
 EXPECTED_EMAIL=""
 
 if git rev-parse --git-dir &>/dev/null 2>&1; then
-  CURRENT_DIR=$(pwd)
+  CURRENT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+  RAW_REMOTE=$(git config --get remote.origin.url 2>/dev/null || true)
+  EFFECTIVE_REMOTE=$(git remote get-url origin 2>/dev/null || true)
   echo "Detection Context:"
-  echo "  Current Directory: $CURRENT_DIR"
+  echo "  Repository Root:  $CURRENT_DIR"
+  echo "  Raw Remote:       ${RAW_REMOTE:-(none)}"
+  echo "  Effective Remote: ${EFFECTIVE_REMOTE:-(none)}"
 
-  # Check which pattern matched to determine role
+  # Directory patterns are fallback rules for repositories without known owners.
   if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
     for pattern in "${GIT_WORK_PATTERNS[@]}"; do
       # Expand ~ to home directory
@@ -121,12 +129,48 @@ if git rev-parse --git-dir &>/dev/null 2>&1; then
     done
   fi
 
-  if [[ "$MATCHED_PATTERN" != "none" ]]; then
+  # Remote owners override directory and default fallbacks.
+  for owner in "${GIT_PERSONAL_GITHUB_OWNERS[@]}"; do
+    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* ||
+          "$RAW_REMOTE" == "git@github.com-personal:$owner/"* ||
+          "$RAW_REMOTE" == "git@github.com-guerreit:$owner/"* ||
+          "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
+      ACTIVE_ROLE="personal"
+      MATCHED_OWNER="github.com/$owner"
+      EXPECTED_SSH_ALIAS="github.com-personal"
+      break
+    fi
+  done
+
+  for owner in "${GIT_WORK_GITHUB_OWNERS[@]}"; do
+    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* ||
+          "$RAW_REMOTE" == "git@github.com-work:$owner/"* ||
+          "$RAW_REMOTE" == "git@github.com-garrettj-slalom:$owner/"* ||
+          "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
+      ACTIVE_ROLE="work"
+      MATCHED_OWNER="github.com/$owner"
+      EXPECTED_SSH_ALIAS="github.com-work"
+      break
+    fi
+  done
+
+  for owner in "${GIT_WORK_BITBUCKET_OWNERS[@]}"; do
+    if [[ "$RAW_REMOTE" == "git@bitbucket.org:$owner/"* ||
+          "$RAW_REMOTE" == "https://bitbucket.org/$owner/"* ]]; then
+      ACTIVE_ROLE="work"
+      MATCHED_OWNER="bitbucket.org/$owner"
+      break
+    fi
+  done
+
+  if [[ "$MATCHED_OWNER" != "none" ]]; then
+    echo "  Matched Owner:    $MATCHED_OWNER"
+    echo "  Detection Method: Remote owner"
+  elif [[ "$MATCHED_PATTERN" != "none" ]]; then
     echo "  Matched Pattern:  $MATCHED_PATTERN"
-    echo "  Detection Method: Directory pattern match (overrides default)"
+    echo "  Detection Method: Directory fallback"
   else
-    echo "  Matched Pattern:  (none - using default role)"
-    echo "  Detection Method: Default role from configuration"
+    echo "  Detection Method: Default role"
   fi
   echo ""
 else
@@ -239,6 +283,24 @@ if grep -q "includeIf" "$HOME/.gitconfig" 2>/dev/null; then
 else
   warning "No conditional includes found in .gitconfig"
   warning "Role-based switching may not be active"
+fi
+
+# Validate that known GitHub owners are rewritten to the expected SSH alias.
+if [[ -n "$EXPECTED_SSH_ALIAS" ]]; then
+  if [[ "$EFFECTIVE_REMOTE" == "git@$EXPECTED_SSH_ALIAS:"* ]]; then
+    success "Remote uses the expected SSH alias ($EXPECTED_SSH_ALIAS)"
+  else
+    error "Remote is not routed through $EXPECTED_SSH_ALIAS"
+    ISSUES_FOUND=true
+  fi
+
+  EXPECTED_IDENTITY=$(ssh -G "$EXPECTED_SSH_ALIAS" 2>/dev/null | awk '/^identityfile / { print $2; exit }')
+  if [[ -n "$EXPECTED_IDENTITY" ]]; then
+    success "SSH alias selects $EXPECTED_IDENTITY"
+  else
+    error "SSH alias $EXPECTED_SSH_ALIAS has no IdentityFile"
+    ISSUES_FOUND=true
+  fi
 fi
 
 echo ""

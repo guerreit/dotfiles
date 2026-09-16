@@ -211,16 +211,55 @@ EOF
 #   2. Run: ./scripts/sync.sh
 #
 # How it works:
-# - Work patterns are checked first (includeIf directives)
-# - If no work pattern matches, personal config is used (default include)
-# - Git automatically selects the right identity based on repository location
+# - Repository owners select both the SSH host alias and Git identity
+# - Directory patterns provide a fallback before a remote is configured
+# - Remote-owner rules are last so they take precedence over fallbacks
 # =============================================================================
 
 EOF
 
-  # Add includeIf directives for work patterns
+  # Rewrite GitHub URLs to deterministic SSH aliases based on repository owner.
+  if (( ${#GIT_PERSONAL_GITHUB_OWNERS[@]} > 0 )); then
+    echo "# Personal GitHub owner routing" >> "$temp_gitconfig"
+    for owner in "${GIT_PERSONAL_GITHUB_OWNERS[@]}"; do
+      echo "[url \"git@github.com-personal:$owner/\"]" >> "$temp_gitconfig"
+      echo "\tinsteadOf = git@github.com:$owner/" >> "$temp_gitconfig"
+      echo "\tinsteadOf = https://github.com/$owner/" >> "$temp_gitconfig"
+    done
+    echo "" >> "$temp_gitconfig"
+  fi
+
+  if (( ${#GIT_WORK_GITHUB_OWNERS[@]} > 0 )); then
+    echo "# Work GitHub owner routing" >> "$temp_gitconfig"
+    for owner in "${GIT_WORK_GITHUB_OWNERS[@]}"; do
+      echo "[url \"git@github.com-work:$owner/\"]" >> "$temp_gitconfig"
+      echo "\tinsteadOf = git@github.com:$owner/" >> "$temp_gitconfig"
+      echo "\tinsteadOf = https://github.com/$owner/" >> "$temp_gitconfig"
+    done
+    echo "" >> "$temp_gitconfig"
+  fi
+
+  # Put the default first so more specific rules below can override it.
+  local default_role="${GIT_DEFAULT_ROLE:-personal}"
+  if [[ "$default_role" == "work" ]]; then
+    cat >> "$temp_gitconfig" <<'EOF'
+# Default identity fallback
+[include]
+	path = ~/.gitconfig.work
+
+EOF
+  else
+    cat >> "$temp_gitconfig" <<'EOF'
+# Default identity fallback
+[include]
+	path = ~/.gitconfig.personal
+
+EOF
+  fi
+
+  # Add includeIf directives for work directory fallbacks.
   if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
-    echo "# Work directory patterns" >> "$temp_gitconfig"
+    echo "# Work directory fallbacks" >> "$temp_gitconfig"
     for pattern in "${GIT_WORK_PATTERNS[@]}"; do
       # Preserve patterns as configured in .gitconfig.roles so generated
       # config stays machine-portable and does not churn on username paths.
@@ -235,20 +274,44 @@ EOF
     echo "" >> "$temp_gitconfig"
   fi
 
-  # Add default include based on GIT_DEFAULT_ROLE
-  local default_role="${GIT_DEFAULT_ROLE:-personal}"
-  if [[ "$default_role" == "work" ]]; then
-    cat >> "$temp_gitconfig" <<'EOF'
-# Default to work configuration
-[include]
-	path = ~/.gitconfig.work
-EOF
-  else
-    cat >> "$temp_gitconfig" <<'EOF'
-# Default to personal configuration
-[include]
-	path = ~/.gitconfig.personal
-EOF
+  # Remote-owner identity rules take precedence over all fallbacks.
+  if (( ${#GIT_PERSONAL_GITHUB_OWNERS[@]} > 0 )); then
+    echo "# Personal GitHub identity rules" >> "$temp_gitconfig"
+    for owner in "${GIT_PERSONAL_GITHUB_OWNERS[@]}"; do
+      for remote_pattern in \
+        "git@github.com:$owner/**" \
+        "git@github.com-personal:$owner/**" \
+        "https://github.com/$owner/**"; do
+        echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
+        echo "\tpath = ~/.gitconfig.personal" >> "$temp_gitconfig"
+      done
+    done
+  fi
+
+  if (( ${#GIT_WORK_GITHUB_OWNERS[@]} > 0 )); then
+    echo "# Work GitHub identity rules" >> "$temp_gitconfig"
+    for owner in "${GIT_WORK_GITHUB_OWNERS[@]}"; do
+      for remote_pattern in \
+        "git@github.com:$owner/**" \
+        "git@github.com-work:$owner/**" \
+        "git@github.com-garrettj-slalom:$owner/**" \
+        "https://github.com/$owner/**"; do
+        echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
+        echo "\tpath = ~/.gitconfig.work" >> "$temp_gitconfig"
+      done
+    done
+  fi
+
+  if (( ${#GIT_WORK_BITBUCKET_OWNERS[@]} > 0 )); then
+    echo "# Work Bitbucket identity rules" >> "$temp_gitconfig"
+    for owner in "${GIT_WORK_BITBUCKET_OWNERS[@]}"; do
+      for remote_pattern in \
+        "git@bitbucket.org:$owner/**" \
+        "https://bitbucket.org/$owner/**"; do
+        echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
+        echo "\tpath = ~/.gitconfig.work" >> "$temp_gitconfig"
+      done
+    done
   fi
 
   mv "$temp_gitconfig" "$base_gitconfig"

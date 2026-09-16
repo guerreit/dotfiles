@@ -5,7 +5,7 @@ A reproducible macOS development environment for both personal and work profiles
 ## Why These Dotfiles?
 
 - **Profile-aware automation:** Select Personal or Work to install the correct CLI tools, GUI apps, and default Git role.
-- **Role-based Git identities:** `src/.gitconfig.roles` keeps names, emails, directory patterns, and default roles in one place; `sync.sh` generates `~/.gitconfig.*` automatically.
+- **Role-based Git identities:** Repository owners automatically select personal/work commit identities and SSH keys, with directory patterns as a fallback.
 - **Safety first:** `backup.sh` plus the `sync.sh` rsync step keep timestamped copies of every dotfile before anything is overwritten.
 - **Optional SSH bootstrap:** `setup.sh` can generate separate personal/work SSH keys, install them into the macOS keychain, and drop a curated `~/.ssh/config`.
 - **Editor + terminal ready:** Oh My Zsh, Vim + Solarized, VS Code extensions, and a Terminal theme script are included.
@@ -21,12 +21,14 @@ A reproducible macOS development environment for both personal and work profiles
 ## Quick Start
 
 1. **Clone the repo**
+
    ```sh
    git clone https://github.com/yourusername/dotfiles.git
    cd dotfiles
    ```
+
 2. **Review `src/.gitconfig.roles`**
-   - Update `GIT_*_NAME`, `GIT_*_EMAIL`, the `GIT_WORK_PATTERNS` glob list, and the `GIT_DEFAULT_ROLE` you want when no pattern matches.
+   - Update identities, GitHub/Bitbucket owner lists, directory fallbacks, and the default role.
 3. **Customize dotfiles/templates (optional)**
    - Add secrets to `src/.secrets` (gitignored when deployed).
    - Tweak `src/.ssh_config` if your SSH hostnames differ.
@@ -41,9 +43,11 @@ A reproducible macOS development environment for both personal and work profiles
 
 5. **Restart your terminal session** so Zsh loads the new configuration.
 6. **Verify Git identities** with:
+
    ```sh
    ./dotfiles status
    ```
+
 7. Re-run `./dotfiles sync [personal|work]` whenever you edit files under `src/`.
 
 ## CLI Interface
@@ -85,7 +89,7 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 
 The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates the entire flow:
 
-1. Persist your profile choice into `src/.gitconfig.roles` so the default Git role matches the selected profile.
+1. Use your profile choice for package and application installation without changing Git identity rules.
 2. Optional SSH key generation via `scripts/ssh-key.sh` (personal + work Ed25519 keys, added to the agent and keychain).
 3. Ensure `curl`, `brew`, and `chmod` exist, then mark helper scripts executable.
 4. Call `scripts/backup.sh` to snapshot existing dotfiles under `~/.dotfiles-backup/<timestamp>`.
@@ -102,7 +106,7 @@ The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates t
 
 ## Role-Aware Git Identities
 
-`src/.gitconfig.roles` is the single source of truth for identities and directory detection. A minimal example:
+`src/.gitconfig.roles` is the single source of truth for identities and account routing. A minimal example:
 
 ```bash
 GIT_PERSONAL_NAME="Your Name"
@@ -110,6 +114,10 @@ GIT_PERSONAL_EMAIL="you@me.com"
 
 GIT_WORK_NAME="Your Name"
 GIT_WORK_EMAIL="you@company.com"
+
+GIT_PERSONAL_GITHUB_OWNERS=("personal-user")
+GIT_WORK_GITHUB_OWNERS=("work-user" "CompanyOrg")
+GIT_WORK_BITBUCKET_OWNERS=("company-workspace")
 
 GIT_WORK_PATTERNS=(
   "~/work/**"
@@ -123,13 +131,19 @@ After editing the file, run `./dotfiles sync` to regenerate every Git config art
 
 - Writes `~/.gitconfig.personal` and `~/.gitconfig.work`
 - Rebuilds the `includeIf` section inside `~/.gitconfig`
+- Rewrites known GitHub owners to `github.com-personal` or `github.com-work`
 - Wipes any lingering global `user.*` settings that would override conditional includes
 - Validates the generated files before copying them into `$HOME`
 
+Rules are evaluated whenever Git reads a repository configuration; cloning a
+new repository does not modify `~/.gitconfig`. One `CompanyOrg` entry covers
+every current and future `CompanyOrg/*` repository. Add an owner only when you
+begin working with a genuinely new organization.
+
 Use `./dotfiles status --dry-run` anytime to see which pattern would match the current directory, confirm the expected identity, and verify all files exist.
 
-> 🔁 **Profiles vs roles**
-> _Profiles_ (Personal/Work) drive which packages/apps install. _Roles_ (personal/work) determine which Git identity is active. `setup.sh` keeps them in sync by updating `GIT_DEFAULT_ROLE`, but you can always override by rerunning `setup.sh` or editing `.gitconfig.roles` followed by `sync.sh`.
+> **Profiles vs roles**
+> _Profiles_ drive package/app installation. _Roles_ determine Git identity and SSH authentication. Setup deliberately keeps them independent.
 
 ## Feature Breakdown
 
@@ -167,8 +181,9 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 
 ### SSH & Terminal Theme
 
-- `scripts/ssh-key.sh` creates two Ed25519 keys (personal/work), adds them to the agent, and appends host entries to `~/.ssh/config`.
+- `scripts/ssh-key.sh` creates two Ed25519 keys, adds them to the macOS keychain, and installs the checked-in SSH template.
 - `src/.ssh_config` is copied to `~/.ssh/config` with strict permissions; edit it in `src/` to customize host aliases.
+- Plain `github.com` is personal-only; generated URL rewrites route configured work owners through `github.com-work`.
 - `scripts/terminal-theme.sh` downloads the Solarized Dark Terminal profile, prompts you to set it as the default, and adjusts font + window sizing via AppleScript.
 
 ### Dotfile Sync
@@ -182,10 +197,10 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 - `.vimrc`, `.editorconfig`
 - `.gitconfig` (template), `.gitconfig.roles`, `.gitconfig.personal`, `.gitconfig.work`
 - `.gitignore`, `.gitattributes`, `.stCommitMsg`
-- `.profile` (legacy metadata), `.secrets` (you own the contents), `.hushlogin`
+- `.profile` (legacy metadata), `.hushlogin`
 - `.ssh_config`
 
-`sync.sh` copies every file (including hidden ones) into `$HOME`, so keep anything sensitive out of version control or leverage `.secrets`, which is already gitignored after deployment.
+`src/.secrets` is machine-local and ignored by Git. `sync.sh` deploys it when present; never commit secrets to this repository.
 
 ## Supporting Scripts
 

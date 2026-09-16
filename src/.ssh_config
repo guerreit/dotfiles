@@ -1,37 +1,29 @@
 # SSH Configuration for Multiple Keys
 # This file will be copied to ~/.ssh/config during setup
 
-# Default settings for all hosts
-Host *
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentitiesOnly yes
-
 # Personal GitHub account
-Host github.com-personal
-  HostName github.com
-  User git
-  IdentityFile ~/.ssh/id_ed25519_github_personal
-  IdentitiesOnly yes
-
-# Legacy personal alias used by existing remotes
-Host github.com-guerreit
+Host github.com-personal github.com-guerreit
   HostName github.com
   User git
   IdentityFile ~/.ssh/id_ed25519_github_personal
   IdentitiesOnly yes
 
 # Work GitHub account
-Host github.com-work
+Host github.com-work github.com-garrettj-slalom
   HostName github.com
   User git
   IdentityFile ~/.ssh/id_ed25519_github_work
   IdentitiesOnly yes
 
-# Default github (tries personal then work)
+# Unqualified GitHub URLs are deterministic; owner rewrites select work as needed.
 Host github.com
   HostName github.com
   User git
   IdentityFile ~/.ssh/id_ed25519_github_personal
-  IdentityFile ~/.ssh/id_ed25519_github_work
+  IdentitiesOnly yes
+
+# Default settings for all hosts
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
   IdentitiesOnly yes

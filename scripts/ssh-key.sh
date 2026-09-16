@@ -1,19 +1,20 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 set -euo pipefail
 
-# Color functions
-info() { echo -e "\033[1;36m[INFO]\033[0m $1"; }
-success() { echo -e "\033[1;32m[SUCCESS]\033[0m $1"; }
-error() { echo -e "\033[1;31m[ERROR]\033[0m $1" >&2; }
-warning() { echo -e "\033[1;33m[WARNING]\033[0m $1"; }
+readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly ROLES_FILE="$REPO_ROOT/src/.gitconfig.roles"
+readonly SSH_CONFIG_TEMPLATE="$REPO_ROOT/src/.ssh_config"
+
+info() { print -P "%F{cyan}[INFO]%f $1"; }
+success() { print -P "%F{green}[SUCCESS]%f $1"; }
+error() { print -P "%F{red}[ERROR]%f $1" >&2; }
+warning() { print -P "%F{yellow}[WARNING]%f $1"; }
 
 # Source email addresses from configuration file
 source_emails() {
-  local roles_file="src/.gitconfig.roles"
-
-  # Try to source the roles file
-  if [[ -f "$roles_file" ]]; then
-    if source "$roles_file" 2>/dev/null; then
+  if [[ -f "$ROLES_FILE" ]]; then
+    if source "$ROLES_FILE" 2>/dev/null; then
       # Extract emails if variables are set
       if [[ -n "${GIT_PERSONAL_EMAIL:-}" ]]; then
         PERSONAL_EMAIL="$GIT_PERSONAL_EMAIL"
@@ -22,11 +23,36 @@ source_emails() {
         WORK_EMAIL="$GIT_WORK_EMAIL"
       fi
     else
-      warning "Failed to source $roles_file, using default email addresses"
+      warning "Failed to source $ROLES_FILE, using default email addresses"
     fi
   else
-    warning "Configuration file $roles_file not found, using default email addresses"
+    warning "Configuration file $ROLES_FILE not found, using default email addresses"
   fi
+}
+
+add_key_to_agent() {
+  local key_file="$1"
+
+  if ! ssh-add --apple-use-keychain "$key_file" 2>/dev/null; then
+    ssh-add "$key_file"
+  fi
+}
+
+install_ssh_config() {
+  if [[ ! -f "$SSH_CONFIG_TEMPLATE" ]]; then
+    error "SSH config template not found: $SSH_CONFIG_TEMPLATE"
+    return 1
+  fi
+
+  if [[ -f "$CONFIG_FILE" ]] && ! cmp -s "$SSH_CONFIG_TEMPLATE" "$CONFIG_FILE"; then
+    local backup_file="$CONFIG_FILE.backup.$(date +%Y%m%d%H%M%S)"
+    cp "$CONFIG_FILE" "$backup_file"
+    info "Backed up existing SSH config to $backup_file"
+  fi
+
+  cp "$SSH_CONFIG_TEMPLATE" "$CONFIG_FILE"
+  chmod 600 "$CONFIG_FILE"
+  success "Installed SSH config from $SSH_CONFIG_TEMPLATE"
 }
 
 # Usage
@@ -71,56 +97,24 @@ else
   ssh-keygen -t ed25519 -C "$WORK_EMAIL" -f "$WORK_KEY" -N ""
 fi
 
-# Start SSH agent if not running
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-  eval "$(ssh-agent -s)"
-fi
-
-# Add keys to the SSH agent
-ssh-add "$PERSONAL_KEY"
-ssh-add "$WORK_KEY"
-
-# Update SSH config if entries are missing
-touch "$CONFIG_FILE"
-
-if ! grep -q "Host github.com-personal" "$CONFIG_FILE"; then
-  echo -e "\n# Personal GitHub account" >> "$CONFIG_FILE"
-  echo "Host github.com-personal" >> "$CONFIG_FILE"
-  echo "  HostName github.com" >> "$CONFIG_FILE"
-  echo "  User git" >> "$CONFIG_FILE"
-  echo "  IdentityFile $PERSONAL_KEY" >> "$CONFIG_FILE"
-fi
-
-if ! grep -q "Host github.com-work" "$CONFIG_FILE"; then
-  echo -e "\n# Work GitHub account" >> "$CONFIG_FILE"
-  echo "Host github.com-work" >> "$CONFIG_FILE"
-  echo "  HostName github.com" >> "$CONFIG_FILE"
-  echo "  User git" >> "$CONFIG_FILE"
-  echo "  IdentityFile $WORK_KEY" >> "$CONFIG_FILE"
-fi
-
-if ! grep -q "Host github.com-guerreit" "$CONFIG_FILE"; then
-  echo -e "\n# Legacy personal alias used by existing remotes" >> "$CONFIG_FILE"
-  echo "Host github.com-guerreit" >> "$CONFIG_FILE"
-  echo "  HostName github.com" >> "$CONFIG_FILE"
-  echo "  User git" >> "$CONFIG_FILE"
-  echo "  IdentityFile $PERSONAL_KEY" >> "$CONFIG_FILE"
-fi
+add_key_to_agent "$PERSONAL_KEY"
+add_key_to_agent "$WORK_KEY"
+install_ssh_config
 
 # Set permissions
-chmod 600 "$PERSONAL_KEY" "$PERSONAL_KEY.pub" "$WORK_KEY" "$WORK_KEY.pub"
-chmod 600 "$CONFIG_FILE"
+chmod 600 "$PERSONAL_KEY" "$WORK_KEY"
+chmod 644 "$PERSONAL_KEY.pub" "$WORK_KEY.pub"
 
 # Print public keys and copy to clipboard
 echo ""
-echo "🔓 Public key for PERSONAL GitHub (add to https://github.com/settings/ssh/new):"
+echo "Public key for PERSONAL GitHub (add to https://github.com/settings/ssh/new):"
 cat "$PERSONAL_KEY.pub"
 pbcopy < "$PERSONAL_KEY.pub"
 info "Personal public key copied to clipboard. Paste it at https://github.com/settings/ssh/new, then press Enter to continue..."
 read -r _
 
 echo ""
-echo "🔓 Public key for WORK GitHub (add to https://github.com/settings/ssh/new):"
+echo "Public key for WORK GitHub (add to https://github.com/settings/ssh/new):"
 cat "$WORK_KEY.pub"
 pbcopy < "$WORK_KEY.pub"
 info "Work public key copied to clipboard. Paste it at https://github.com/settings/ssh/new when ready."

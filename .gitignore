@@ -18,3 +18,7 @@ Thumbs.db
 *.sass-cache
 *.sw?
 *.vi
+
+# Machine-local dotfile state
+src/.secrets
+src/.gitconfig.backup

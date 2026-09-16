@@ -26,6 +26,9 @@
   excludesfile = ~/.gitignore
   attributesfile = ~/.gitattributes
 
+[user]
+  useConfigOnly = true
+
 # correct typos
 [help]
   autocorrect = 1
@@ -49,20 +52,6 @@
 [pull]
   rebase = false
 
-[commit]
-
-# =============================================================================
-# SSH URL Rewrites (Automatic SSH Key Selection by GitHub Account)
-# =============================================================================
-
-[url "git@github.com-garrettj-slalom:garrettj-slalom/"]
-	insteadOf = git@github.com:garrettj-slalom/
-	insteadOf = https://github.com/garrettj-slalom/
-
-[url "git@github.com-guerreit:guerreit/"]
-	insteadOf = git@github.com:guerreit/
-	insteadOf = https://github.com/guerreit/
-
 # =============================================================================
 # Role-based Configuration (Automatic Git Identity Switching)
 # =============================================================================
@@ -73,12 +62,35 @@
 #   2. Run: ./scripts/sync.sh
 #
 # How it works:
-# - Work patterns are checked first (includeIf directives)
-# - If no work pattern matches, personal config is used (default include)
-# - Git automatically selects the right identity based on repository location
+# - Repository owners select both the SSH host alias and Git identity
+# - Directory patterns provide a fallback before a remote is configured
+# - Remote-owner rules are last so they take precedence over fallbacks
 # =============================================================================
 
-# Work directory patterns
+# Personal GitHub owner routing
+[url "git@github.com-personal:guerreit/"]
+	insteadOf = git@github.com:guerreit/
+	insteadOf = https://github.com/guerreit/
+
+# Work GitHub owner routing
+[url "git@github.com-work:garrettj-slalom/"]
+	insteadOf = git@github.com:garrettj-slalom/
+	insteadOf = https://github.com/garrettj-slalom/
+[url "git@github.com-work:Slalom/"]
+	insteadOf = git@github.com:Slalom/
+	insteadOf = https://github.com/Slalom/
+[url "git@github.com-work:abs-wavesight/"]
+	insteadOf = git@github.com:abs-wavesight/
+	insteadOf = https://github.com/abs-wavesight/
+[url "git@github.com-work:ASPCA-Membership/"]
+	insteadOf = git@github.com:ASPCA-Membership/
+	insteadOf = https://github.com/ASPCA-Membership/
+
+# Default identity fallback
+[include]
+	path = ~/.gitconfig.personal
+
+# Work directory fallbacks
 [includeIf "gitdir:~/work/"]
 	path = ~/.gitconfig.work
 [includeIf "gitdir:~/clients/"]
@@ -86,6 +98,48 @@
 [includeIf "gitdir:~/code/work/"]
 	path = ~/.gitconfig.work
 
-# Default to personal configuration
-[include]
+# Personal GitHub identity rules
+[includeIf "hasconfig:remote.*.url:git@github.com:guerreit/**"]
 	path = ~/.gitconfig.personal
+[includeIf "hasconfig:remote.*.url:git@github.com-personal:guerreit/**"]
+	path = ~/.gitconfig.personal
+[includeIf "hasconfig:remote.*.url:https://github.com/guerreit/**"]
+	path = ~/.gitconfig.personal
+# Work GitHub identity rules
+[includeIf "hasconfig:remote.*.url:git@github.com:garrettj-slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-work:garrettj-slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:garrettj-slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/garrettj-slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com:Slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-work:Slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:Slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/Slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com:abs-wavesight/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-work:abs-wavesight/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:abs-wavesight/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/abs-wavesight/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com:ASPCA-Membership/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-work:ASPCA-Membership/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:ASPCA-Membership/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/ASPCA-Membership/**"]
+	path = ~/.gitconfig.work
+# Work Bitbucket identity rules
+[includeIf "hasconfig:remote.*.url:git@bitbucket.org:slalom-consulting/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://bitbucket.org/slalom-consulting/**"]
+	path = ~/.gitconfig.work

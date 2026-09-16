@@ -22,9 +22,29 @@ GIT_PERSONAL_EMAIL="garrettjones@me.com"
 GIT_WORK_NAME="Garrett Jones"
 GIT_WORK_EMAIL="garrettj@slalom.com"
 
+# Remote Owners
+# -------------
+# Repository owners determine both the SSH key and commit identity, regardless
+# of where a repository is cloned. Add new organizations here once.
+GIT_PERSONAL_GITHUB_OWNERS=(
+  "guerreit"
+)
+
+GIT_WORK_GITHUB_OWNERS=(
+  "garrettj-slalom"
+  "Slalom"
+  "abs-wavesight"
+  "ASPCA-Membership"
+)
+
+GIT_WORK_BITBUCKET_OWNERS=(
+  "slalom-consulting"
+)
+
 # Work Directory Patterns
 # ------------------------
-# Repositories under these paths will automatically use your work identity
+# These are fallback rules for new repositories that do not have a remote yet.
+# Remote-owner rules take precedence once a remote is configured.
 # Patterns support wildcards:
 #   - Use ** for recursive matching (e.g., ~/work/** matches all repos under ~/work/)
 #   - Use * for single-level matching
@@ -43,6 +63,6 @@ GIT_WORK_PATTERNS=(
 
 # Default Role
 # ------------
-# Which identity to use when no patterns match (personal|work)
+# Which identity to use when neither a remote owner nor directory pattern matches.
 # Recommended: "personal"
 GIT_DEFAULT_ROLE="personal"
