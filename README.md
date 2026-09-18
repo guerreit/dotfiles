@@ -63,6 +63,7 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 - `setup` – Complete first-time setup (guided installation)
 - `sync [profile]` – Sync dotfiles from src/ to $HOME (profile: personal/work)
 - `backup` – Create timestamped backup of existing dotfiles
+- `cleanup-backups` – Preview archiving older backups; use `--apply` to execute
 - `status` – Show current Git identity and configuration status
 - `ssh-keys` – Generate SSH keys for personal and work accounts
 - `theme` – Install terminal theme (Solarized Dark)
@@ -101,7 +102,7 @@ The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates t
    - Generates `.gitconfig`, `.gitconfig.personal`, and `.gitconfig.work` from `.gitconfig.roles`
    - Removes any global `user.name`/`user.email` so conditional includes stay authoritative
    - Copies `src/.ssh_config` into `~/.ssh/config` with secure permissions
-   - Moves existing dotfiles into `~/.dotfiles_backup_<timestamp>`
+   - Backs up changed files under `~/.dotfiles-backup/<timestamp>-sync.<id>`
 10. Display current status through `scripts/git-config-status.sh` so you can confirm the active identity.
 
 ## Role-Aware Git Identities
@@ -188,8 +189,9 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 
 ### Dotfile Sync
 
-- `scripts/sync.sh` uses `rsync` with excludes for `.DS_Store`, `.git`, `.gitignore`, and `.ssh_config` (handled separately) before copying files into `$HOME`.
-- Existing dotfiles are moved to `~/.dotfiles_backup_<timestamp>` so rollback is one copy away.
+- `scripts/sync.sh` uses checksum-based `rsync`; unchanged files do not generate backups, even if their timestamps change.
+- `.DS_Store`, `.git`, and `.gitignore` are excluded. The root `.ssh_config` is handled separately; `.gitconfig.roles` stays in the repo.
+- Changed files are backed up under `~/.dotfiles-backup/<timestamp>-sync.<id>`. Empty backup directories are removed.
 
 ## Managed Dotfiles (src/)
 
@@ -209,6 +211,7 @@ All scripts can be run directly or through the `./dotfiles` CLI (recommended):
 - `scripts/setup.sh` (or `./dotfiles setup`) – main entry point for full installation
 - `scripts/sync.sh` (or `./dotfiles sync`) – rsync deployment + Git config generation
 - `scripts/backup.sh` (or `./dotfiles backup`) – manual backup helper (also invoked automatically)
+- `scripts/cleanup-backups.sh` (or `./dotfiles cleanup-backups`) – preview-first backup retention
 - `scripts/git-config-status.sh` (or `./dotfiles status`) – validate role-aware Git configuration
 - `scripts/ssh-key.sh` (or `./dotfiles ssh-keys`) – SSH key bootstrap
 - `scripts/brews.sh` (or `./dotfiles install-brews`) – Homebrew formulae installer
@@ -222,9 +225,26 @@ All scripts can be run directly or through the `./dotfiles` CLI (recommended):
 
 ## Safety Nets & Recovery
 
-- `scripts/backup.sh` writes to `~/.dotfiles-backup/<timestamp>` before `setup.sh` touches anything.
-- `scripts/sync.sh` moves the files it overwrites into `~/.dotfiles_backup_<timestamp>`.
-- To restore, copy the file you need back into `$HOME` and restart your shell.
+- Full snapshots use `~/.dotfiles-backup/<timestamp>-snapshot.<id>`; older timestamp-only snapshots are also recognized.
+- Sync backups use `~/.dotfiles-backup/<timestamp>-sync.<id>`. Unique IDs prevent same-second collisions, and new backup directories are private.
+- Cleanup keeps the newest five backups **of each kind** by default. Full snapshots and incremental sync backups have separate retention counts; sync backups are not full restore points.
+- Cleanup is manual and previews by default. No scheduled or automatic deletion is installed.
+- Only recognized timestamped entries inside `~/.dotfiles-backup` are eligible. Symlinks, unrelated entries, and legacy `~/.dotfiles_backup_*` directories are left alone.
+
+```sh
+./dotfiles cleanup-backups                         # Preview archive of older backups
+./dotfiles cleanup-backups --keep 5 --apply          # Archive older backups, keeping five per kind
+./dotfiles cleanup-backups --delete --keep 5        # Preview permanent deletion instead
+./dotfiles cleanup-backups --delete --keep 5 --apply # Permanently delete older backups
+./dotfiles cleanup-backups --archives --delete --keep 5       # Preview archive pruning
+./dotfiles cleanup-backups --archives --delete --keep 5 --apply
+```
+
+Archives live in `~/.dotfiles-backup/archives/`. Compression and archive integrity checks must succeed before the original directory is removed. Existing archives are never overwritten. Archives accumulate until explicitly pruned with `--archives --delete`; deleting them is permanent. `--keep` must be at least 1.
+
+To restore, inspect an archive with `tar -tzf <archive.tar.gz>`, extract it into a separate directory with `tar -xzf <archive.tar.gz> -C <restore-directory>`, then copy only the files you need into `$HOME`. Uncompressed backups can be inspected and copied directly. Restart your shell after restoring shell configuration.
+
+Run the isolated regression checks with `zsh tests/backups.zsh`; they use temporary home directories, never your real configuration.
 
 ## Credits
 

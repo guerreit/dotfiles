@@ -35,6 +35,7 @@ Commands:
   setup              Run the full dotfiles setup (first-time installation)
   sync [profile]     Sync dotfiles from src/ to \$HOME (profile: personal/work)
   backup             Create a timestamped backup of existing dotfiles
+  cleanup-backups    Preview archiving older backups (use --help for options)
   status             Show current Git identity and configuration status
   ssh-keys           Generate SSH keys for personal and work accounts
   theme              Install terminal theme (Solarized Dark)
@@ -47,7 +48,7 @@ Commands:
 Options:
   -h, --help         Show this help message
   -v, --version      Show version information
-  --dry-run          Test mode (supported by: status)
+  --dry-run          Preview mode (supported by: status, cleanup-backups)
 
 Examples:
   dotfiles setup                    # First-time setup with guided install
@@ -118,6 +119,10 @@ main() {
     backup)
       info "Creating backup..."
       run_script "backup.sh" "$@"
+      ;;
+
+    cleanup-backups)
+      run_script "cleanup-backups.sh" "$@"
       ;;
 
     status|git-status)

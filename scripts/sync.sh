@@ -18,7 +18,7 @@ ROLES_FILE="$SRC_DIR.gitconfig.roles"
 
 # Get the root user directory
 ROOT_DIR="$HOME"
-BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d%H%M%S)"
+BACKUP_ROOT="$HOME/.dotfiles-backup"
 
 # Git config generation functions
 check_git_version() {
@@ -330,8 +330,8 @@ set_git_global_config() {
   # These will be managed by the conditional includes in .gitconfig
   info "Removing global user.name and user.email (managed by conditional includes)..."
 
-  git config --global --unset user.name 2>/dev/null || true
-  git config --global --unset user.email 2>/dev/null || true
+  git config --file "$SRC_DIR.gitconfig" --unset-all user.name 2>/dev/null || true
+  git config --file "$SRC_DIR.gitconfig" --unset-all user.email 2>/dev/null || true
 
   local profile=$(determine_profile)
   success "Git identity will be automatically selected based on repository location"
@@ -378,7 +378,10 @@ display_git_status() {
 info "Syncing dotfiles from $SRC_DIR to $ROOT_DIR"
 
 # Backup destination for changed files
-mkdir -p "$BACKUP_DIR"
+mkdir -p "$BACKUP_ROOT"
+chmod 700 "$BACKUP_ROOT"
+BACKUP_DIR=$(mktemp -d "$BACKUP_ROOT/$(date +%Y%m%d_%H%M%S)-sync.XXXXXXXX")
+trap 'rmdir "$BACKUP_DIR" 2>/dev/null || true' EXIT
 
 # Check Git version and generate configs if supported
 if check_git_version; then
@@ -409,11 +412,11 @@ else
 fi
 
 # Exclude list
-EXCLUDES=(--exclude ".DS_Store" --exclude ".git" --exclude ".gitignore" --exclude ".ssh_config")
+EXCLUDES=(--exclude ".DS_Store" --exclude ".git" --exclude ".gitignore" --exclude "/.ssh_config" --exclude "/.gitconfig.roles")
 
 # Use rsync for robust syncing
 info "Syncing files with rsync (changed files backed up to $BACKUP_DIR)..."
-rsync -avh --backup --backup-dir="$BACKUP_DIR" --no-perms --no-owner --no-group --progress "${EXCLUDES[@]}" "$SRC_DIR" "$ROOT_DIR" || { error "rsync failed"; exit 1; }
+rsync -avhc --backup --backup-dir="$BACKUP_DIR" --no-perms --no-owner --no-group --progress "${EXCLUDES[@]}" "$SRC_DIR" "$ROOT_DIR" || { error "rsync failed"; exit 1; }
 
 # Setup SSH config
 if [[ -f "$SRC_DIR.ssh_config" ]]; then
@@ -421,7 +424,7 @@ if [[ -f "$SRC_DIR.ssh_config" ]]; then
   mkdir -p "$ROOT_DIR/.ssh"
   chmod 700 "$ROOT_DIR/.ssh"
 
-  if [[ -f "$ROOT_DIR/.ssh/config" ]]; then
+  if [[ -f "$ROOT_DIR/.ssh/config" ]] && ! cmp -s "$SRC_DIR.ssh_config" "$ROOT_DIR/.ssh/config"; then
     # Backup existing config
     cp "$ROOT_DIR/.ssh/config" "$BACKUP_DIR/.ssh_config.backup"
     info "Backed up existing SSH config to $BACKUP_DIR/.ssh_config.backup"
@@ -434,7 +437,11 @@ else
   warning "SSH config template not found in $SRC_DIR.ssh_config"
 fi
 
-success "All files copied from $SRC_DIR to $ROOT_DIR (backup in $BACKUP_DIR)"
+if rmdir "$BACKUP_DIR" 2>/dev/null; then
+  success "All files synced; no changed files needed a backup"
+else
+  success "All files synced (changed files backed up in $BACKUP_DIR)"
+fi
 
 # Display Git configuration status
 if check_git_version >/dev/null 2>&1; then
