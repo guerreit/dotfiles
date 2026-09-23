@@ -10,6 +10,15 @@ export ZSH="$HOME/.oh-my-zsh"
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
 
+# Skip the insecure-directories compaudit scan on every startup (perf: this
+# scan re-walks $fpath on each launch). Trust local completion dirs instead.
+ZSH_DISABLE_COMPFIX="true"
+
+# Disable oh-my-zsh's periodic auto-update check: it can fork a synchronous
+# git fetch (and block on a prompt) mid-startup every ~13 days. Update
+# manually via the `update-omz` alias instead.
+zstyle ':omz:update' mode disabled
+
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
