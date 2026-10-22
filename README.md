@@ -155,7 +155,7 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 
 ### Homebrew Casks
 
-- Common: Visual Studio Code
+- Common: Visual Studio Code, Spotify, GitHub Copilot CLI
 - Work profile adds: Postman, Microsoft Edge, Microsoft Teams, Microsoft OneNote, Slack
 
 ### Shell & Vim
