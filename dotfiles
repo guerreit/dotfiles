@@ -38,7 +38,7 @@ Commands:
   cleanup-backups    Preview archiving older backups (use --help for options)
   status             Show current Git identity and configuration status
   ssh-keys           Generate SSH keys for personal and work accounts
-  theme              Install terminal theme (Solarized Dark)
+  theme              Install terminal theme (GitHub Dark, Copilot-inspired)
   install-brews      Install Homebrew formulae (requires profile selection)
   install-casks      Install Homebrew casks (requires profile selection)
   install-plugins    Install and configure Oh My Zsh plugins

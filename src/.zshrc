@@ -8,7 +8,8 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# Custom theme lives at: src/.oh-my-zsh/custom/themes/copilot-cli.zsh-theme
+ZSH_THEME="copilot-cli"
 
 # Skip the insecure-directories compaudit scan on every startup (perf: this
 # scan re-walks $fpath on each launch). Trust local completion dirs instead.

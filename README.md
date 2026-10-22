@@ -8,7 +8,7 @@ A reproducible macOS development environment for both personal and work profiles
 - **Role-based Git identities:** Repository owners automatically select personal/work commit identities and SSH keys, with directory patterns as a fallback.
 - **Safety first:** `backup.sh` plus the `sync.sh` rsync step keep timestamped copies of every dotfile before anything is overwritten.
 - **Optional SSH bootstrap:** `setup.sh` can generate separate personal/work SSH keys, install them into the macOS keychain, and drop a curated `~/.ssh/config`.
-- **Editor + terminal ready:** Oh My Zsh, Vim + Solarized, VS Code extensions, and a Terminal theme script are included.
+- **Editor + terminal ready:** Oh My Zsh with a Copilot-inspired prompt theme, Vim + Solarized, VS Code extensions, and a Terminal theme script are included.
 - **macOS tuned:** System defaults are updated for a snappier UI, and everything is idempotent so you can rerun scripts as needed.
 
 ## Prerequisites
@@ -66,7 +66,7 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 - `cleanup-backups` – Preview archiving older backups; use `--apply` to execute
 - `status` – Show current Git identity and configuration status
 - `ssh-keys` – Generate SSH keys for personal and work accounts
-- `theme` – Install terminal theme (Solarized Dark)
+- `theme` – Install terminal theme (GitHub Dark, Copilot-inspired)
 - `install-brews` – Install Homebrew formulae
 - `install-casks` – Install Homebrew casks
 - `install-plugins` – Install Oh My Zsh plugins
@@ -185,7 +185,7 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 - `scripts/ssh-key.sh` creates two Ed25519 keys, adds them to the macOS keychain, and installs the checked-in SSH template.
 - `src/.ssh_config` is copied to `~/.ssh/config` with strict permissions; edit it in `src/` to customize host aliases.
 - Plain `github.com` is personal-only; generated URL rewrites route configured work owners through `github.com-work`.
-- `scripts/terminal-theme.sh` downloads the Solarized Dark Terminal profile, prompts you to set it as the default, and adjusts font + window sizing via AppleScript.
+- `scripts/terminal-theme.sh` downloads the GitHub Dark Terminal profile, prompts you to set it as the default, and adjusts font + window sizing via AppleScript.
 
 ### Dotfile Sync
 
