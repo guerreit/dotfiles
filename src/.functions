@@ -1,7 +1,95 @@
 #!/bin/zsh
 
 aws_login() {
+    if ! command -v aws-azure-login >/dev/null 2>&1; then
+        echo "✗ aws-azure-login is not installed. Install it before running aws_login." >&2
+        return 1
+    fi
+
     aws-azure-login --profile "$1" --no-prompt --mode=gui
+}
+
+killport() {
+    local port="${1:-}"
+    if [[ -z "$port" ]]; then
+        echo "Usage: killport <port>" >&2
+        return 1
+    fi
+
+    local pids
+    pids=($(lsof -ti ":$port" 2>/dev/null))
+    if (( ${#pids[@]} == 0 )); then
+        echo "No process is listening on port $port."
+        return 0
+    fi
+
+    local pid
+    for pid in "${pids[@]}"; do
+        kill "$pid"
+    done
+    echo "✓ Stopped ${#pids[@]} process(es) on port $port"
+}
+
+restore-dotfiles() {
+    local include_omz=false
+    local restore_dir=""
+
+    if [[ ${1:-} == "--include-omz" ]]; then
+        include_omz=true
+        shift
+    fi
+
+    restore_dir="${1:-}"
+    if [[ -z "$restore_dir" ]]; then
+        echo "Usage: restore-dotfiles [--include-omz] <backup-dir>" >&2
+        return 1
+    fi
+
+    local backup_root="${HOME}/.dotfiles-backup"
+    local resolved_root="${backup_root:A}"
+    local resolved_dir="${restore_dir:A}"
+
+    if [[ ! -d "$resolved_dir" ]]; then
+        echo "✗ Backup directory does not exist: $restore_dir" >&2
+        return 1
+    fi
+
+    if [[ "$resolved_dir" != "$resolved_root"/* ]]; then
+        echo "✗ Refusing to restore outside $backup_root: $resolved_dir" >&2
+        return 1
+    fi
+
+    local dotfiles_dir="${DOTFILES_DIR:-$HOME/Code/dotfiles}"
+    local backup_script="$dotfiles_dir/scripts/backup.sh"
+    if [[ ! -x "$backup_script" ]]; then
+        echo "✗ backup.sh not found at $backup_script (set DOTFILES_DIR to your dotfiles repo)" >&2
+        return 1
+    fi
+
+    "$backup_script" || return 1
+
+    local item
+    for item in "$resolved_dir"/*(DN); do
+        local base="${item:t}"
+        if [[ "$base" == ".ssh" || "$base" == ".ssh_config.backup" ]]; then
+            continue
+        fi
+        if [[ "$base" == "oh-my-zsh" && "$include_omz" != "true" ]]; then
+            continue
+        fi
+        cp -Rp "$item" "$HOME/"
+    done
+
+    mkdir -p "$HOME/.ssh"
+    if [[ -f "$resolved_dir/.ssh/config" ]]; then
+        cp -p "$resolved_dir/.ssh/config" "$HOME/.ssh/config"
+        chmod 600 "$HOME/.ssh/config"
+    elif [[ -f "$resolved_dir/.ssh_config.backup" ]]; then
+        cp -p "$resolved_dir/.ssh_config.backup" "$HOME/.ssh/config"
+        chmod 600 "$HOME/.ssh/config"
+    fi
+
+    echo "✓ Restored dotfiles from $resolved_dir"
 }
 
 # SSH key management functions

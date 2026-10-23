@@ -31,8 +31,8 @@ check_git_version() {
   local major=$(echo "$version" | cut -d. -f1)
   local minor=$(echo "$version" | cut -d. -f2)
 
-  if [[ $major -lt 2 ]] || [[ $major -eq 2 && $minor -lt 13 ]]; then
-    warning "Git version $version detected, but 2.13+ required for conditional includes"
+  if [[ $major -lt 2 ]] || [[ $major -eq 2 && $minor -lt 36 ]]; then
+    warning "Git version $version detected, but 2.36+ required for remote-based conditional includes"
     warning "Falling back to global configuration. Consider upgrading Git."
     return 1
   fi
@@ -138,6 +138,13 @@ generate_git_configs() {
     error "Please check the file syntax and try again"
     return 1
   fi
+
+  (( ${+GIT_PERSONAL_GITHUB_OWNERS} )) || typeset -ga GIT_PERSONAL_GITHUB_OWNERS=()
+  (( ${+GIT_WORK_GITHUB_OWNERS} )) || typeset -ga GIT_WORK_GITHUB_OWNERS=()
+  (( ${+GIT_WORK_BITBUCKET_OWNERS} )) || typeset -ga GIT_WORK_BITBUCKET_OWNERS=()
+  (( ${+GIT_WORK_PATTERNS} )) || typeset -ga GIT_WORK_PATTERNS=()
+  (( ${+GIT_PERSONAL_SSH_ALIASES} )) || typeset -ga GIT_PERSONAL_SSH_ALIASES=("github.com-personal" "github.com-guerreit")
+  (( ${+GIT_WORK_SSH_ALIASES} )) || typeset -ga GIT_WORK_SSH_ALIASES=("github.com-work" "github.com-garrettj-slalom")
 
   # Validate required variables
   if [[ -z "${GIT_PERSONAL_NAME:-}" || -z "${GIT_PERSONAL_EMAIL:-}" ]]; then
@@ -258,7 +265,7 @@ EOF
   fi
 
   # Add includeIf directives for work directory fallbacks.
-  if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
+  if (( ${#GIT_WORK_PATTERNS[@]} > 0 )); then
     echo "# Work directory fallbacks" >> "$temp_gitconfig"
     for pattern in "${GIT_WORK_PATTERNS[@]}"; do
       # Preserve patterns as configured in .gitconfig.roles so generated
@@ -268,7 +275,7 @@ EOF
       if [[ "$rendered_pattern" == *"/**" ]]; then
         rendered_pattern="${rendered_pattern%/**}/"
       fi
-      echo "[includeIf \"gitdir:$rendered_pattern\"]" >> "$temp_gitconfig"
+      echo "[includeIf \"gitdir/i:$rendered_pattern\"]" >> "$temp_gitconfig"
       echo "	path = ~/.gitconfig.work" >> "$temp_gitconfig"
     done
     echo "" >> "$temp_gitconfig"
@@ -278,10 +285,12 @@ EOF
   if (( ${#GIT_PERSONAL_GITHUB_OWNERS[@]} > 0 )); then
     echo "# Personal GitHub identity rules" >> "$temp_gitconfig"
     for owner in "${GIT_PERSONAL_GITHUB_OWNERS[@]}"; do
-      for remote_pattern in \
-        "git@github.com:$owner/**" \
-        "git@github.com-personal:$owner/**" \
-        "https://github.com/$owner/**"; do
+      for remote_pattern in "git@github.com:$owner/**" "https://github.com/$owner/**"; do
+        echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
+        echo "\tpath = ~/.gitconfig.personal" >> "$temp_gitconfig"
+      done
+      for alias in "${GIT_PERSONAL_SSH_ALIASES[@]}"; do
+        remote_pattern="git@$alias:$owner/**"
         echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
         echo "\tpath = ~/.gitconfig.personal" >> "$temp_gitconfig"
       done
@@ -291,11 +300,12 @@ EOF
   if (( ${#GIT_WORK_GITHUB_OWNERS[@]} > 0 )); then
     echo "# Work GitHub identity rules" >> "$temp_gitconfig"
     for owner in "${GIT_WORK_GITHUB_OWNERS[@]}"; do
-      for remote_pattern in \
-        "git@github.com:$owner/**" \
-        "git@github.com-work:$owner/**" \
-        "git@github.com-garrettj-slalom:$owner/**" \
-        "https://github.com/$owner/**"; do
+      for remote_pattern in "git@github.com:$owner/**" "https://github.com/$owner/**"; do
+        echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
+        echo "\tpath = ~/.gitconfig.work" >> "$temp_gitconfig"
+      done
+      for alias in "${GIT_WORK_SSH_ALIASES[@]}"; do
+        remote_pattern="git@$alias:$owner/**"
         echo "[includeIf \"hasconfig:remote.*.url:$remote_pattern\"]" >> "$temp_gitconfig"
         echo "\tpath = ~/.gitconfig.work" >> "$temp_gitconfig"
       done

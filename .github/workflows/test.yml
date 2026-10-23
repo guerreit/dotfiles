@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell-tests:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Syntax checks
+        run: |
+          for f in dotfiles scripts/*.sh tests/*.zsh; do
+            zsh -n "$f"
+          done
+
+      - name: Backup regression tests
+        run: zsh tests/backups.zsh

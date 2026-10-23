@@ -1,17 +1,26 @@
 #!/usr/bin/env zsh
-# Script to set a Copilot-inspired GitHub Dark theme for macOS Terminal and adjust font size and window
+set -euo pipefail
+
+info() { print -P "%F{cyan}[INFO]%f $1"; }
+success() { print -P "%F{green}[SUCCESS]%f $1"; }
+error() { print -P "%F{red}[ERROR]%f $1" >&2; }
+warning() { print -P "%F{yellow}[WARNING]%f $1"; }
 
 # Download GitHub Dark Terminal theme from a working source
 theme_url="https://github.com/mbadolato/iTerm2-Color-Schemes/raw/master/terminal/GitHub%20Dark.terminal"
-theme_file="GitHub Dark.terminal"
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+theme_file="$tmp_dir/GitHub Dark.terminal"
+
+info "Downloading GitHub Dark terminal profile..."
 curl -fsSL "$theme_url" -o "$theme_file"
 
 # Open the theme to import into Terminal.app
 open "$theme_file"
 
-echo "Please wait a few seconds for Terminal to import the theme."
+info "Please wait a few seconds for Terminal to import the theme."
 
-echo "When the GitHub Dark theme window appears, click 'Default' at the bottom to set it as default, then press Enter here."
+echo "When the GitHub Dark theme window appears, click 'Default' at the bottom to set it as default, then press Enter to continue."
 read -r _
 
 # Try to set GitHub Dark as the default profile, set font size, and make window full screen using AppleScript
@@ -53,4 +62,5 @@ tell application "Terminal"
 end tell
 EOD
 
-echo "If you still don't see GitHub Dark as your default, open Terminal Preferences > Profiles and set it manually."
+warning "If you still don't see GitHub Dark as your default, set it manually in Terminal > Settings > Profiles."
+success "Terminal theme setup finished."

@@ -10,20 +10,20 @@
   # Switch to a branch, creating it if necessary
   go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
-  # get rid of all my branches that are merged
-  prunegone = "!git fetch -p && for branch in `git branch -vv | grep ': gone]' | awk '{print $1}'`; do git branch -D $branch; done"
+  # delete local branches whose upstream was deleted
+  prunegone = "!git fetch -p && git for-each-ref --format '%(refname:short) %(upstream:track)' refs/heads | while IFS=' ' read -r branch track; do [ \"$track\" = '[gone]' ] && git branch -D \"$branch\"; done"
 
-  reset = "git reset HEAD --hard"
+  nuke = reset --hard HEAD
 
   up = !"git remote update -p; git merge --ff-only @{u}"
 
 # color opts: normal, black, red, green, yellow, blue, magenta, cyan, or white
 [color]
-  ui = always
+  ui = auto
 
 [core]
   # Use custom `.gitignore` and `.gitattributes`
-  excludesfile = ~/.gitignore
+  excludesfile = ~/.gitignore_global
   attributesfile = ~/.gitattributes
 
 [user]
@@ -47,7 +47,10 @@
   prune = true
 
 [diff]
-  compactionHeuristic = true
+  indentHeuristic = true
+
+[commit]
+  template = ~/.stCommitMsg
 
 [pull]
   rebase = false
@@ -91,52 +94,54 @@
 	path = ~/.gitconfig.personal
 
 # Work directory fallbacks
-[includeIf "gitdir:~/work/"]
+[includeIf "gitdir/i:~/work/"]
 	path = ~/.gitconfig.work
-[includeIf "gitdir:~/clients/"]
+[includeIf "gitdir/i:~/clients/"]
 	path = ~/.gitconfig.work
-[includeIf "gitdir:~/code/work/"]
+[includeIf "gitdir/i:~/code/work/"]
 	path = ~/.gitconfig.work
 
 # Personal GitHub identity rules
 [includeIf "hasconfig:remote.*.url:git@github.com:guerreit/**"]
 	path = ~/.gitconfig.personal
+[includeIf "hasconfig:remote.*.url:https://github.com/guerreit/**"]
+	path = ~/.gitconfig.personal
 [includeIf "hasconfig:remote.*.url:git@github.com-personal:guerreit/**"]
 	path = ~/.gitconfig.personal
-[includeIf "hasconfig:remote.*.url:https://github.com/guerreit/**"]
+[includeIf "hasconfig:remote.*.url:git@github.com-guerreit:guerreit/**"]
 	path = ~/.gitconfig.personal
 # Work GitHub identity rules
 [includeIf "hasconfig:remote.*.url:git@github.com:garrettj-slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/garrettj-slalom/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-work:garrettj-slalom/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:garrettj-slalom/**"]
 	path = ~/.gitconfig.work
-[includeIf "hasconfig:remote.*.url:https://github.com/garrettj-slalom/**"]
-	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com:Slalom/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/Slalom/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-work:Slalom/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:Slalom/**"]
 	path = ~/.gitconfig.work
-[includeIf "hasconfig:remote.*.url:https://github.com/Slalom/**"]
-	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com:abs-wavesight/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/abs-wavesight/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-work:abs-wavesight/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:abs-wavesight/**"]
 	path = ~/.gitconfig.work
-[includeIf "hasconfig:remote.*.url:https://github.com/abs-wavesight/**"]
-	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com:ASPCA-Membership/**"]
+	path = ~/.gitconfig.work
+[includeIf "hasconfig:remote.*.url:https://github.com/ASPCA-Membership/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-work:ASPCA-Membership/**"]
 	path = ~/.gitconfig.work
 [includeIf "hasconfig:remote.*.url:git@github.com-garrettj-slalom:ASPCA-Membership/**"]
-	path = ~/.gitconfig.work
-[includeIf "hasconfig:remote.*.url:https://github.com/ASPCA-Membership/**"]
 	path = ~/.gitconfig.work
 # Work Bitbucket identity rules
 [includeIf "hasconfig:remote.*.url:git@bitbucket.org:slalom-consulting/**"]

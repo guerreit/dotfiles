@@ -1,5 +1,6 @@
 # SSH Configuration for Multiple Keys
 # This file will be copied to ~/.ssh/config during setup
+IgnoreUnknown UseKeychain
 
 # Personal GitHub account
 Host github.com-personal github.com-guerreit

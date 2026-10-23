@@ -41,6 +41,19 @@ GIT_WORK_BITBUCKET_OWNERS=(
   "slalom-consulting"
 )
 
+# SSH Alias Mapping
+# -----------------
+# Additional SSH host aliases that should map to each role.
+GIT_PERSONAL_SSH_ALIASES=(
+  "github.com-personal"
+  "github.com-guerreit"
+)
+
+GIT_WORK_SSH_ALIASES=(
+  "github.com-work"
+  "github.com-garrettj-slalom"
+)
+
 # Work Directory Patterns
 # ------------------------
 # These are fallback rules for new repositories that do not have a remote yet.

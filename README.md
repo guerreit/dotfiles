@@ -15,6 +15,7 @@ A reproducible macOS development environment for both personal and work profiles
 
 - macOS with Zsh (default since Catalina)
 - [Homebrew](https://brew.sh/) pre-installed (required because `setup.sh` checks for `brew` before running `brews.sh`)
+- Git 2.36+ (required for remote-owner conditional includes via `includeIf hasconfig`)
 - `curl`, `git`, and `chmod` (stock on macOS)
 - Visual Studio Code with the `code` CLI on your PATH if you want automatic extension installs
 
@@ -190,15 +191,15 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 ### Dotfile Sync
 
 - `scripts/sync.sh` uses checksum-based `rsync`; unchanged files do not generate backups, even if their timestamps change.
-- `.DS_Store`, `.git`, and `.gitignore` are excluded. The root `.ssh_config` is handled separately; `.gitconfig.roles` stays in the repo.
+- `.DS_Store`, `.git`, and repository `.gitignore` files are excluded. The managed global ignore file is `src/.gitignore_global`, which syncs to `~/.gitignore_global`.
 - Changed files are backed up under `~/.dotfiles-backup/<timestamp>-sync.<id>`. Empty backup directories are removed.
 
 ## Managed Dotfiles (src/)
 
-- `.zshrc`, `.aliases`, `.exports`, `.functions`, `.path`
+- `.zshrc`, `.zprofile`, `.aliases`, `.exports`, `.functions`, `.path`
 - `.vimrc`, `.editorconfig`
 - `.gitconfig` (template), `.gitconfig.roles`, `.gitconfig.personal`, `.gitconfig.work`
-- `.gitignore`, `.gitattributes`, `.stCommitMsg`
+- `.gitignore_global`, `.gitattributes`, `.stCommitMsg`
 - `.profile` (legacy metadata), `.hushlogin`
 - `.ssh_config`
 

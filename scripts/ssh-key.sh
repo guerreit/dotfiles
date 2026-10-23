@@ -45,9 +45,14 @@ install_ssh_config() {
   fi
 
   if [[ -f "$CONFIG_FILE" ]] && ! cmp -s "$SSH_CONFIG_TEMPLATE" "$CONFIG_FILE"; then
-    local backup_file="$CONFIG_FILE.backup.$(date +%Y%m%d%H%M%S)"
-    cp "$CONFIG_FILE" "$backup_file"
-    info "Backed up existing SSH config to $backup_file"
+    local backup_root="$HOME/.dotfiles-backup"
+    mkdir -p "$backup_root"
+    chmod 700 "$backup_root"
+    local backup_dir
+    backup_dir=$(mktemp -d "$backup_root/$(date +%Y%m%d_%H%M%S)-snapshot.XXXXXXXX")
+    mkdir -p "$backup_dir/.ssh"
+    cp -p "$CONFIG_FILE" "$backup_dir/.ssh/config"
+    info "Backed up existing SSH config to $backup_dir/.ssh/config"
   fi
 
   cp "$SSH_CONFIG_TEMPLATE" "$CONFIG_FILE"
@@ -57,19 +62,38 @@ install_ssh_config() {
 
 # Usage
 if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
-  echo "Usage: ./ssh-key.sh [personal_email] [work_email]"
+  echo "Usage: ./ssh-key.sh [--no-passphrase] [personal_email] [work_email]"
   echo ""
   echo "If no arguments provided, emails will be read from src/.gitconfig.roles"
   echo "or default to hardcoded values if the file is not available."
   exit 0
 fi
 
+NO_PASSPHRASE=false
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-passphrase)
+      NO_PASSPHRASE=true
+      shift
+      ;;
+    -h|--help)
+      echo "Usage: ./ssh-key.sh [--no-passphrase] [personal_email] [work_email]"
+      exit 0
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
 # Default email addresses (fallback)
-PERSONAL_EMAIL="${1:-garrettjones@me.com}"
-WORK_EMAIL="${2:-garrettj@slalom.com}"
+PERSONAL_EMAIL="${POSITIONAL_ARGS[1]:-garrettjones@me.com}"
+WORK_EMAIL="${POSITIONAL_ARGS[2]:-garrettj@slalom.com}"
 
 # Source emails from configuration file if no arguments provided
-if [[ $# -eq 0 ]]; then
+if (( ${#POSITIONAL_ARGS[@]} == 0 )); then
   source_emails
 fi
 SSH_DIR="$HOME/.ssh"
@@ -81,20 +105,26 @@ WORK_KEY="$SSH_DIR/id_ed25519_github_work"
 mkdir -p "$SSH_DIR"
 chmod 700 "$SSH_DIR"
 
+SSH_KEY_PASSPHRASE=""
+if [[ "$NO_PASSPHRASE" != "true" ]] && [[ ! -f "$PERSONAL_KEY" || ! -f "$WORK_KEY" ]]; then
+  read -s "SSH_KEY_PASSPHRASE?Enter passphrase for new SSH keys (leave empty for none): "
+  echo ""
+fi
+
 # Generate personal SSH key if not exists
-if [ -f "$PERSONAL_KEY" ]; then
+if [[ -f "$PERSONAL_KEY" ]]; then
   success "Personal SSH key already exists: $PERSONAL_KEY"
 else
   info "Generating personal SSH key..."
-  ssh-keygen -t ed25519 -C "$PERSONAL_EMAIL" -f "$PERSONAL_KEY" -N ""
+  ssh-keygen -t ed25519 -C "$PERSONAL_EMAIL" -f "$PERSONAL_KEY" -N "$SSH_KEY_PASSPHRASE"
 fi
 
 # Generate work SSH key if not exists
-if [ -f "$WORK_KEY" ]; then
+if [[ -f "$WORK_KEY" ]]; then
   success "Work SSH key already exists: $WORK_KEY"
 else
   info "Generating work SSH key..."
-  ssh-keygen -t ed25519 -C "$WORK_EMAIL" -f "$WORK_KEY" -N ""
+  ssh-keygen -t ed25519 -C "$WORK_EMAIL" -f "$WORK_KEY" -N "$SSH_KEY_PASSPHRASE"
 fi
 
 add_key_to_agent "$PERSONAL_KEY"

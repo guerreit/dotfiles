@@ -2,6 +2,7 @@
 
 # Make vim the default editor.
 export EDITOR='vim';
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Code/dotfiles}"
 
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8';
@@ -10,7 +11,6 @@ export LC_ALL='en_US.UTF-8';
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X';
 
-export CPPFLAGS="-I/usr/local/opt/openjdk@11/include";
 
 # Colors
 export CLICOLOR=1
@@ -124,8 +124,6 @@ pip3() {
 }
 
 # Docker
-export DOCKER_HOST='unix:///Users/garrettjones/.colima/default/docker.sock'
-
-# Verions
-export PYENV_VERSION=3.11.5
-export RBENV_VERSION=2.7.1
+if [[ -S "$HOME/.colima/default/docker.sock" ]]; then
+  export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
+fi

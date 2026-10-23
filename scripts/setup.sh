@@ -76,15 +76,7 @@ for dep in curl brew chmod; do
 done
 
 info "Making scripts executable..."
-chmod u+x "$SCRIPTS_DIR"/brews.sh \
-         "$SCRIPTS_DIR"/casks.sh \
-         "$SCRIPTS_DIR"/osx.sh \
-         "$SCRIPTS_DIR"/sync.sh \
-         "$SCRIPTS_DIR"/plugins.sh \
-         "$SCRIPTS_DIR"/vscode-extensions.sh \
-         "$SCRIPTS_DIR"/backup.sh \
-         "$SCRIPTS_DIR"/ssh-key.sh \
-         "$SCRIPTS_DIR"/git-config-status.sh || { error "Failed to make scripts executable"; exit 1; }
+chmod u+x "$SCRIPTS_DIR"/*.sh || { error "Failed to make scripts executable"; exit 1; }
 
 info "Creating backup of existing dotfiles..."
 "$SCRIPTS_DIR/backup.sh" || { error "backup.sh failed"; exit 1; }
@@ -105,7 +97,7 @@ info "Running osx.sh..."
 "$SCRIPTS_DIR/osx.sh" || { error "osx.sh failed"; exit 1; }
 
 info "Syncing dotfiles with sync.sh..."
-"$SCRIPTS_DIR/sync.sh" || { error "sync.sh failed"; exit 1; }
+"$SCRIPTS_DIR/sync.sh" "$DOTFILES_PROFILE" || { error "sync.sh failed"; exit 1; }
 
 success "Setup complete!"
 

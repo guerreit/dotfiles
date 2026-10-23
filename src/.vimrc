@@ -20,6 +20,7 @@ set smartcase
 " Visual settings
 syntax on
 set background=dark
+silent! colorscheme solarized
 set cursorline
 
 " Subtle cursor line

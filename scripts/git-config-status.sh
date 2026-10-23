@@ -21,6 +21,7 @@ warning() { print -P "%F{yellow}⚠%f $1"; }
 
 # Usage information
 usage() {
+  local exit_code="${1:-0}"
   cat <<EOF
 Git Configuration Status Tool
 ==============================
@@ -36,7 +37,7 @@ Description:
   Shows which identity (personal/work) is active based on directory location.
 
 EOF
-  exit 0
+  exit "$exit_code"
 }
 
 # Parse arguments
@@ -52,7 +53,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       error "Unknown option: $1"
-      usage
+      usage 1
       ;;
   esac
 done
@@ -73,8 +74,8 @@ GIT_VERSION=$(git --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
 GIT_MAJOR=$(echo "$GIT_VERSION" | cut -d. -f1)
 GIT_MINOR=$(echo "$GIT_VERSION" | cut -d. -f2)
 
-if [[ $GIT_MAJOR -lt 2 ]] || [[ $GIT_MAJOR -eq 2 && $GIT_MINOR -lt 13 ]]; then
-  warning "Git version $GIT_VERSION detected (2.13+ required for conditional includes)"
+if [[ $GIT_MAJOR -lt 2 ]] || [[ $GIT_MAJOR -eq 2 && $GIT_MINOR -lt 36 ]]; then
+  warning "Git version $GIT_VERSION detected (2.36+ required for remote-based conditional includes)"
   echo ""
 fi
 
@@ -91,6 +92,12 @@ echo ""
 if [[ -n "$ROLES_FILE" ]]; then
   source "$ROLES_FILE" 2>/dev/null || true
 fi
+(( ${+GIT_PERSONAL_GITHUB_OWNERS} )) || typeset -ga GIT_PERSONAL_GITHUB_OWNERS=()
+(( ${+GIT_WORK_GITHUB_OWNERS} )) || typeset -ga GIT_WORK_GITHUB_OWNERS=()
+(( ${+GIT_WORK_BITBUCKET_OWNERS} )) || typeset -ga GIT_WORK_BITBUCKET_OWNERS=()
+(( ${+GIT_WORK_PATTERNS} )) || typeset -ga GIT_WORK_PATTERNS=()
+(( ${+GIT_PERSONAL_SSH_ALIASES} )) || typeset -ga GIT_PERSONAL_SSH_ALIASES=("github.com-personal" "github.com-guerreit")
+(( ${+GIT_WORK_SSH_ALIASES} )) || typeset -ga GIT_WORK_SSH_ALIASES=("github.com-work" "github.com-garrettj-slalom")
 
 # Determine active role using directory fallbacks, then remote-owner overrides.
 ACTIVE_ROLE="${GIT_DEFAULT_ROLE:-personal}"
@@ -112,16 +119,11 @@ if git rev-parse --git-dir &>/dev/null 2>&1; then
   echo "  Effective Remote: ${EFFECTIVE_REMOTE:-(none)}"
 
   # Directory patterns are fallback rules for repositories without known owners.
-  if [[ -n "${GIT_WORK_PATTERNS:-}" ]]; then
+  if (( ${#GIT_WORK_PATTERNS[@]} > 0 )); then
+    setopt localoptions nocasematch
     for pattern in "${GIT_WORK_PATTERNS[@]}"; do
-      # Expand ~ to home directory
       expanded_pattern="${pattern/#\~/$HOME}"
-      # Convert glob pattern to regex for matching
-      # Simple conversion: ** -> .*, * -> [^/]*
-      regex_pattern="${expanded_pattern//\*\*/.*}"
-      regex_pattern="${regex_pattern//\*/[^/]*}"
-
-      if [[ "$CURRENT_DIR" =~ ^${regex_pattern} ]]; then
+      if [[ "$CURRENT_DIR" == ${~expanded_pattern} ]]; then
         MATCHED_PATTERN="$pattern"
         ACTIVE_ROLE="work"
         break
@@ -131,25 +133,45 @@ if git rev-parse --git-dir &>/dev/null 2>&1; then
 
   # Remote owners override directory and default fallbacks.
   for owner in "${GIT_PERSONAL_GITHUB_OWNERS[@]}"; do
-    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* ||
-          "$RAW_REMOTE" == "git@github.com-personal:$owner/"* ||
-          "$RAW_REMOTE" == "git@github.com-guerreit:$owner/"* ||
-          "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
+    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* || "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
       ACTIVE_ROLE="personal"
       MATCHED_OWNER="github.com/$owner"
       EXPECTED_SSH_ALIAS="github.com-personal"
       break
     fi
+
+    for ssh_alias in "${GIT_PERSONAL_SSH_ALIASES[@]}"; do
+      if [[ "$RAW_REMOTE" == "git@$ssh_alias:$owner/"* ]]; then
+        ACTIVE_ROLE="personal"
+        MATCHED_OWNER="github.com/$owner"
+        EXPECTED_SSH_ALIAS="$ssh_alias"
+        break
+      fi
+    done
+
+    if [[ "$MATCHED_OWNER" != "none" ]]; then
+      break
+    fi
   done
 
   for owner in "${GIT_WORK_GITHUB_OWNERS[@]}"; do
-    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* ||
-          "$RAW_REMOTE" == "git@github.com-work:$owner/"* ||
-          "$RAW_REMOTE" == "git@github.com-garrettj-slalom:$owner/"* ||
-          "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
+    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* || "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
       ACTIVE_ROLE="work"
       MATCHED_OWNER="github.com/$owner"
       EXPECTED_SSH_ALIAS="github.com-work"
+      break
+    fi
+
+    for ssh_alias in "${GIT_WORK_SSH_ALIASES[@]}"; do
+      if [[ "$RAW_REMOTE" == "git@$ssh_alias:$owner/"* ]]; then
+        ACTIVE_ROLE="work"
+        MATCHED_OWNER="github.com/$owner"
+        EXPECTED_SSH_ALIAS="$ssh_alias"
+        break
+      fi
+    done
+
+    if [[ "$MATCHED_OWNER" != "none" ]]; then
       break
     fi
   done
@@ -202,7 +224,7 @@ if [[ -n "$ROLES_FILE" ]]; then
   echo ""
 
   echo "Configured Work Patterns:"
-  if [[ -n "${GIT_WORK_PATTERNS:-}" && ${#GIT_WORK_PATTERNS[@]} -gt 0 ]]; then
+  if (( ${#GIT_WORK_PATTERNS[@]} > 0 )); then
     for pattern in "${GIT_WORK_PATTERNS[@]}"; do
       echo "  - $pattern"
     done
@@ -217,6 +239,12 @@ fi
 
 # Validation checks
 ISSUES_FOUND=false
+
+if [[ "$DRY_RUN" == "true" ]]; then
+  echo "Dry Run Mode: Pattern matching evaluated without validation checks"
+  echo ""
+  exit 0
+fi
 
 echo "Configuration Validation:"
 
@@ -317,12 +345,6 @@ if [[ "$ISSUES_FOUND" == "true" ]]; then
   exit 1
 else
   echo "Status: ✓ Configuration is valid and matches expected role"
-  echo ""
-fi
-
-# Dry run mode information
-if [[ "$DRY_RUN" == "true" ]]; then
-  echo "Dry Run Mode: Pattern matching tested without execution"
   echo ""
 fi
 

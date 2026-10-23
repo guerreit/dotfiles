@@ -62,6 +62,8 @@ for profile in personal work; do
   [[ ${#snapshots[@]} -eq 1 ]]
   [[ "$(git config --file "$snapshots[1]/.gitconfig" user.name)" == 'Original Identity' ]]
   cmp "$REPO_ROOT/src/.aliases" "$HOME/.aliases"
+  cmp "$REPO_ROOT/src/.gitignore_global" "$HOME/.gitignore_global"
+  [[ "$(git config --file "$HOME/.gitconfig" core.excludesfile)" == "~/.gitignore_global" ]]
   [[ ! -e "$HOME/.gitconfig.roles" ]]
   zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
   snapshots=("$HOME/.dotfiles-backup"/*(N/))
@@ -84,3 +86,54 @@ for profile in personal work; do
   cmp "$HOME/.ssh/config" "$full_snapshots[1]/.ssh/config"
   print "PASS: $profile dotfile deployment, original config preservation, no-op sync and full snapshots"
 done
+
+export HOME="$SANDBOX/minimal-roles"
+export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
+mkdir -p "$HOME"
+cat > "$SANDBOX/repo/src/.gitconfig.roles" <<'EOF'
+GIT_PERSONAL_NAME="Test User"
+GIT_PERSONAL_EMAIL="test.personal@example.test"
+GIT_WORK_NAME="Test User"
+GIT_WORK_EMAIL="test.work@example.test"
+GIT_DEFAULT_ROLE="personal"
+EOF
+zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
+[[ "$(git config --file "$HOME/.gitconfig" --get include.path)" == "~/.gitconfig.personal" ]]
+print "PASS: sync.sh handles roles files without owner/pattern arrays"
+
+export HOME="$SANDBOX/no-roles"
+export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
+mkdir -p "$HOME"
+mv "$SANDBOX/repo/src/.gitconfig.roles" "$SANDBOX/repo/src/.gitconfig.roles.bak"
+if zsh "$SANDBOX/repo/scripts/git-config-status.sh" > "$SANDBOX/status.out" 2>&1; then
+  print -u2 -- "Expected git-config-status.sh to fail without roles file"
+  exit 1
+fi
+grep -q "Missing roles configuration" "$SANDBOX/status.out"
+if grep -q "parameter not set" "$SANDBOX/status.out"; then
+  print -u2 -- "Unexpected unbound-parameter failure in git-config-status.sh"
+  exit 1
+fi
+mv "$SANDBOX/repo/src/.gitconfig.roles.bak" "$SANDBOX/repo/src/.gitconfig.roles"
+print "PASS: git-config-status.sh handles missing roles file without set -u crashes"
+
+export HOME="$SANDBOX/restore-home"
+export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
+export DOTFILES_DIR="$SANDBOX/repo"
+mkdir -p "$HOME"
+zsh "$SANDBOX/repo/scripts/sync.sh" personal > /dev/null
+print "before-restore" > "$HOME/.aliases"
+restore_snapshot="$HOME/.dotfiles-backup/20260101_000000-snapshot.zzzzzzzz"
+mkdir -p "$restore_snapshot/.ssh"
+print "after-restore" > "$restore_snapshot/.aliases"
+print "Host github.com" > "$restore_snapshot/.ssh/config"
+snapshot_dirs_before=("$HOME/.dotfiles-backup"/*-snapshot.*(N/))
+snapshot_count_before=${#snapshot_dirs_before[@]}
+zsh -c 'source "$HOME/.functions"; restore-dotfiles "$1"' _ "$restore_snapshot" > /dev/null
+[[ "$(cat "$HOME/.aliases")" == "after-restore" ]]
+[[ -f "$HOME/.ssh/config" ]]
+[[ "$(stat -f '%Mp%Lp' "$HOME/.ssh/config")" == "0600" ]]
+snapshot_dirs_after=("$HOME/.dotfiles-backup"/*-snapshot.*(N/))
+snapshot_count_after=${#snapshot_dirs_after[@]}
+[[ $snapshot_count_after -eq $((snapshot_count_before + 1)) ]]
+print "PASS: restore-dotfiles restores dotfiles and creates a pre-restore snapshot"

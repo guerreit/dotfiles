@@ -80,18 +80,22 @@ zstyle ':omz:update' mode disabled
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(z)
+plugins=()
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 # User configuration
 
-source ~/.aliases
-source ~/.exports
-source ~/.functions
-source ~/.path
-source ~/.profile
-source ~/.secrets
+[[ -r "$HOME/.aliases" ]] && source "$HOME/.aliases"
+[[ -r "$HOME/.exports" ]] && source "$HOME/.exports"
+[[ -r "$HOME/.functions" ]] && source "$HOME/.functions"
+[[ -r "$HOME/.path" ]] && source "$HOME/.path"
+[[ -r "$HOME/.profile" ]] && source "$HOME/.profile"
+[[ -r "$HOME/.secrets" ]] && source "$HOME/.secrets"
+
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
 
 # export MANPATH="/usr/local/man:$MANPATH"
 

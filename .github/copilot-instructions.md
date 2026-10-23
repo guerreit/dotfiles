@@ -65,16 +65,17 @@ Detects active Git identity by matching current directory against `GIT_WORK_PATT
 ### Backup Strategy
 
 - **Pre-install**: `backup.sh` creates `~/.dotfiles-backup/<timestamp>` before setup
-- **Per-sync**: `sync.sh` moves existing files to `~/.dotfiles_backup_<timestamp>` before overwriting
+- **Per-sync**: `sync.sh` backs up changed files to `~/.dotfiles-backup/<timestamp>-sync.<id>` before overwriting
 - Never delete existing configs—always backup first
 
 ### File Sync Exclusions
 
 When syncing `src/` to `$HOME`, `sync.sh` excludes:
 
-- `.DS_Store`, `.git`, `.gitignore` (system files)
+- `.DS_Store`, `.git`, and repository `.gitignore` files (system/repo metadata)
 - `.ssh_config` (handled separately with chmod 600)
 - `.gitconfig.roles` (stays in src/, generates configs but isn't deployed)
+- `src/.gitignore_global` is deployed to `~/.gitignore_global` for global Git ignores
 
 ### SSH Configuration
 
@@ -141,7 +142,7 @@ When syncing `src/` to `$HOME`, `sync.sh` excludes:
 - **Homebrew**: Must be pre-installed (setup.sh checks with `command -v brew`)
 - **Oh My Zsh**: Installed by `scripts/plugins.sh`, not assumed to exist
 - **VS Code CLI**: `code` command must be in PATH for extension installs (failure is graceful)
-- **Git 2.13+**: Required for conditional includes (sync.sh checks version and warns)
+- **Git 2.36+**: Required for remote-owner conditional includes (`includeIf hasconfig`)
 
 ## Reference Implementation
 

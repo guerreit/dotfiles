@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # Color functions
-info() { echo "[INFO] $1"; }
-success() { echo "[SUCCESS] $1"; }
-error() { echo "[ERROR] $1" >&2; }
+info() { print -P "%F{cyan}[INFO]%f $1"; }
+success() { print -P "%F{green}[SUCCESS]%f $1"; }
+error() { print -P "%F{red}[ERROR]%f $1" >&2; }
 
 # Create backup directory with timestamp
 umask 077
@@ -17,6 +17,7 @@ info "Creating backup in $BACKUP_DIR"
 # List of dotfiles to backup
 DOTFILES=(
   .zshrc
+  .zprofile
   .aliases
   .exports
   .functions
@@ -27,7 +28,7 @@ DOTFILES=(
   .gitconfig.personal
   .gitconfig.work
   .gitattributes
-  .gitignore
+  .gitignore_global
   .vimrc
   .editorconfig
   .hushlogin
@@ -50,7 +51,7 @@ else
   success "Backed up $backup_count dotfiles to $BACKUP_DIR"
 fi
 
-# Also backup any custom Oh My Zsh customizations
+# Also back up SSH config and any custom Oh My Zsh customizations.
 if [[ -f "$HOME/.ssh/config" ]]; then
   mkdir -p "$BACKUP_DIR/.ssh"
   cp -p "$HOME/.ssh/config" "$BACKUP_DIR/.ssh/"

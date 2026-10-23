@@ -40,16 +40,12 @@ alias hidedotfiles="defaults write com.apple.finder AppleShowAllFiles -bool fals
 alias afk="pmset sleepnow"
 
 # Load nvm version if exists
-alias load-nvm="cat .nvmrc | nvm use"
+alias load-nvm="nvm use"
 
 # Backup and restore dotfiles
-alias backup-dotfiles="~/Code/dotfiles/scripts/backup.sh"
+alias backup-dotfiles='${DOTFILES_DIR:-$HOME/Code/dotfiles}/scripts/backup.sh'
 alias list-backups="ls -la ~/.dotfiles-backup/"
-alias restore-dotfiles='function _restore(){ echo "Restoring from $1..."; cp -r "$1"/* ~/; echo "Restore complete!"; }; _restore'
 
 # AWS
 alias aws-get-role="aws sts get-caller-identity"
-alias aws-auth="aws-azure-login --profile default --no-prompt --mode=gui"
-
-# Ports
-alias killport='function _killport(){ lsof -ti :$1 | xargs kill; }; _killport'
+alias aws-auth='command -v aws-azure-login >/dev/null 2>&1 && aws-azure-login --profile default --no-prompt --mode=gui || echo "aws-azure-login is not installed" >&2'
