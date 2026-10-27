@@ -12,7 +12,7 @@ COMMON_CASKS=(visual-studio-code spotify copilot-cli)
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then
     PROFILE_CASKS=(postman microsoft-edge microsoft-teams microsoft-onenote slack)
 else
-    PROFILE_CASKS=()
+    PROFILE_CASKS=(chatgpt)
 fi
 
 # Combine common and profile-specific casks
