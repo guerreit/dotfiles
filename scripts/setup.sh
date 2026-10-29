@@ -87,6 +87,9 @@ info "Installing plugins..."
 info "Running brews.sh..."
 "$SCRIPTS_DIR/brews.sh" || { error "brews.sh failed"; exit 1; }
 
+info "Bootstrapping Matt Pocock skills..."
+"$SCRIPTS_DIR/bootstrap-matt-pocock-skills.sh" || { error "bootstrap-matt-pocock-skills.sh failed"; exit 1; }
+
 info "Running casks.sh..."
 "$SCRIPTS_DIR/casks.sh" || { error "casks.sh failed"; exit 1; }
 

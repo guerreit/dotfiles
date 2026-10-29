@@ -97,14 +97,15 @@ The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates t
 4. Call `scripts/backup.sh` to snapshot existing dotfiles under `~/.dotfiles-backup/<timestamp>`.
 5. Install Oh My Zsh, vim-plug, and the Solarized theme through `scripts/plugins.sh`.
 6. Install/upgrade CLI tools (`scripts/brews.sh`) and GUI apps (`scripts/casks.sh`) based on the selected profile.
-7. Install VS Code extensions with `scripts/vscode-extensions.sh` (skipped if the `code` CLI is missing).
-8. Apply macOS UI tweaks (`scripts/osx.sh`).
-9. Sync every file under `src/` into `$HOME` with `scripts/sync.sh`, which also:
+7. Bootstrap Matt Pocock skills into your global/root agent skills directory (`~/.agents/skills`) with `scripts/bootstrap-matt-pocock-skills.sh`.
+8. Install VS Code extensions with `scripts/vscode-extensions.sh` (skipped if the `code` CLI is missing).
+9. Apply macOS UI tweaks (`scripts/osx.sh`).
+10. Sync every file under `src/` into `$HOME` with `scripts/sync.sh`, which also:
    - Generates `.gitconfig`, `.gitconfig.personal`, and `.gitconfig.work` from `.gitconfig.roles`
    - Removes any global `user.name`/`user.email` so conditional includes stay authoritative
    - Copies `src/.ssh_config` into `~/.ssh/config` with secure permissions
    - Backs up changed files under `~/.dotfiles-backup/<timestamp>-sync.<id>`
-10. Display current status through `scripts/git-config-status.sh` so you can confirm the active identity.
+11. Display current status through `scripts/git-config-status.sh` so you can confirm the active identity.
 
 ## Role-Aware Git Identities
 
@@ -221,6 +222,7 @@ All scripts can be run directly or through the `./dotfiles` CLI (recommended):
 - `scripts/vscode-extensions.sh` (or `./dotfiles install-vscode`) – VS Code extensions
 - `scripts/osx.sh` (or `./dotfiles osx`) – macOS defaults tweaks
 - `scripts/terminal-theme.sh` (or `./dotfiles theme`) – Terminal profile importer
+- `scripts/bootstrap-matt-pocock-skills.sh` – bootstrap Matt Pocock skills into `~/.agents/skills`
 
 > 💡 **CLI vs Direct Scripts:** The `dotfiles` CLI provides better error handling, consistent output, and a cleaner interface. Direct script execution is still supported for advanced use cases.
 
