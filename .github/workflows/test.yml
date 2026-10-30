@@ -19,3 +19,6 @@ jobs:
 
       - name: Backup regression tests
         run: zsh tests/backups.zsh
+
+      - name: Git identity regression tests
+        run: zsh tests/git-identity.zsh

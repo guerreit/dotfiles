@@ -3,6 +3,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$SCRIPT_DIR/git-identity.zsh"
 
 info() { print -P "%F{cyan}[INFO]%f $1"; }
 success() { print -P "%F{green}[SUCCESS]%f $1"; }
@@ -132,19 +133,12 @@ generate_git_configs() {
 
   info "Generating Git configuration files from $roles_file..."
 
-  # Source the roles configuration
-  if ! source "$roles_file" 2>/dev/null; then
+  # Source the roles configuration and apply shared defaults.
+  if ! load_git_identity_config "$roles_file"; then
     error "Failed to load $roles_file - syntax error detected"
     error "Please check the file syntax and try again"
     return 1
   fi
-
-  (( ${+GIT_PERSONAL_GITHUB_OWNERS} )) || typeset -ga GIT_PERSONAL_GITHUB_OWNERS=()
-  (( ${+GIT_WORK_GITHUB_OWNERS} )) || typeset -ga GIT_WORK_GITHUB_OWNERS=()
-  (( ${+GIT_WORK_BITBUCKET_OWNERS} )) || typeset -ga GIT_WORK_BITBUCKET_OWNERS=()
-  (( ${+GIT_WORK_PATTERNS} )) || typeset -ga GIT_WORK_PATTERNS=()
-  (( ${+GIT_PERSONAL_SSH_ALIASES} )) || typeset -ga GIT_PERSONAL_SSH_ALIASES=("github.com-personal" "github.com-guerreit")
-  (( ${+GIT_WORK_SSH_ALIASES} )) || typeset -ga GIT_WORK_SSH_ALIASES=("github.com-work" "github.com-garrettj-slalom")
 
   # Validate required variables
   if [[ -z "${GIT_PERSONAL_NAME:-}" || -z "${GIT_PERSONAL_EMAIL:-}" ]]; then

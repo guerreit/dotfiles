@@ -247,7 +247,7 @@ Archives live in `~/.dotfiles-backup/archives/`. Compression and archive integri
 
 To restore, inspect an archive with `tar -tzf <archive.tar.gz>`, extract it into a separate directory with `tar -xzf <archive.tar.gz> -C <restore-directory>`, then copy only the files you need into `$HOME`. Uncompressed backups can be inspected and copied directly. Restart your shell after restoring shell configuration.
 
-Run the isolated regression checks with `zsh tests/backups.zsh`; they use temporary home directories, never your real configuration.
+Run the isolated regression checks with `zsh tests/backups.zsh` and `zsh tests/git-identity.zsh`; they use temporary directories and never modify your real configuration.
 
 ## Credits
 

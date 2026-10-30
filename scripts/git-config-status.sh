@@ -5,6 +5,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly REPO_ROLES_FILE="$REPO_ROOT/src/.gitconfig.roles"
 readonly HOME_ROLES_FILE="$HOME/.gitconfig.roles"
+source "$SCRIPT_DIR/git-identity.zsh"
 
 ROLES_FILE=""
 if [[ -f "$REPO_ROLES_FILE" ]]; then
@@ -88,24 +89,19 @@ echo "  Name:  $CURRENT_NAME"
 echo "  Email: $CURRENT_EMAIL"
 echo ""
 
-# Load default role first
+# Load identity settings once, using the same defaults as config generation.
+ROLES_CONFIG_ERROR=false
 if [[ -n "$ROLES_FILE" ]]; then
-  source "$ROLES_FILE" 2>/dev/null || true
+  if ! load_git_identity_config "$ROLES_FILE"; then
+    error "Failed to load roles configuration: $ROLES_FILE"
+    ROLES_CONFIG_ERROR=true
+  fi
+else
+  load_git_identity_config ""
 fi
-(( ${+GIT_PERSONAL_GITHUB_OWNERS} )) || typeset -ga GIT_PERSONAL_GITHUB_OWNERS=()
-(( ${+GIT_WORK_GITHUB_OWNERS} )) || typeset -ga GIT_WORK_GITHUB_OWNERS=()
-(( ${+GIT_WORK_BITBUCKET_OWNERS} )) || typeset -ga GIT_WORK_BITBUCKET_OWNERS=()
-(( ${+GIT_WORK_PATTERNS} )) || typeset -ga GIT_WORK_PATTERNS=()
-(( ${+GIT_PERSONAL_SSH_ALIASES} )) || typeset -ga GIT_PERSONAL_SSH_ALIASES=("github.com-personal" "github.com-guerreit")
-(( ${+GIT_WORK_SSH_ALIASES} )) || typeset -ga GIT_WORK_SSH_ALIASES=("github.com-work" "github.com-garrettj-slalom")
 
-# Determine active role using directory fallbacks, then remote-owner overrides.
-ACTIVE_ROLE="${GIT_DEFAULT_ROLE:-personal}"
-MATCHED_PATTERN="none"
-MATCHED_OWNER="none"
 RAW_REMOTE=""
 EFFECTIVE_REMOTE=""
-EXPECTED_SSH_ALIAS=""
 EXPECTED_NAME=""
 EXPECTED_EMAIL=""
 
@@ -118,90 +114,19 @@ if git rev-parse --git-dir &>/dev/null 2>&1; then
   echo "  Raw Remote:       ${RAW_REMOTE:-(none)}"
   echo "  Effective Remote: ${EFFECTIVE_REMOTE:-(none)}"
 
-  # Directory patterns are fallback rules for repositories without known owners.
-  if (( ${#GIT_WORK_PATTERNS[@]} > 0 )); then
-    setopt localoptions nocasematch
-    for pattern in "${GIT_WORK_PATTERNS[@]}"; do
-      expanded_pattern="${pattern/#\~/$HOME}"
-      if [[ "$CURRENT_DIR" == ${~expanded_pattern} ]]; then
-        MATCHED_PATTERN="$pattern"
-        ACTIVE_ROLE="work"
-        break
-      fi
-    done
-  fi
-
-  # Remote owners override directory and default fallbacks.
-  for owner in "${GIT_PERSONAL_GITHUB_OWNERS[@]}"; do
-    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* || "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
-      ACTIVE_ROLE="personal"
-      MATCHED_OWNER="github.com/$owner"
-      EXPECTED_SSH_ALIAS="github.com-personal"
-      break
-    fi
-
-    for ssh_alias in "${GIT_PERSONAL_SSH_ALIASES[@]}"; do
-      if [[ "$RAW_REMOTE" == "git@$ssh_alias:$owner/"* ]]; then
-        ACTIVE_ROLE="personal"
-        MATCHED_OWNER="github.com/$owner"
-        EXPECTED_SSH_ALIAS="$ssh_alias"
-        break
-      fi
-    done
-
-    if [[ "$MATCHED_OWNER" != "none" ]]; then
-      break
-    fi
-  done
-
-  for owner in "${GIT_WORK_GITHUB_OWNERS[@]}"; do
-    if [[ "$RAW_REMOTE" == "git@github.com:$owner/"* || "$RAW_REMOTE" == "https://github.com/$owner/"* ]]; then
-      ACTIVE_ROLE="work"
-      MATCHED_OWNER="github.com/$owner"
-      EXPECTED_SSH_ALIAS="github.com-work"
-      break
-    fi
-
-    for ssh_alias in "${GIT_WORK_SSH_ALIASES[@]}"; do
-      if [[ "$RAW_REMOTE" == "git@$ssh_alias:$owner/"* ]]; then
-        ACTIVE_ROLE="work"
-        MATCHED_OWNER="github.com/$owner"
-        EXPECTED_SSH_ALIAS="$ssh_alias"
-        break
-      fi
-    done
-
-    if [[ "$MATCHED_OWNER" != "none" ]]; then
-      break
-    fi
-  done
-
-  for owner in "${GIT_WORK_BITBUCKET_OWNERS[@]}"; do
-    if [[ "$RAW_REMOTE" == "git@bitbucket.org:$owner/"* ||
-          "$RAW_REMOTE" == "https://bitbucket.org/$owner/"* ]]; then
-      ACTIVE_ROLE="work"
-      MATCHED_OWNER="bitbucket.org/$owner"
-      break
-    fi
-  done
-
-  if [[ "$MATCHED_OWNER" != "none" ]]; then
-    echo "  Matched Owner:    $MATCHED_OWNER"
-    echo "  Detection Method: Remote owner"
-  elif [[ "$MATCHED_PATTERN" != "none" ]]; then
-    echo "  Matched Pattern:  $MATCHED_PATTERN"
-    echo "  Detection Method: Directory fallback"
-  else
-    echo "  Detection Method: Default role"
-  fi
+  resolve_git_identity "$CURRENT_DIR" "$RAW_REMOTE"
+  [[ "$GIT_IDENTITY_MATCHED_OWNER" != "none" ]] && echo "  Matched Owner:    $GIT_IDENTITY_MATCHED_OWNER"
+  [[ "$GIT_IDENTITY_MATCHED_PATTERN" != "none" ]] && echo "  Matched Pattern:  $GIT_IDENTITY_MATCHED_PATTERN"
+  echo "  Detection Method: $GIT_IDENTITY_DETECTION_METHOD"
   echo ""
 else
+  GIT_IDENTITY_ROLE="${GIT_DEFAULT_ROLE:-personal}"
   warning "Not in a Git repository - showing global configuration"
   echo ""
 fi
 
 # Set expected credentials based on determined role
-if [[ "$ACTIVE_ROLE" == "work" ]]; then
+if [[ "$GIT_IDENTITY_ROLE" == "work" ]]; then
   EXPECTED_NAME="${GIT_WORK_NAME:-}"
   EXPECTED_EMAIL="${GIT_WORK_EMAIL:-}"
 else
@@ -210,15 +135,13 @@ else
 fi
 
 echo "Expected Configuration for Role:"
-echo "  Role:  $ACTIVE_ROLE"
+echo "  Role:  $GIT_IDENTITY_ROLE"
 echo "  Name:  $EXPECTED_NAME"
 echo "  Email: $EXPECTED_EMAIL"
 echo ""
 
 # Show configured patterns
 if [[ -n "$ROLES_FILE" ]]; then
-  source "$ROLES_FILE" 2>/dev/null || true
-
   echo "Roles Configuration File:"
   echo "  $ROLES_FILE"
   echo ""
@@ -239,6 +162,7 @@ fi
 
 # Validation checks
 ISSUES_FOUND=false
+[[ "$ROLES_CONFIG_ERROR" == "true" ]] && ISSUES_FOUND=true
 
 if [[ "$DRY_RUN" == "true" ]]; then
   echo "Dry Run Mode: Pattern matching evaluated without validation checks"
@@ -314,19 +238,19 @@ else
 fi
 
 # Validate that known GitHub owners are rewritten to the expected SSH alias.
-if [[ -n "$EXPECTED_SSH_ALIAS" ]]; then
-  if [[ "$EFFECTIVE_REMOTE" == "git@$EXPECTED_SSH_ALIAS:"* ]]; then
-    success "Remote uses the expected SSH alias ($EXPECTED_SSH_ALIAS)"
+if [[ -n "$GIT_IDENTITY_SSH_ALIAS" ]]; then
+  if [[ "$EFFECTIVE_REMOTE" == "git@$GIT_IDENTITY_SSH_ALIAS:"* ]]; then
+    success "Remote uses the expected SSH alias ($GIT_IDENTITY_SSH_ALIAS)"
   else
-    error "Remote is not routed through $EXPECTED_SSH_ALIAS"
+    error "Remote is not routed through $GIT_IDENTITY_SSH_ALIAS"
     ISSUES_FOUND=true
   fi
 
-  EXPECTED_IDENTITY=$(ssh -G "$EXPECTED_SSH_ALIAS" 2>/dev/null | awk '/^identityfile / { print $2; exit }')
+  EXPECTED_IDENTITY=$(ssh -G "$GIT_IDENTITY_SSH_ALIAS" 2>/dev/null | awk '/^identityfile / { print $2; exit }')
   if [[ -n "$EXPECTED_IDENTITY" ]]; then
     success "SSH alias selects $EXPECTED_IDENTITY"
   else
-    error "SSH alias $EXPECTED_SSH_ALIAS has no IdentityFile"
+    error "SSH alias $GIT_IDENTITY_SSH_ALIAS has no IdentityFile"
     ISSUES_FOUND=true
   fi
 fi
