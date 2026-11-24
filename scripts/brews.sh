@@ -14,11 +14,11 @@ fi
 brew update
 
 # Common brews for both profiles
-COMMON_BREWS=(git node nvm pyenv zoxide speedtest-cli yarn gh)
+COMMON_BREWS=(git node nvm pyenv zoxide yarn gh)
 
 # Profile-specific brews
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then
-    PROFILE_BREWS=(awscli azure-cli colima docker terraform)
+    PROFILE_BREWS=(awscli colima docker)
 else
     PROFILE_BREWS=()
 fi

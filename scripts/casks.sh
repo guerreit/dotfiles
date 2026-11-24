@@ -6,7 +6,7 @@ success() { print -P "%F{green}[SUCCESS]%f $1"; }
 error() { print -P "%F{red}[ERROR]%f $1" >&2; }
 
 # Common casks for both profiles
-COMMON_CASKS=(visual-studio-code spotify copilot-cli)
+COMMON_CASKS=(visual-studio-code spotify copilot-cli claude-code)
 
 # Profile-specific casks
 if [[ "$DOTFILES_PROFILE" == "work" ]]; then

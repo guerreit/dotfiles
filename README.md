@@ -152,12 +152,13 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 
 ### Homebrew CLI Packages
 
-- Common: `git`, `node`, `nvm`, `zoxide`, `speedtest-cli`, `yarn`, `gh`
-- Work profile adds: `awscli`, `azure-cli`, `terraform`
+- Common: `git`, `node`, `nvm`, `pyenv`, `zoxide`, `yarn`, `gh`
+- Work profile adds: `awscli`, `colima`, `docker`
 
 ### Homebrew Casks
 
-- Common: Visual Studio Code, Spotify, GitHub Copilot CLI
+- Common: Visual Studio Code, Spotify, GitHub Copilot CLI, Claude Code
+- Personal profile adds: ChatGPT
 - Work profile adds: Postman, Microsoft Edge, Microsoft Teams, Microsoft OneNote, Slack
 
 ### Shell & Vim
