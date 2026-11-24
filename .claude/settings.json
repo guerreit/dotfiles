@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(zsh tests/run.zsh)",
+      "Bash(zsh tests/backups.zsh)",
+      "Bash(zsh tests/git-identity.zsh)",
+      "Bash(zsh -n:*)",
+      "Bash(./dotfiles status --dry-run)",
+      "Bash(./dotfiles help)"
+    ],
+    "deny": [
+      "Read(./src/.secrets)"
+    ]
+  }
+}

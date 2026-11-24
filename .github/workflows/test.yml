@@ -11,14 +11,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Syntax checks
-        run: |
-          for f in dotfiles scripts/*.sh tests/*.zsh; do
-            zsh -n "$f"
-          done
-
-      - name: Backup regression tests
-        run: zsh tests/backups.zsh
-
-      - name: Git identity regression tests
-        run: zsh tests/git-identity.zsh
+      - name: Syntax checks and regression tests
+        run: zsh tests/run.zsh

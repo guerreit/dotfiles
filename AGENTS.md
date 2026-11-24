@@ -1,317 +1,48 @@
-# Custom Agents
+# AGENTS.md
 
-This file contains custom agent definitions for specialized development tasks in this dotfiles repository.
+macOS dotfiles for two machines (personal and work): `src/` holds the dotfiles, `scripts/` installs and deploys them into `$HOME`, and `./dotfiles` is the CLI wrapper over `scripts/`. README.md is the user-facing manual; GLOSSARY.md defines the domain terms.
 
-## Shell Script Developer (Zsh/Bash)
+## Verify every change
 
-You are an expert shell script developer specializing in dotfiles and system configuration. You follow industry best practices for shell scripting and prioritize maintainability, portability, and safety.
-
-### Core Principles
-
-1. **Safety First**: Always use safe scripting practices to prevent accidental system damage
-2. **Portability**: Write code that works across different environments (macOS, Linux)
-3. **Maintainability**: Write clear, well-documented code that's easy to understand and modify
-4. **Idempotency**: Scripts should be safe to run multiple times without side effects
-
-### Shell Script Best Practices
-
-#### Strict Mode & Error Handling
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail  # Exit on error, undefined variables, pipe failures
-IFS=$'\n\t'        # Safer word splitting
+```sh
+zsh tests/run.zsh
 ```
 
-For zsh scripts:
+This is the same check CI runs: `zsh -n` on every script, then the backup and Git identity regression suites. The suites point `HOME` at a temp directory, so they are safe to run anywhere. A change is done when this passes.
 
-```zsh
-#!/usr/bin/env zsh
-setopt errexit nounset pipefail
-```
+## Your `$HOME` is production
 
-#### Script Headers
+This repo is checked out on the machine it configures. These commands write to the real `$HOME`, Homebrew, macOS defaults, or SSH keys, so leave them for the user to run: `setup`, `sync`, `backup`, `ssh-keys`, `theme`, `osx`, `install-*`, and `cleanup-backups --apply`. To exercise them, copy the pattern in `tests/backups.zsh`: export a sandbox `HOME` (and `GIT_CONFIG_GLOBAL`), copy `scripts/` and `src/` into it, and run from there.
 
-- Always include shebang (`#!/usr/bin/env bash` or `#!/usr/bin/env zsh`)
-- Use `env` for portability
-- Add script description and usage information at the top
-- Include author/maintainer info if applicable
+Read-only commands are fine to run: `./dotfiles status --dry-run`, `./dotfiles cleanup-backups` (previews by default), `./dotfiles help`.
 
-#### Quoting & Variables
+`src/.secrets` is machine-local and gitignored. Never read it or commit it.
 
-- **Always quote variables**: `"$variable"` not `$variable`
-- Use `"${variable}"` for clarity in complex strings
-- Use `readonly` for constants: `readonly CONST_NAME="value"`
-- Use `local` for function variables
-- Check if variables are set: `${VAR:-default}` or `${VAR:?error message}`
+## How deployment works
 
-#### Function Guidelines
+- Edit files in `src/`, never their copies in `$HOME`. `scripts/sync.sh` deploys them with checksum `rsync` and backs up anything it overwrites to `~/.dotfiles-backup/<timestamp>-sync.<id>`.
+- `sync.sh` excludes `.gitconfig.roles` (it generates configs but stays in the repo) and `.ssh_config` (copied separately to `~/.ssh/config` with mode 600).
+- `sync.sh <profile>` rewrites `GIT_DEFAULT_ROLE` in the tracked `src/.gitconfig.roles`. Expect that diff after a profile sync.
 
-```bash
-# Function documentation
-# Args:
-#   $1 - description of first argument
-#   $2 - description of second argument
-# Returns:
-#   0 on success, 1 on failure
-function_name() {
-    local arg1="$1"
-    local arg2="${2:-default}"
+## Git identity
 
-    # Function body
-    return 0
-}
-```
+- `src/.gitconfig.roles` is the single source of truth: identities, GitHub/Bitbucket owner lists, directory patterns, default role.
+- `scripts/git-identity.zsh` is the shared resolver, sourced by `sync.sh` and `git-config-status.sh`. Precedence: remote owner, then directory pattern (`GIT_WORK_PATTERNS`), then `GIT_DEFAULT_ROLE`. Change resolution logic there, not in the callers, and cover it in `tests/git-identity.zsh`.
+- `sync.sh` generates `~/.gitconfig` `includeIf` blocks plus `~/.gitconfig.personal` / `~/.gitconfig.work`, and strips global `user.name` / `user.email` so the conditional includes win.
+- A **profile** (what setup installs) and a **role** (which identity a repo commits with) are independent; keep them separate in code and prose.
 
-#### Conditional Logic
+## Shell conventions
 
-- Use `[[ ]]` for tests in bash/zsh (not `[ ]`)
-- Quote all variables in conditionals: `[[ "$var" == "value" ]]`
-- Prefer `[[ -n "$var" ]]` over `[[ "$var" != "" ]]`
-- Use explicit file tests: `-f` (file), `-d` (dir), `-e` (exists), `-x` (executable)
+- Zsh, not bash: `#!/usr/bin/env zsh` and `set -euo pipefail`. Zsh arrays are 1-indexed.
+- Locate the script with `"$(dirname "${(%):-%x}")"`, as the existing scripts do.
+- Log through the per-script helpers `info`, `success`, `error`, `warning`, defined with `print -P "%F{color}[TAG]%f $1"`.
+- Quote every expansion and use `[[ ]]` for tests.
+- Keep scripts idempotent: check for an existing install, file, or symlink before acting, and back up before overwriting.
+- Profile-specific packages go in `scripts/brews.sh` / `scripts/casks.sh` behind `[[ "$DOTFILES_PROFILE" == "work" ]]`. `setup.sh` exports `DOTFILES_PROFILE`; the child scripts depend on it.
 
-#### Command Substitution
+## Adding a script or command
 
-- Use `$(command)` not backticks
-- Quote command substitution: `"$(command)"`
-
-#### Arrays & Loops
-
-```bash
-# Bash/Zsh arrays
-declare -a array=("item1" "item2" "item3")
-
-# Iterate safely
-for item in "${array[@]}"; do
-    echo "$item"
-done
-
-# Read lines from file
-while IFS= read -r line; do
-    echo "$line"
-done < file.txt
-```
-
-#### Shellcheck Compliance
-
-- Write code that passes `shellcheck` without warnings
-- Disable specific warnings only when necessary with comments: `# shellcheck disable=SC2034`
-- Always explain why a shellcheck warning is disabled
-
-### Dotfiles-Specific Guidelines
-
-#### Installation Scripts
-
-- Check for existing installations before installing
-- Provide options to skip or overwrite existing configs
-- Support both fresh installs and updates
-- Create backups before modifying existing files
-- Log actions clearly so users know what's happening
-
-#### Backup Strategy
-
-```bash
-backup_file() {
-    local file="$1"
-    if [[ -f "$file" ]]; then
-        local backup="${file}.backup.$(date +%Y%m%d_%H%M%S)"
-        cp "$file" "$backup"
-        echo "Backed up: $file → $backup"
-    fi
-}
-```
-
-#### Symlink Management
-
-- Check if symlink already exists and points to correct target
-- Handle broken symlinks gracefully
-- Preserve user data when creating symlinks
-- Use absolute paths for symlinks when possible
-
-```bash
-create_symlink() {
-    local source="$1"
-    local target="$2"
-
-    if [[ -L "$target" ]]; then
-        if [[ "$(readlink "$target")" == "$source" ]]; then
-            echo "Symlink already correct: $target"
-            return 0
-        fi
-        rm "$target"
-    elif [[ -e "$target" ]]; then
-        backup_file "$target"
-        rm "$target"
-    fi
-
-    ln -s "$source" "$target"
-    echo "Created symlink: $target → $source"
-}
-```
-
-#### OS Detection & Compatibility
-
-```bash
-detect_os() {
-    case "$(uname -s)" in
-        Darwin*)    echo "macos" ;;
-        Linux*)     echo "linux" ;;
-        *)          echo "unknown" ;;
-    esac
-}
-
-readonly OS="$(detect_os)"
-
-if [[ "$OS" == "macos" ]]; then
-    # macOS-specific code
-elif [[ "$OS" == "linux" ]]; then
-    # Linux-specific code
-fi
-```
-
-#### Package Management
-
-- Detect available package managers (brew, apt, yum, etc.)
-- Check if package is already installed before installing
-- Handle package manager not being available gracefully
-- Support dry-run mode to show what would be installed
-
-#### User Interaction
-
-- Use clear, informative messages
-- Show progress for long-running operations
-- Ask for confirmation before destructive operations
-- Provide quiet/verbose modes via flags
-- Use colors appropriately (but check if terminal supports them)
-
-```bash
-# Color output (check if terminal supports colors)
-if [[ -t 1 ]]; then
-    readonly RED='\033[0;31m'
-    readonly GREEN='\033[0;32m'
-    readonly YELLOW='\033[1;33m'
-    readonly NC='\033[0m' # No Color
-else
-    readonly RED=''
-    readonly GREEN=''
-    readonly YELLOW=''
-    readonly NC=''
-fi
-
-log_info() {
-    echo -e "${GREEN}[INFO]${NC} $*"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $*" >&2
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $*" >&2
-}
-```
-
-### Security Considerations
-
-1. **Never hardcode secrets**: Use environment variables or secure credential stores
-2. **Validate input**: Check all parameters and user input
-3. **Secure file permissions**: Set appropriate permissions (e.g., 600 for SSH keys)
-4. **Avoid executing arbitrary commands**: Sanitize input before use in commands
-5. **Be careful with `curl | sh`**: Always inspect scripts before piping to shell
-
-### File Organization
-
-- Keep related scripts together
-- Use clear, descriptive names: `setup-git.sh`, not `git.sh`
-- Separate concerns: one script per major function
-- Create a main setup script that orchestrates others
-- Document dependencies between scripts
-
-### Testing & Debugging
-
-- Test scripts on clean systems (VMs or containers)
-- Use `bash -n script.sh` to check syntax
-- Use `bash -x script.sh` for debugging
-- Create test cases for critical functions
-- Test on both macOS and Linux when relevant
-
-### Documentation
-
-- Add comments explaining "why", not "what"
-- Document non-obvious behavior
-- Include usage examples in script headers
-- Maintain README with setup instructions
-- Document prerequisites and dependencies
-
-### Example Script Template
-
-```bash
-#!/usr/bin/env bash
-#
-# Script Name: example-setup.sh
-# Description: Sets up example configuration
-# Usage: ./example-setup.sh [--force] [--dry-run]
-#
-
-set -euo pipefail
-IFS=$'\n\t'
-
-# Constants
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly CONFIG_DIR="${HOME}/.config/example"
-
-# Flags
-DRY_RUN=false
-FORCE=false
-
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --dry-run)
-            DRY_RUN=true
-            shift
-            ;;
-        --force)
-            FORCE=true
-            shift
-            ;;
-        -h|--help)
-            echo "Usage: $0 [--force] [--dry-run]"
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-done
-
-# Main logic
-main() {
-    log_info "Starting example setup..."
-
-    # Implementation here
-
-    log_info "Setup complete!"
-}
-
-main "$@"
-```
-
-### When to Use This Agent
-
-Reference this agent definition in your copilot instructions when:
-
-- Creating or modifying shell scripts in the dotfiles repository
-- Writing installation or setup scripts
-- Implementing backup or sync functionality
-- Configuring system settings via scripts
-- Debugging shell script issues
-- Reviewing shell script code for best practices
-
-### Usage Example
-
-```
-You are working on dotfiles. Follow the Shell Script Developer agent guidelines
-defined in AGENTS.md for all bash/zsh script development.
-```
+1. Create `scripts/<name>.sh` and `chmod u+x` it (`./dotfiles` refuses non-executable scripts).
+2. Wire it into the `case` in `./dotfiles` and its `show_help` text.
+3. Call it from `scripts/setup.sh` if it belongs in first-time install.
+4. Add it to README.md under "Supporting Scripts" and the CLI command list.

@@ -8,8 +8,8 @@ You are implementing a feature or fixing a bug in a **role-aware macOS dotfiles 
 
 Before ANY implementation, review these files in ${workspaceFolder}:
 
-1. [.github/copilot-instructions.md](../../copilot-instructions.md) - Architecture, workflows, Git identity system
-2. [AGENTS.md](../../AGENTS.md) - Shell scripting standards (strict mode, quoting, error handling)
+1. [AGENTS.md](../../AGENTS.md) - Architecture, safety rules, Git identity, shell conventions
+2. Run `zsh tests/run.zsh` before finishing
 3. [README.md](../../README.md) - User-facing documentation
 
 ## User Request
