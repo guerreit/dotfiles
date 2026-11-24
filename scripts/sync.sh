@@ -21,24 +21,18 @@ ROLES_FILE="$SRC_DIR.gitconfig.roles"
 ROOT_DIR="$HOME"
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 
-# Git config generation functions
+# Warns and returns 1 when git cannot apply role rules.
 check_git_version() {
-  local version=$(git --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
-  if [[ -z "$version" ]]; then
+  local support=0
+  git_role_rules_support || support=$?
+  if (( support == 2 )); then
     error "Git not found. Please install Git."
     return 1
-  fi
-
-  local major=$(echo "$version" | cut -d. -f1)
-  local minor=$(echo "$version" | cut -d. -f2)
-
-  if [[ $major -lt 2 ]] || [[ $major -eq 2 && $minor -lt 36 ]]; then
-    warning "Git version $version detected, but 2.36+ required for remote-based conditional includes"
+  elif (( support == 1 )); then
+    warning "Git version $GIT_VERSION_FOUND detected, but $GIT_ROLE_RULES_MIN_VERSION+ required for remote-based conditional includes"
     warning "Falling back to global configuration. Consider upgrading Git."
     return 1
   fi
-
-  return 0
 }
 
 migrate_legacy_config() {
@@ -146,6 +140,11 @@ stage_git_configs() {
 
   info "Generating Git configuration from $ROLES_FILE..."
   render_git_identity_configs "$STAGE_DIR" || return 1
+
+  local dead
+  for dead in "${(f)$(git_identity_dead_patterns)}"; do
+    [[ -n "$dead" ]] && warning "Work pattern '$dead' can never match: git compares it with the repository's .git folder. Use '$dead/**'."
+  done
 
   local file
   for file in "$SRC_DIR.gitconfig" "$STAGE_DIR"/.gitconfig.*; do

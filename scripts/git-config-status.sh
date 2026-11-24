@@ -4,15 +4,10 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly REPO_ROLES_FILE="$REPO_ROOT/src/.gitconfig.roles"
-readonly HOME_ROLES_FILE="$HOME/.gitconfig.roles"
 source "$SCRIPT_DIR/git-identity.zsh"
 
 ROLES_FILE=""
-if [[ -f "$REPO_ROLES_FILE" ]]; then
-  ROLES_FILE="$REPO_ROLES_FILE"
-elif [[ -f "$HOME_ROLES_FILE" ]]; then
-  ROLES_FILE="$HOME_ROLES_FILE"
-fi
+[[ -f "$REPO_ROLES_FILE" ]] && ROLES_FILE="$REPO_ROLES_FILE"
 
 # Color functions
 info() { print -P "%F{cyan}[INFO]%f $1"; }
@@ -64,19 +59,13 @@ echo "Git Configuration Status"
 echo "========================"
 echo ""
 
-# Check if Git is installed
-if ! command -v git &>/dev/null; then
+GIT_SUPPORT=0
+git_role_rules_support || GIT_SUPPORT=$?
+if (( GIT_SUPPORT == 2 )); then
   error "Git is not installed"
   exit 2
-fi
-
-# Check Git version
-GIT_VERSION=$(git --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
-GIT_MAJOR=$(echo "$GIT_VERSION" | cut -d. -f1)
-GIT_MINOR=$(echo "$GIT_VERSION" | cut -d. -f2)
-
-if [[ $GIT_MAJOR -lt 2 ]] || [[ $GIT_MAJOR -eq 2 && $GIT_MINOR -lt 36 ]]; then
-  warning "Git version $GIT_VERSION detected (2.36+ required for remote-based conditional includes)"
+elif (( GIT_SUPPORT == 1 )); then
+  warning "Git version $GIT_VERSION_FOUND detected ($GIT_ROLE_RULES_MIN_VERSION+ required for remote-based conditional includes)"
   echo ""
 fi
 
@@ -100,44 +89,41 @@ else
   load_git_identity_config ""
 fi
 
-RAW_REMOTE=""
+# Gather what git sees; the identity module decides what it means.
+GIT_DIR_PATH=""
 EFFECTIVE_REMOTE=""
-EXPECTED_NAME=""
-EXPECTED_EMAIL=""
-
-if git rev-parse --git-dir &>/dev/null 2>&1; then
-  CURRENT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-  RAW_REMOTE=$(git config --get remote.origin.url 2>/dev/null || true)
+typeset -a REMOTE_URLS=()
+if GIT_DIR_PATH=$(git rev-parse --absolute-git-dir 2>/dev/null); then
   EFFECTIVE_REMOTE=$(git remote get-url origin 2>/dev/null || true)
-  echo "Detection Context:"
-  echo "  Repository Root:  $CURRENT_DIR"
-  echo "  Raw Remote:       ${RAW_REMOTE:-(none)}"
-  echo "  Effective Remote: ${EFFECTIVE_REMOTE:-(none)}"
+  # origin first: it decides the expected SSH alias.
+  REMOTE_URLS=(${(f)"$(git config --get remote.origin.url 2>/dev/null || true)"})
+  REMOTE_URLS+=(${(f)"$(git config --get-regexp '^remote\..*\.url$' 2>/dev/null | grep -v '^remote\.origin\.url ' | cut -d' ' -f2- || true)"})
+else
+  GIT_DIR_PATH=""
+fi
 
-  resolve_git_identity "$CURRENT_DIR" "$RAW_REMOTE"
+resolve_git_identity "$GIT_DIR_PATH" "${REMOTE_URLS[@]}"
+
+if [[ -n "$GIT_DIR_PATH" ]]; then
+  echo "Detection Context:"
+  echo "  Repository Root:  $(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+  echo "  Remotes:          ${(j:, :)REMOTE_URLS:-(none)}"
+  echo "  Effective Origin: ${EFFECTIVE_REMOTE:-(none)}"
   [[ "$GIT_IDENTITY_MATCHED_OWNER" != "none" ]] && echo "  Matched Owner:    $GIT_IDENTITY_MATCHED_OWNER"
   [[ "$GIT_IDENTITY_MATCHED_PATTERN" != "none" ]] && echo "  Matched Pattern:  $GIT_IDENTITY_MATCHED_PATTERN"
   echo "  Detection Method: $GIT_IDENTITY_DETECTION_METHOD"
   echo ""
 else
-  GIT_IDENTITY_ROLE="${GIT_DEFAULT_ROLE:-personal}"
   warning "Not in a Git repository - showing global configuration"
   echo ""
 fi
 
-# Set expected credentials based on determined role
-if [[ "$GIT_IDENTITY_ROLE" == "work" ]]; then
-  EXPECTED_NAME="${GIT_WORK_NAME:-}"
-  EXPECTED_EMAIL="${GIT_WORK_EMAIL:-}"
-else
-  EXPECTED_NAME="${GIT_PERSONAL_NAME:-}"
-  EXPECTED_EMAIL="${GIT_PERSONAL_EMAIL:-}"
-fi
+[[ -n "$GIT_IDENTITY_CASE_HINT" ]] && { warning "$GIT_IDENTITY_CASE_HINT"; echo ""; }
 
 echo "Expected Configuration for Role:"
 echo "  Role:  $GIT_IDENTITY_ROLE"
-echo "  Name:  $EXPECTED_NAME"
-echo "  Email: $EXPECTED_EMAIL"
+echo "  Name:  $GIT_IDENTITY_NAME"
+echo "  Email: $GIT_IDENTITY_EMAIL"
 echo ""
 
 # Show configured patterns
@@ -202,7 +188,7 @@ else
 fi
 
 if [[ -z "$ROLES_FILE" ]]; then
-  error "Missing roles configuration (expected $REPO_ROLES_FILE or $HOME_ROLES_FILE)"
+  error "Missing roles configuration (expected $REPO_ROLES_FILE)"
   ISSUES_FOUND=true
 else
   success "Roles configuration exists ($ROLES_FILE)"
@@ -224,13 +210,13 @@ else
   success "Git identity is configured"
 
   # Validate that current config matches expected role
-  if [[ -n "$EXPECTED_NAME" && -n "$EXPECTED_EMAIL" ]]; then
-    if [[ "$CURRENT_NAME" != "$EXPECTED_NAME" ]]; then
-      warning "Name mismatch: current='$CURRENT_NAME' expected='$EXPECTED_NAME'"
+  if [[ -n "$GIT_IDENTITY_NAME" && -n "$GIT_IDENTITY_EMAIL" ]]; then
+    if [[ "$CURRENT_NAME" != "$GIT_IDENTITY_NAME" ]]; then
+      warning "Name mismatch: current='$CURRENT_NAME' expected='$GIT_IDENTITY_NAME'"
       ISSUES_FOUND=true
     fi
-    if [[ "$CURRENT_EMAIL" != "$EXPECTED_EMAIL" ]]; then
-      warning "Email mismatch: current='$CURRENT_EMAIL' expected='$EXPECTED_EMAIL'"
+    if [[ "$CURRENT_EMAIL" != "$GIT_IDENTITY_EMAIL" ]]; then
+      warning "Email mismatch: current='$CURRENT_EMAIL' expected='$GIT_IDENTITY_EMAIL'"
       ISSUES_FOUND=true
     fi
   fi

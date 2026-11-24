@@ -135,6 +135,31 @@ fi
 mv "$SANDBOX/repo/src/.gitconfig.roles.bak" "$SANDBOX/repo/src/.gitconfig.roles"
 print "PASS: git-config-status.sh handles missing roles file without set -u crashes"
 
+export HOME="$SANDBOX/status-home"
+export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
+mkdir -p "$HOME"
+cat > "$SANDBOX/repo/src/.gitconfig.roles" <<'EOF'
+GIT_PERSONAL_NAME="Test User"
+GIT_PERSONAL_EMAIL="test.personal@example.test"
+GIT_WORK_NAME="Test User"
+GIT_WORK_EMAIL="test.work@example.test"
+GIT_WORK_GITHUB_OWNERS=("CaseOrg")
+GIT_DEFAULT_ROLE="personal"
+EOF
+zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
+if ! (cd "$SANDBOX/outside" && zsh "$SANDBOX/repo/scripts/git-config-status.sh" > "$SANDBOX/status.out" 2>&1); then
+  print -u2 -- "git-config-status.sh failed outside a repository:"
+  cat "$SANDBOX/status.out" >&2
+  exit 1
+fi
+grep -q "Not in a Git repository" "$SANDBOX/status.out"
+mkdir -p "$HOME/code/case"
+git -C "$HOME/code/case" init -q
+git -C "$HOME/code/case" remote add origin "https://github.com/caseorg/x.git"
+(cd "$HOME/code/case" && zsh "$SANDBOX/repo/scripts/git-config-status.sh" > "$SANDBOX/status.out" 2>&1) || true
+grep -q "only if case is ignored" "$SANDBOX/status.out"
+print "PASS: git-config-status.sh runs outside a repository and explains wrong-case owners"
+
 export HOME="$SANDBOX/restore-home"
 export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
 export DOTFILES_DIR="$SANDBOX/repo"

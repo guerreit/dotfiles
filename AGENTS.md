@@ -27,7 +27,8 @@ Read-only commands are fine to run: `./dotfiles status --dry-run`, `./dotfiles c
 ## Git identity
 
 - `src/.gitconfig.roles` is the single source of truth: identities, GitHub/Bitbucket owner lists, directory patterns, default role.
-- `scripts/git-identity.zsh` is the shared resolver, sourced by `sync.sh` and `git-config-status.sh`. Precedence: remote owner, then directory pattern (`GIT_WORK_PATTERNS`), then `GIT_DEFAULT_ROLE`. Change resolution logic there, not in the callers, and cover it in `tests/git-identity.zsh`.
+- `scripts/git-identity.zsh` owns everything a Git role means; `sync.sh` and `git-config-status.sh` only gather input and print. It builds one ordered rule list that the renderer writes for git and `resolve_git_identity` evaluates the way git does (all remotes, last match wins, owner rules case-sensitive, `gitdir/i` rules case-insensitive). Change role logic there, never in the callers.
+- `tests/git-identity.zsh` uses real git as the reference: the resolver must predict the email git applies for every fixture repo. Add a case there for any new rule type.
 - `render_git_identity_configs` in `git-identity.zsh` turns a loaded roles file into `.gitconfig.personal`, `.gitconfig.work` and `.gitconfig.role-rules`. `sync.sh` renders them into a temp staging folder, validates them, and deploys them in the same rsync as `src/`; generated files never land in the repo. Rule order in the role rules is significant (later rules win).
 - `src/.gitconfig` is hand-written and ends with `[include] path = ~/.gitconfig.role-rules`. Sync refuses to run if it sets `user.name` / `user.email`.
 - Rendering is checked byte for byte against `tests/fixtures/git-role-rules/expected/`. After an intended output change, re-render the fixture roles file into that folder and review the diff.
