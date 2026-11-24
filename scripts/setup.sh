@@ -4,11 +4,39 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly SCRIPTS_DIR="$REPO_ROOT/scripts"
+readonly ROLES_FILE="$REPO_ROOT/src/.gitconfig.roles"
+source "$SCRIPTS_DIR/git-identity.zsh"
 
 # Color functions
 info() { print -P "%F{cyan}[INFO]%f $1"; }
 success() { print -P "%F{green}[SUCCESS]%f $1"; }
 error() { print -P "%F{red}[ERROR]%f $1" >&2; }
+
+# Asks for this machine's default Git role. It is independent of the
+# installation profile (docs/adr/0001) and is stored machine-locally in
+# src/.gitconfig.roles.local only when it differs from the shared default.
+default_role_prompt() {
+  local local_file="$ROLES_FILE.local" tracked answer
+  tracked="$(zsh -c 'source "$1" >/dev/null 2>&1; print -r -- "${GIT_DEFAULT_ROLE:-personal}"' _ "$ROLES_FILE")"
+  load_git_identity_config "$ROLES_FILE" || { error "Fix $ROLES_FILE before running setup"; exit 1; }
+
+  echo ""
+  echo "Default Git role on this machine, for repositories no owner or directory rule matches."
+  echo "This is separate from the installation profile."
+  read "answer?Default role [personal/work] ($GIT_DEFAULT_ROLE): "
+  answer="${answer:-$GIT_DEFAULT_ROLE}"
+  case "$answer" in
+    personal|work) ;;
+    *) error "Enter personal or work."; exit 1 ;;
+  esac
+
+  if [[ "$answer" != "$tracked" || -f "$local_file" ]]; then
+    print -r -- "GIT_DEFAULT_ROLE=\"$answer\"" > "$local_file"
+    info "Saved this machine's default Git role ($answer) to src/.gitconfig.roles.local"
+  else
+    info "Using the shared default Git role ($tracked)"
+  fi
+}
 
 # SSH key generation prompt
 ssh_prompt() {
@@ -65,6 +93,8 @@ info "Using $DOTFILES_PROFILE profile"
 # Export for child scripts
 export DOTFILES_PROFILE
 
+default_role_prompt
+
 # Prompt for SSH key generation
 ssh_prompt
 
@@ -100,7 +130,7 @@ info "Running osx.sh..."
 "$SCRIPTS_DIR/osx.sh" || { error "osx.sh failed"; exit 1; }
 
 info "Syncing dotfiles with sync.sh..."
-"$SCRIPTS_DIR/sync.sh" "$DOTFILES_PROFILE" || { error "sync.sh failed"; exit 1; }
+"$SCRIPTS_DIR/sync.sh" || { error "sync.sh failed"; exit 1; }
 
 success "Setup complete!"
 

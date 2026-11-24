@@ -11,8 +11,13 @@ success() { print -P "%F{green}[SUCCESS]%f $1"; }
 error() { print -P "%F{red}[ERROR]%f $1" >&2; }
 warning() { print -P "%F{yellow}[WARNING]%f $1"; }
 
-# Get profile from argument if provided
-PROFILE_CHOICE="${1:-}"
+# The installation profile never sets the Git role (docs/adr/0001).
+if (( $# > 0 )); then
+  error "sync takes no arguments (got: $*)"
+  error "The default Git role is set per machine in src/.gitconfig.roles.local:"
+  error "  GIT_DEFAULT_ROLE=\"work\"   # or personal"
+  exit 1
+fi
 
 # Set the source directory
 SRC_DIR="$REPO_ROOT/src/"
@@ -32,89 +37,6 @@ check_git_version() {
     warning "Git version $GIT_VERSION_FOUND detected, but $GIT_ROLE_RULES_MIN_VERSION+ required for remote-based conditional includes"
     warning "Falling back to global configuration. Consider upgrading Git."
     return 1
-  fi
-}
-
-migrate_legacy_config() {
-  local profile_file="$ROOT_DIR/.profile"
-
-  if [[ ! -f "$profile_file" ]]; then
-    return 0
-  fi
-
-  # Check if .profile contains git config
-  if ! grep -q "GIT_AUTHOR" "$profile_file" 2>/dev/null; then
-    return 0
-  fi
-
-  info "Detecting legacy Git configuration in .profile..."
-
-  # Extract values
-  local author_name=$(grep "GIT_AUTHOR_NAME=" "$profile_file" | head -1 | sed 's/.*GIT_AUTHOR_NAME="\(.*\)".*/\1/')
-  local personal_email=$(grep 'GIT_AUTHOR_EMAIL=.*@me.com' "$profile_file" | head -1 | sed 's/.*GIT_AUTHOR_EMAIL="\(.*\)".*/\1/')
-  local work_email=$(grep 'GIT_AUTHOR_EMAIL=.*@slalom.com' "$profile_file" | head -1 | sed 's/.*GIT_AUTHOR_EMAIL="\(.*\)".*/\1/')
-
-  if [[ -z "$personal_email" ]]; then
-    personal_email=$(grep 'PROFILE_TYPE="personal"' -A 5 "$profile_file" | grep "GIT_AUTHOR_EMAIL=" | head -1 | sed 's/.*GIT_AUTHOR_EMAIL="\(.*\)".*/\1/')
-  fi
-
-  if [[ -z "$work_email" ]]; then
-    work_email=$(grep 'PROFILE_TYPE="work"' -A 5 "$profile_file" | grep "GIT_AUTHOR_EMAIL=" | head -1 | sed 's/.*GIT_AUTHOR_EMAIL="\(.*\)".*/\1/')
-  fi
-
-  if [[ -n "$author_name" && -n "$personal_email" ]]; then
-    info "Migrating Git configuration from .profile..."
-
-    # Update .gitconfig.roles with extracted values
-    if [[ -f "$ROLES_FILE" ]]; then
-      sed -i.bak "s/^GIT_PERSONAL_NAME=.*/GIT_PERSONAL_NAME=\"$author_name\"/" "$ROLES_FILE"
-      sed -i.bak "s/^GIT_PERSONAL_EMAIL=.*/GIT_PERSONAL_EMAIL=\"$personal_email\"/" "$ROLES_FILE"
-
-      if [[ -n "$work_email" ]]; then
-        sed -i.bak "s/^GIT_WORK_NAME=.*/GIT_WORK_NAME=\"$author_name\"/" "$ROLES_FILE"
-        sed -i.bak "s/^GIT_WORK_EMAIL=.*/GIT_WORK_EMAIL=\"$work_email\"/" "$ROLES_FILE"
-      fi
-
-      rm -f "${ROLES_FILE}.bak"
-      success "Migrated Git identities from .profile to .gitconfig.roles"
-    fi
-
-    # Backup original .profile
-    backup_save "$BACKUP_DIR" ".profile"
-
-    # Add deprecation notice
-    local temp_file=$(mktemp)
-    cat > "$temp_file" <<'EOF'
-# =============================================================================
-# NOTICE: Git configuration has been migrated to src/.gitconfig.roles
-# =============================================================================
-# The git config logic below is DEPRECATED and no longer used.
-# Your Git identities are now managed by:
-#   - src/.gitconfig.roles in your dotfiles repo
-#   - ~/.gitconfig (auto-generated with conditional includes)
-#   - ~/.gitconfig.personal and ~/.gitconfig.work (auto-generated)
-#
-# To update your Git configuration:
-#   1. Edit src/.gitconfig.roles in your dotfiles repo
-#   2. Run: ./scripts/sync.sh
-#
-# Original .profile config preserved below for reference:
-# =============================================================================
-
-EOF
-    cat "$profile_file" >> "$temp_file"
-    mv "$temp_file" "$profile_file"
-
-    info "Added deprecation notice to .profile (backup at $BACKUP_DIR/.profile)"
-  fi
-}
-
-apply_profile_choice() {
-  # Profile-to-role rewrite kept as-is; separating the two is tracked separately.
-  if [[ -n "$PROFILE_CHOICE" && -f "$ROLES_FILE" ]]; then
-    info "Setting default role to: $PROFILE_CHOICE"
-    sed -i.bak "s/^GIT_DEFAULT_ROLE=.*/GIT_DEFAULT_ROLE=\"$PROFILE_CHOICE\"/" "$ROLES_FILE"
-    rm -f "${ROLES_FILE}.bak"
   fi
 }
 
@@ -166,7 +88,7 @@ display_git_status() {
   echo ""
   echo "  Personal: $personal_email"
   echo "  Work:     $work_email"
-  echo "  Default:  ${GIT_DEFAULT_ROLE:-personal}"
+  echo "  Default:  $GIT_DEFAULT_ROLE (from $GIT_DEFAULT_ROLE_SOURCE)"
   echo ""
   echo "  To check active configuration, run: ./scripts/git-config-status.sh"
   echo "  To customize identities, edit: $ROLES_FILE"
@@ -182,9 +104,6 @@ trap 'backup_close "$BACKUP_DIR" || true; rm -rf "$STAGE_DIR"' EXIT
 
 GIT_CONFIG_STAGED=false
 if check_git_version; then
-  migrate_legacy_config
-  apply_profile_choice
-
   if ! stage_git_configs; then
     error "Git configuration generation failed - aborting sync before any file changed"
     error "Please fix $ROLES_FILE and try again"
@@ -197,7 +116,7 @@ else
 fi
 
 # Exclude list
-EXCLUDES=(--exclude ".DS_Store" --exclude ".git" --exclude ".gitignore" --exclude "/.ssh_config" --exclude "/.gitconfig.roles")
+EXCLUDES=(--exclude ".DS_Store" --exclude ".git" --exclude ".gitignore" --exclude "/.ssh_config" --exclude "/.gitconfig.roles" --exclude "/.gitconfig.roles.local")
 
 # One rsync deploys hand-written src/ and the staged generated files, so both
 # share the checksum compare and the backup folder.

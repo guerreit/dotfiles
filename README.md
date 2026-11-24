@@ -49,7 +49,7 @@ A reproducible macOS development environment for both personal and work profiles
    ./dotfiles status
    ```
 
-7. Re-run `./dotfiles sync [personal|work]` whenever you edit files under `src/`.
+7. Re-run `./dotfiles sync` whenever you edit files under `src/`.
 
 ## CLI Interface
 
@@ -62,7 +62,7 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 **Available Commands:**
 
 - `setup` – Complete first-time setup (guided installation)
-- `sync [profile]` – Sync dotfiles from src/ to $HOME (profile: personal/work)
+- `sync` – Sync dotfiles from src/ to $HOME and regenerate Git config
 - `backup` – Create a snapshot (full restore point) of your dotfiles
 - `restore <backup>` – Restore a backup over `$HOME`, taking a fresh snapshot first (`--include-omz` to include Oh My Zsh files)
 - `cleanup-backups` – Preview archiving older backups; use `--apply` to execute
@@ -80,7 +80,7 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 ```sh
 ./dotfiles help              # Show all commands
 ./dotfiles setup             # First-time setup
-./dotfiles sync personal     # Sync with personal profile
+./dotfiles sync              # Deploy src/ and regenerate Git config
 ./dotfiles status            # Check Git identity
 ./dotfiles backup            # Backup before changes
 ./dotfiles ssh-keys          # Generate SSH keys
@@ -92,7 +92,7 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 
 The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates the entire flow:
 
-1. Use your profile choice for package and application installation without changing Git identity rules.
+1. Use your profile choice for package and application installation, then ask separately for this machine's default Git role (saved to `src/.gitconfig.roles.local` when it differs from the shared default).
 2. Optional SSH key generation via `scripts/ssh-key.sh` (personal + work Ed25519 keys, added to the agent and keychain).
 3. Ensure `curl`, `brew`, and `chmod` exist, then mark helper scripts executable.
 4. Call `scripts/backup.sh` to snapshot existing dotfiles under `~/.dotfiles-backup/<timestamp>-snapshot.<id>`.
@@ -147,7 +147,9 @@ begin working with a genuinely new organization.
 Use `./dotfiles status --dry-run` anytime to see which pattern would match the current directory, confirm the expected identity, and verify all files exist.
 
 > **Profiles vs roles**
-> _Profiles_ drive package/app installation. _Roles_ determine Git identity and SSH authentication. Setup deliberately keeps them independent.
+> _Profiles_ drive package/app installation. _Roles_ determine Git identity and SSH authentication. They are independent ([ADR 0001](docs/adr/0001-profile-and-role-are-independent.md)).
+>
+> To give one machine a different default role, create the gitignored `src/.gitconfig.roles.local` containing only `GIT_DEFAULT_ROLE="work"` (or `personal`), then run `./dotfiles sync`. `./dotfiles status` shows which file the default came from.
 
 ## Feature Breakdown
 

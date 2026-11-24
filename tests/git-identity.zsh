@@ -33,7 +33,29 @@ reset_roles
 print 'false' > "$SANDBOX/invalid-roles"
 load_git_identity_config "$SANDBOX/invalid-roles" && fail "invalid roles file must fail to load"
 [[ ${#GIT_WORK_PATTERNS[@]} -eq 0 ]] || fail "defaults applied after a failed load"
-print 'PASS: roles loading applies shared defaults'
+
+# Machine-local default role: only GIT_DEFAULT_ROLE is read, and it wins.
+reset_roles
+cp "$FIXTURE/roles" "$SANDBOX/local-roles"
+print 'GIT_DEFAULT_ROLE="personal"\nGIT_WORK_EMAIL="ignored@example.test"' > "$SANDBOX/local-roles.local"
+load_git_identity_config "$SANDBOX/local-roles" 2> "$SANDBOX/load.err" || fail "local override loads"
+[[ "$GIT_DEFAULT_ROLE" == personal && "$GIT_DEFAULT_ROLE_SOURCE" == "local-roles.local" ]] ||
+  fail "local default role wins over the tracked one ($GIT_DEFAULT_ROLE from $GIT_DEFAULT_ROLE_SOURCE)"
+[[ "$GIT_WORK_EMAIL" == "pat@work.example" ]] || fail "other settings in the local file are ignored"
+grep -q "Ignoring settings other than GIT_DEFAULT_ROLE" "$SANDBOX/load.err" || fail "ignored settings are reported"
+
+reset_roles
+rm "$SANDBOX/local-roles.local"
+load_git_identity_config "$SANDBOX/local-roles"
+[[ "$GIT_DEFAULT_ROLE" == work && "$GIT_DEFAULT_ROLE_SOURCE" == "local-roles" ]] || fail "tracked default applies without a local file"
+
+for bad in 'GIT_DEFAULT_ROLE="foo"' 'GIT_DEFAULT_ROLE="Work"'; do
+  reset_roles
+  print -r -- "$bad" > "$SANDBOX/local-roles.local"
+  load_git_identity_config "$SANDBOX/local-roles" 2>/dev/null && fail "invalid default role accepted: $bad"
+done
+rm "$SANDBOX/local-roles.local"
+print 'PASS: roles loading applies shared defaults and the machine-local default role'
 
 # --- Rendering: byte-for-byte against the known-good files -----------------------
 # After an intended change, refresh them by rendering the fixture roles file

@@ -33,7 +33,7 @@ Usage:
 
 Commands:
   setup              Run the full dotfiles setup (first-time installation)
-  sync [profile]     Sync dotfiles from src/ to \$HOME (profile: personal/work)
+  sync               Sync dotfiles from src/ to \$HOME
   backup             Create a snapshot (full restore point) of your dotfiles
   restore <backup>   Restore a backup over \$HOME (--include-omz for Oh My Zsh)
   cleanup-backups    Preview archiving older backups (use --help for options)
@@ -53,7 +53,7 @@ Options:
 
 Examples:
   dotfiles setup                    # First-time setup with guided install
-  dotfiles sync personal            # Sync dotfiles for personal profile
+  dotfiles sync                     # Deploy src/ and regenerate Git config
   dotfiles status                   # Check current Git identity
   dotfiles backup                   # Create backup before making changes
   dotfiles ssh-keys                 # Generate SSH keys

@@ -142,7 +142,7 @@ if [[ -n "$ROLES_FILE" ]]; then
   fi
   echo ""
 
-  echo "Default Role: ${GIT_DEFAULT_ROLE:-personal}"
+  echo "Default Role: $GIT_DEFAULT_ROLE (from $GIT_DEFAULT_ROLE_SOURCE)"
   echo ""
 fi
 

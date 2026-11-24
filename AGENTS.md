@@ -22,7 +22,7 @@ Read-only commands are fine to run: `./dotfiles status --dry-run`, `./dotfiles c
 
 - Edit files in `src/`, never their copies in `$HOME`. `scripts/sync.sh` deploys them with checksum `rsync` and backs up anything it overwrites to `~/.dotfiles-backup/<timestamp>-sync.<id>`.
 - `sync.sh` excludes `.gitconfig.roles` (it generates configs but stays in the repo) and `.ssh_config` (copied separately to `~/.ssh/config` with mode 600).
-- `sync.sh <profile>` rewrites `GIT_DEFAULT_ROLE` in the tracked `src/.gitconfig.roles`. Expect that diff after a profile sync.
+- `sync.sh` takes no arguments and never edits tracked files; the end-to-end tests assert `src/` is unchanged after a sync.
 
 ## Backups
 
@@ -38,7 +38,8 @@ Read-only commands are fine to run: `./dotfiles status --dry-run`, `./dotfiles c
 - `render_git_identity_configs` in `git-identity.zsh` turns a loaded roles file into `.gitconfig.personal`, `.gitconfig.work` and `.gitconfig.role-rules`. `sync.sh` renders them into a temp staging folder, validates them, and deploys them in the same rsync as `src/`; generated files never land in the repo. Rule order in the role rules is significant (later rules win).
 - `src/.gitconfig` is hand-written and ends with `[include] path = ~/.gitconfig.role-rules`. Sync refuses to run if it sets `user.name` / `user.email`.
 - Rendering is checked byte for byte against `tests/fixtures/git-role-rules/expected/`. After an intended output change, re-render the fixture roles file into that folder and review the diff.
-- A **profile** (what setup installs) and a **role** (which identity a repo commits with) are independent; keep them separate in code and prose.
+- A **profile** (what setup installs) and a **role** (which identity a repo commits with) are independent; keep them separate in code and prose. See `docs/adr/0001-profile-and-role-are-independent.md` before changing how either is chosen.
+- A machine's default role lives in the gitignored `src/.gitconfig.roles.local`. `load_git_identity_config` reads only `GIT_DEFAULT_ROLE` from it and rejects any role other than `personal` or `work`.
 
 ## Shell conventions
 

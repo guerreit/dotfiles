@@ -51,13 +51,16 @@ fi
 rmdir "$ROOT/.cleanup-lock"
 print 'PASS: preview, retention, archive restoration, deletion, symlinks, collisions and locking'
 
+# The machine-local default role (src/.gitconfig.roles.local) selects the
+# default include; sync takes no profile and never edits the repo.
 for profile in personal work; do
   export HOME="$SANDBOX/$profile"
+  print -r -- "GIT_DEFAULT_ROLE=\"$profile\"" > "$SANDBOX/repo/src/.gitconfig.roles.local"
   export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
   mkdir -p "$HOME"
   git config --file "$HOME/.gitconfig" user.name 'Original Identity'
   git config --file "$HOME/.gitconfig" user.email 'original@example.test'
-  zsh "$SANDBOX/repo/scripts/sync.sh" "$profile" > /dev/null
+  zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
   snapshots=("$HOME/.dotfiles-backup"/*(N/))
   [[ ${#snapshots[@]} -eq 1 ]]
   [[ "$(git config --file "$snapshots[1]/.gitconfig" user.name)" == 'Original Identity' ]]
@@ -67,8 +70,10 @@ for profile in personal work; do
   [[ ! -e "$HOME/.gitconfig.roles" ]]
   [[ "$(git config --file "$HOME/.gitconfig" --get include.path)" == "~/.gitconfig.role-rules" ]]
   [[ -f "$HOME/.gitconfig.role-rules" && -f "$HOME/.gitconfig.personal" && -f "$HOME/.gitconfig.work" ]]
-  # Sync leaves the repo untouched (the profile rewrite of the roles file aside).
-  diff -r --exclude .gitconfig.roles "$REPO_ROOT/src" "$SANDBOX/repo/src"
+  [[ "$(git config --file "$HOME/.gitconfig.role-rules" --get include.path)" == "~/.gitconfig.$profile" ]]
+  [[ ! -e "$HOME/.gitconfig.roles.local" ]]
+  # Sync leaves the repo untouched; only the test's own local file differs.
+  diff -r --exclude .gitconfig.roles.local "$REPO_ROOT/src" "$SANDBOX/repo/src"
   zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
   snapshots=("$HOME/.dotfiles-backup"/*(N/))
   [[ ${#snapshots[@]} -eq 1 ]]
@@ -90,6 +95,18 @@ for profile in personal work; do
   cmp "$HOME/.ssh/config" "$full_snapshots[1]/.ssh/config"
   print "PASS: $profile dotfile deployment, original config preservation, no-op sync and full snapshots"
 done
+rm "$SANDBOX/repo/src/.gitconfig.roles.local"
+
+export HOME="$SANDBOX/profile-arg"
+export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
+mkdir -p "$HOME"
+if zsh "$SANDBOX/repo/scripts/sync.sh" work > "$SANDBOX/sync.out" 2>&1; then
+  print -u2 -- "Expected sync.sh to reject a profile argument"
+  exit 1
+fi
+grep -q "gitconfig.roles.local" "$SANDBOX/sync.out"
+[[ -z "$(ls -A "$HOME")" ]]
+print "PASS: sync.sh rejects a profile argument and points at the machine-local default role"
 
 export HOME="$SANDBOX/minimal-roles"
 export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
@@ -164,7 +181,7 @@ export HOME="$SANDBOX/restore-home"
 export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
 export DOTFILES_DIR="$SANDBOX/repo"
 mkdir -p "$HOME"
-zsh "$SANDBOX/repo/scripts/sync.sh" personal > /dev/null
+zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
 print "before-restore" > "$HOME/.aliases"
 restore_snapshot="$HOME/.dotfiles-backup/20260101_000000-snapshot.zzzzzzzz"
 mkdir -p "$restore_snapshot/.ssh"

@@ -60,7 +60,7 @@ backup_snapshot_paths() {
   for file in "$src"/**/*(D.N); do
     rel="${file#$src/}"
     case "$rel" in
-      .gitconfig.roles|.ssh_config|.DS_Store|*/.DS_Store|.gitignore|.oh-my-zsh/custom/*) continue ;;
+      .gitconfig.roles|.gitconfig.roles.local|.ssh_config|.DS_Store|*/.DS_Store|.gitignore|.oh-my-zsh/custom/*) continue ;;
     esac
     print -r -- "$rel"
   done

@@ -14,13 +14,49 @@
 
 typeset -g GIT_ROLE_RULES_MIN_VERSION="2.36"
 
+# Loads the tracked roles file, then the machine-local default role from
+# <roles-file>.local if present. Only GIT_DEFAULT_ROLE is read from the local
+# file: identities, owners and patterns stay single-sourced in the tracked one.
+# Args:
+#   $1 - tracked roles file
+# Sets:
+#   GIT_DEFAULT_ROLE         personal | work (personal when unset)
+#   GIT_DEFAULT_ROLE_SOURCE  file name the default came from, or "built-in"
+# Returns:
+#   non-zero if a file fails to load or the default role is not personal/work
+#   (message on stderr)
 load_git_identity_config() {
   local roles_file="$1"
-  local source_status=0
+  local local_file="${1}.local"
+  local source_status=0 local_role extra
 
+  typeset -g GIT_DEFAULT_ROLE_SOURCE="built-in"
   if [[ -f "$roles_file" ]]; then
     source "$roles_file" 2>/dev/null || source_status=$?
+    (( ${+GIT_DEFAULT_ROLE} )) && GIT_DEFAULT_ROLE_SOURCE="${roles_file:t}"
   fi
+
+  if (( source_status == 0 )) && [[ -f "$local_file" ]]; then
+    extra="$(grep -E '^[[:space:]]*(export[[:space:]]+)?[A-Za-z_][A-Za-z0-9_]*=' "$local_file" |
+      grep -vE '^[[:space:]]*(export[[:space:]]+)?GIT_DEFAULT_ROLE=' || true)"
+    [[ -z "$extra" ]] ||
+      print -u2 -- "Ignoring settings other than GIT_DEFAULT_ROLE in ${local_file:t}; they belong in ${roles_file:t}"
+    if local_role="$(zsh -c 'source "$1" >/dev/null 2>&1 || exit 1; print -r -- "${GIT_DEFAULT_ROLE-}"' _ "$local_file")"; then
+      if [[ -n "$local_role" ]]; then
+        typeset -g GIT_DEFAULT_ROLE="$local_role"
+        GIT_DEFAULT_ROLE_SOURCE="${local_file:t}"
+      fi
+    else
+      print -u2 -- "Failed to load ${local_file:t}"
+      source_status=1
+    fi
+  fi
+
+  if [[ -n "${GIT_DEFAULT_ROLE:-}" && "$GIT_DEFAULT_ROLE" != personal && "$GIT_DEFAULT_ROLE" != work ]]; then
+    print -u2 -- "GIT_DEFAULT_ROLE must be personal or work, not '$GIT_DEFAULT_ROLE' (from $GIT_DEFAULT_ROLE_SOURCE)"
+    (( source_status )) || source_status=1
+  fi
+  typeset -g GIT_DEFAULT_ROLE="${GIT_DEFAULT_ROLE:-personal}"
 
   (( ${+GIT_PERSONAL_GITHUB_OWNERS} )) || typeset -ga GIT_PERSONAL_GITHUB_OWNERS=()
   (( ${+GIT_WORK_GITHUB_OWNERS} )) || typeset -ga GIT_WORK_GITHUB_OWNERS=()

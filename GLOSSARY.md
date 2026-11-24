@@ -8,7 +8,7 @@ The name and email attached to commits made in a repository.
 
 ## Git role
 
-A personal or work classification that selects a Git identity for a repository.
+A personal or work classification that selects a Git identity for a repository. Owner and directory rules choose it; when none match, the machine's default role applies, set in `src/.gitconfig.roles.local` or, failing that, `src/.gitconfig.roles`.
 
 ## Role rules
 

@@ -21,4 +21,5 @@ Thumbs.db
 
 # Machine-local dotfile state
 src/.secrets
+src/.gitconfig.roles.local
 src/.gitconfig.backup
