@@ -63,7 +63,8 @@ The `dotfiles` CLI provides a unified interface for all dotfiles operations:
 
 - `setup` – Complete first-time setup (guided installation)
 - `sync [profile]` – Sync dotfiles from src/ to $HOME (profile: personal/work)
-- `backup` – Create timestamped backup of existing dotfiles
+- `backup` – Create a snapshot (full restore point) of your dotfiles
+- `restore <backup>` – Restore a backup over `$HOME`, taking a fresh snapshot first (`--include-omz` to include Oh My Zsh files)
 - `cleanup-backups` – Preview archiving older backups; use `--apply` to execute
 - `status` – Show current Git identity and configuration status
 - `ssh-keys` – Generate SSH keys for personal and work accounts
@@ -94,7 +95,7 @@ The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates t
 1. Use your profile choice for package and application installation without changing Git identity rules.
 2. Optional SSH key generation via `scripts/ssh-key.sh` (personal + work Ed25519 keys, added to the agent and keychain).
 3. Ensure `curl`, `brew`, and `chmod` exist, then mark helper scripts executable.
-4. Call `scripts/backup.sh` to snapshot existing dotfiles under `~/.dotfiles-backup/<timestamp>`.
+4. Call `scripts/backup.sh` to snapshot existing dotfiles under `~/.dotfiles-backup/<timestamp>-snapshot.<id>`.
 5. Install Oh My Zsh, vim-plug, and the Solarized theme through `scripts/plugins.sh`.
 6. Install/upgrade CLI tools (`scripts/brews.sh`) and GUI apps (`scripts/casks.sh`) based on the selected profile.
 7. Bootstrap Matt Pocock skills into your global/root agent skills directory (`~/.agents/skills`) with `scripts/bootstrap-matt-pocock-skills.sh`.
@@ -215,6 +216,7 @@ All scripts can be run directly or through the `./dotfiles` CLI (recommended):
 - `scripts/sync.sh` (or `./dotfiles sync`) – rsync deployment + Git config generation
 - `scripts/backup.sh` (or `./dotfiles backup`) – manual backup helper (also invoked automatically)
 - `scripts/cleanup-backups.sh` (or `./dotfiles cleanup-backups`) – preview-first backup retention
+- `scripts/restore.sh` (or `./dotfiles restore`, or the `restore-dotfiles` shell function) – restore a backup
 - `scripts/git-config-status.sh` (or `./dotfiles status`) – validate role-aware Git configuration
 - `scripts/ssh-key.sh` (or `./dotfiles ssh-keys`) – SSH key bootstrap
 - `scripts/brews.sh` (or `./dotfiles install-brews`) – Homebrew formulae installer
@@ -229,7 +231,8 @@ All scripts can be run directly or through the `./dotfiles` CLI (recommended):
 
 ## Safety Nets & Recovery
 
-- Full snapshots use `~/.dotfiles-backup/<timestamp>-snapshot.<id>`; older timestamp-only snapshots are also recognized.
+- Every backup stores files at their path relative to `$HOME` (for example `.ssh/config`), so a backup folder mirrors your home directory.
+- Full snapshots use `~/.dotfiles-backup/<timestamp>-snapshot.<id>` and cover every file sync deploys plus the generated Git config, `~/.secrets`, `~/.ssh/config`, and `~/.oh-my-zsh/custom`. Older timestamp-only snapshots are also recognized.
 - Sync backups use `~/.dotfiles-backup/<timestamp>-sync.<id>`. Unique IDs prevent same-second collisions, and new backup directories are private.
 - Cleanup keeps the newest five backups **of each kind** by default. Full snapshots and incremental sync backups have separate retention counts; sync backups are not full restore points.
 - Cleanup is manual and previews by default. No scheduled or automatic deletion is installed.
@@ -246,9 +249,9 @@ All scripts can be run directly or through the `./dotfiles` CLI (recommended):
 
 Archives live in `~/.dotfiles-backup/archives/`. Compression and archive integrity checks must succeed before the original directory is removed. Existing archives are never overwritten. Archives accumulate until explicitly pruned with `--archives --delete`; deleting them is permanent. `--keep` must be at least 1.
 
-To restore, inspect an archive with `tar -tzf <archive.tar.gz>`, extract it into a separate directory with `tar -xzf <archive.tar.gz> -C <restore-directory>`, then copy only the files you need into `$HOME`. Uncompressed backups can be inspected and copied directly. Restart your shell after restoring shell configuration.
+To restore a backup folder, run `./dotfiles restore ~/.dotfiles-backup/<backup>` (add `--include-omz` to restore Oh My Zsh files). It snapshots your current state first, and translates the layout older backups used (`oh-my-zsh/`, `.ssh_config.backup`, `.profile.backup`). Restoring a sync backup only brings back the files that sync overwrote, and the command lists them. For an archive, inspect it with `tar -tzf <archive.tar.gz>`, extract it into a separate directory with `tar -xzf <archive.tar.gz> -C <restore-directory>`, then copy the files you need into `$HOME`. Restart your shell after restoring shell configuration.
 
-Run the isolated regression checks with `zsh tests/backups.zsh` and `zsh tests/git-identity.zsh`; they use temporary directories and never modify your real configuration.
+Run the isolated regression checks with `zsh tests/run.zsh`; the suites use temporary directories and never modify your real configuration.
 
 ## Credits
 

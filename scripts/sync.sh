@@ -4,6 +4,7 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 source "$SCRIPT_DIR/git-identity.zsh"
+source "$SCRIPT_DIR/backup-store.zsh"
 
 info() { print -P "%F{cyan}[INFO]%f $1"; }
 success() { print -P "%F{green}[SUCCESS]%f $1"; }
@@ -19,7 +20,6 @@ ROLES_FILE="$SRC_DIR.gitconfig.roles"
 
 # Get the root user directory
 ROOT_DIR="$HOME"
-BACKUP_ROOT="$HOME/.dotfiles-backup"
 
 # Warns and returns 1 when git cannot apply role rules.
 check_git_version() {
@@ -80,7 +80,7 @@ migrate_legacy_config() {
     fi
 
     # Backup original .profile
-    cp "$profile_file" "$BACKUP_DIR/.profile.backup"
+    backup_save "$BACKUP_DIR" ".profile"
 
     # Add deprecation notice
     local temp_file=$(mktemp)
@@ -105,7 +105,7 @@ EOF
     cat "$profile_file" >> "$temp_file"
     mv "$temp_file" "$profile_file"
 
-    info "Added deprecation notice to .profile (backup at $BACKUP_DIR/.profile.backup)"
+    info "Added deprecation notice to .profile (backup at $BACKUP_DIR/.profile)"
   fi
 }
 
@@ -176,11 +176,9 @@ display_git_status() {
 info "Syncing dotfiles from $SRC_DIR to $ROOT_DIR"
 
 # Backup destination for changed files
-mkdir -p "$BACKUP_ROOT"
-chmod 700 "$BACKUP_ROOT"
-BACKUP_DIR=$(mktemp -d "$BACKUP_ROOT/$(date +%Y%m%d_%H%M%S)-sync.XXXXXXXX")
+BACKUP_DIR="$(backup_open sync)"
 STAGE_DIR=$(mktemp -d)
-trap 'rmdir "$BACKUP_DIR" 2>/dev/null || true; rm -rf "$STAGE_DIR"' EXIT
+trap 'backup_close "$BACKUP_DIR" || true; rm -rf "$STAGE_DIR"' EXIT
 
 GIT_CONFIG_STAGED=false
 if check_git_version; then
@@ -214,8 +212,8 @@ if [[ -f "$SRC_DIR.ssh_config" ]]; then
 
   if [[ -f "$ROOT_DIR/.ssh/config" ]] && ! cmp -s "$SRC_DIR.ssh_config" "$ROOT_DIR/.ssh/config"; then
     # Backup existing config
-    cp "$ROOT_DIR/.ssh/config" "$BACKUP_DIR/.ssh_config.backup"
-    info "Backed up existing SSH config to $BACKUP_DIR/.ssh_config.backup"
+    backup_save "$BACKUP_DIR" ".ssh/config"
+    info "Backed up existing SSH config to $BACKUP_DIR/.ssh/config"
   fi
 
   cp "$SRC_DIR.ssh_config" "$ROOT_DIR/.ssh/config"
@@ -225,7 +223,7 @@ else
   warning "SSH config template not found in $SRC_DIR.ssh_config"
 fi
 
-if rmdir "$BACKUP_DIR" 2>/dev/null; then
+if backup_close "$BACKUP_DIR"; then
   success "All files synced; no changed files needed a backup"
 else
   success "All files synced (changed files backed up in $BACKUP_DIR)"

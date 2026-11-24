@@ -5,6 +5,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly ROLES_FILE="$REPO_ROOT/src/.gitconfig.roles"
 readonly SSH_CONFIG_TEMPLATE="$REPO_ROOT/src/.ssh_config"
+source "$SCRIPT_DIR/backup-store.zsh"
 
 info() { print -P "%F{cyan}[INFO]%f $1"; }
 success() { print -P "%F{green}[SUCCESS]%f $1"; }
@@ -45,13 +46,10 @@ install_ssh_config() {
   fi
 
   if [[ -f "$CONFIG_FILE" ]] && ! cmp -s "$SSH_CONFIG_TEMPLATE" "$CONFIG_FILE"; then
-    local backup_root="$HOME/.dotfiles-backup"
-    mkdir -p "$backup_root"
-    chmod 700 "$backup_root"
+    # Only the file about to be overwritten: a sync backup, not a snapshot.
     local backup_dir
-    backup_dir=$(mktemp -d "$backup_root/$(date +%Y%m%d_%H%M%S)-snapshot.XXXXXXXX")
-    mkdir -p "$backup_dir/.ssh"
-    cp -p "$CONFIG_FILE" "$backup_dir/.ssh/config"
+    backup_dir="$(backup_open sync)"
+    backup_save "$backup_dir" ".ssh/config"
     info "Backed up existing SSH config to $backup_dir/.ssh/config"
   fi
 

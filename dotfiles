@@ -34,7 +34,8 @@ Usage:
 Commands:
   setup              Run the full dotfiles setup (first-time installation)
   sync [profile]     Sync dotfiles from src/ to \$HOME (profile: personal/work)
-  backup             Create a timestamped backup of existing dotfiles
+  backup             Create a snapshot (full restore point) of your dotfiles
+  restore <backup>   Restore a backup over \$HOME (--include-omz for Oh My Zsh)
   cleanup-backups    Preview archiving older backups (use --help for options)
   status             Show current Git identity and configuration status
   ssh-keys           Generate SSH keys for personal and work accounts
@@ -123,6 +124,10 @@ main() {
 
     cleanup-backups)
       run_script "cleanup-backups.sh" "$@"
+      ;;
+
+    restore)
+      run_script "restore.sh" "$@"
       ;;
 
     status|git-status)

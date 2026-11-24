@@ -12,7 +12,7 @@ This is the same check CI runs: `zsh -n` on every script, then the backup and Gi
 
 ## Your `$HOME` is production
 
-This repo is checked out on the machine it configures. These commands write to the real `$HOME`, Homebrew, macOS defaults, or SSH keys, so leave them for the user to run: `setup`, `sync`, `backup`, `ssh-keys`, `theme`, `osx`, `install-*`, and `cleanup-backups --apply`. To exercise them, copy the pattern in `tests/backups.zsh`: export a sandbox `HOME` (and `GIT_CONFIG_GLOBAL`), copy `scripts/` and `src/` into it, and run from there.
+This repo is checked out on the machine it configures. These commands write to the real `$HOME`, Homebrew, macOS defaults, or SSH keys, so leave them for the user to run: `setup`, `sync`, `backup`, `restore`, `ssh-keys`, `theme`, `osx`, `install-*`, and `cleanup-backups --apply`. To exercise them, copy the pattern in `tests/backups.zsh`: export a sandbox `HOME` (and `GIT_CONFIG_GLOBAL`), copy `scripts/` and `src/` into it, and run from there.
 
 Read-only commands are fine to run: `./dotfiles status --dry-run`, `./dotfiles cleanup-backups` (previews by default), `./dotfiles help`.
 
@@ -23,6 +23,12 @@ Read-only commands are fine to run: `./dotfiles status --dry-run`, `./dotfiles c
 - Edit files in `src/`, never their copies in `$HOME`. `scripts/sync.sh` deploys them with checksum `rsync` and backs up anything it overwrites to `~/.dotfiles-backup/<timestamp>-sync.<id>`.
 - `sync.sh` excludes `.gitconfig.roles` (it generates configs but stays in the repo) and `.ssh_config` (copied separately to `~/.ssh/config` with mode 600).
 - `sync.sh <profile>` rewrites `GIT_DEFAULT_ROLE` in the tracked `src/.gitconfig.roles`. Expect that diff after a profile sync.
+
+## Backups
+
+- `scripts/backup-store.zsh` owns backup naming, layout, recognition, snapshot coverage and restore. Every script that writes or reads backups goes through it; never build a backup path by hand.
+- Files are stored at their home-relative path. A **snapshot** is a full restore point; a **sync backup** holds only what a change overwrote (see GLOSSARY.md).
+- Restore translates the legacy layouts still present in older backups. Keep that translation in `backup_restore` and its fixtures in `tests/backup-store.zsh`.
 
 ## Git identity
 

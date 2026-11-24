@@ -7,7 +7,7 @@ trap 'rm -rf "$SANDBOX"' EXIT
 export HOME="$SANDBOX/home"
 export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
 mkdir -p "$HOME" "$SANDBOX/repo"
-cp -R "$REPO_ROOT/scripts" "$REPO_ROOT/src" "$SANDBOX/repo/"
+cp -R "$REPO_ROOT/scripts" "$REPO_ROOT/src" "$REPO_ROOT/dotfiles" "$SANDBOX/repo/"
 ROOT="$HOME/.dotfiles-backup"
 
 mkdir -p "$ROOT/20250101_000000" "$ROOT/20250201_000000" \
@@ -78,7 +78,7 @@ for profile in personal work; do
   snapshots=("$HOME/.dotfiles-backup"/*(N/))
   [[ ${#snapshots[@]} -eq 2 ]]
   alias_backups=("$HOME/.dotfiles-backup"/*/.aliases(N))
-  ssh_backups=("$HOME/.dotfiles-backup"/*/.ssh_config.backup(N))
+  ssh_backups=("$HOME/.dotfiles-backup"/*-sync.*/.ssh/config(N))
   [[ ${#alias_backups[@]} -eq 1 && ${#ssh_backups[@]} -eq 1 ]]
   cmp "$REPO_ROOT/README.md" "$alias_backups[1]"
   cmp "$REPO_ROOT/README.md" "$ssh_backups[1]"

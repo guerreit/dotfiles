@@ -11,4 +11,5 @@ done
 print 'PASS: syntax'
 
 zsh tests/backups.zsh
+zsh tests/backup-store.zsh
 zsh tests/git-identity.zsh

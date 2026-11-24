@@ -1,6 +1,9 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+source "$SCRIPT_DIR/backup-store.zsh"
+
 info() { print -P "%F{cyan}[INFO]%f $1"; }
 success() { print -P "%F{green}[SUCCESS]%f $1"; }
 error() { print -P "%F{red}[ERROR]%f $1" >&2; }
@@ -9,7 +12,7 @@ KEEP=5
 ACTION=archive
 APPLY=false
 ARCHIVES=false
-BACKUP_ROOT="$HOME/.dotfiles-backup"
+BACKUP_ROOT="$(backup_root)"
 TEMP_ARCHIVE=""
 LOCK_DIR=""
 
@@ -75,25 +78,15 @@ fi
 
 declare -a candidates=() selected=()
 typeset -A counts=(snapshot 0 sync 0)
-search_dir="$BACKUP_ROOT"
-[[ "$ARCHIVES" != true ]] || search_dir="$BACKUP_ROOT/archives"
-for candidate in "$search_dir"/*(N); do
-  [[ ! -L "$candidate" ]] || continue
-  backup_name="${candidate:t}"
-  if [[ "$ARCHIVES" == true ]]; then
-    [[ -f "$candidate" && "$backup_name" == *.tar.gz ]] || continue
-    backup_name="${backup_name%.tar.gz}"
-  else
-    [[ -d "$candidate" ]] || continue
-  fi
-  if [[ "$backup_name" =~ '^[0-9]{8}_[0-9]{6}(-(sync|snapshot)\.[[:alnum:]]{8})?$' ]]; then
-    candidates+=("$candidate")
-  fi
-done
+if [[ "$ARCHIVES" == true ]]; then
+  candidates=("${(@f)$(backup_list archives)}")
+else
+  candidates=("${(@f)$(backup_list)}")
+fi
+candidates=("${(@)candidates:#}")
 
 for candidate in "${(@On)candidates}"; do
-  kind=snapshot
-  [[ "${candidate:t}" != *-sync.* ]] || kind=sync
+  kind="$(backup_kind "$candidate")"
   counts[$kind]=$(( ${counts[$kind]} + 1 ))
   if (( ${counts[$kind]} > KEEP )); then
     selected+=("$candidate")
