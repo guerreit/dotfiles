@@ -65,6 +65,10 @@ for profile in personal work; do
   cmp "$REPO_ROOT/src/.gitignore_global" "$HOME/.gitignore_global"
   [[ "$(git config --file "$HOME/.gitconfig" core.excludesfile)" == "~/.gitignore_global" ]]
   [[ ! -e "$HOME/.gitconfig.roles" ]]
+  [[ "$(git config --file "$HOME/.gitconfig" --get include.path)" == "~/.gitconfig.role-rules" ]]
+  [[ -f "$HOME/.gitconfig.role-rules" && -f "$HOME/.gitconfig.personal" && -f "$HOME/.gitconfig.work" ]]
+  # Sync leaves the repo untouched (the profile rewrite of the roles file aside).
+  diff -r --exclude .gitconfig.roles "$REPO_ROOT/src" "$SANDBOX/repo/src"
   zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
   snapshots=("$HOME/.dotfiles-backup"/*(N/))
   [[ ${#snapshots[@]} -eq 1 ]]
@@ -98,8 +102,22 @@ GIT_WORK_EMAIL="test.work@example.test"
 GIT_DEFAULT_ROLE="personal"
 EOF
 zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null
-[[ "$(git config --file "$HOME/.gitconfig" --get include.path)" == "~/.gitconfig.personal" ]]
+[[ "$(git config --file "$HOME/.gitconfig.role-rules" --get include.path)" == "~/.gitconfig.personal" ]]
 print "PASS: sync.sh handles roles files without owner/pattern arrays"
+
+# A global identity in src/.gitconfig aborts sync before anything changes.
+export HOME="$SANDBOX/global-identity"
+export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"
+mkdir -p "$HOME"
+cp "$SANDBOX/repo/src/.gitconfig" "$SANDBOX/gitconfig.orig"
+git config --file "$SANDBOX/repo/src/.gitconfig" user.email 'global@example.test'
+if zsh "$SANDBOX/repo/scripts/sync.sh" > /dev/null 2>&1; then
+  print -u2 -- "Expected sync.sh to refuse a global identity in src/.gitconfig"
+  exit 1
+fi
+[[ ! -e "$HOME/.gitconfig" ]]
+mv "$SANDBOX/gitconfig.orig" "$SANDBOX/repo/src/.gitconfig"
+print "PASS: sync.sh refuses a global identity in src/.gitconfig without touching HOME"
 
 export HOME="$SANDBOX/no-roles"
 export GIT_CONFIG_GLOBAL="$HOME/.gitconfig"

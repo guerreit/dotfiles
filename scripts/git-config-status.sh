@@ -194,6 +194,13 @@ else
   success "~/.gitconfig.work exists"
 fi
 
+if [[ ! -f "$HOME/.gitconfig.role-rules" ]]; then
+  error "Missing ~/.gitconfig.role-rules (run ./dotfiles sync)"
+  ISSUES_FOUND=true
+else
+  success "~/.gitconfig.role-rules exists"
+fi
+
 if [[ -z "$ROLES_FILE" ]]; then
   error "Missing roles configuration (expected $REPO_ROLES_FILE or $HOME_ROLES_FILE)"
   ISSUES_FOUND=true
@@ -229,11 +236,11 @@ else
   fi
 fi
 
-# Check for includeIf directives in .gitconfig
-if grep -q "includeIf" "$HOME/.gitconfig" 2>/dev/null; then
-  success "Conditional includes are configured"
+# Check that ~/.gitconfig pulls in the generated role rules
+if git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null | grep -qx "~/.gitconfig.role-rules"; then
+  success "~/.gitconfig includes the Git role rules"
 else
-  warning "No conditional includes found in .gitconfig"
+  warning "~/.gitconfig does not include ~/.gitconfig.role-rules"
   warning "Role-based switching may not be active"
 fi
 

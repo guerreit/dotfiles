@@ -1,0 +1,12 @@
+# Fixture roles file: fake identities exercising every rule type.
+GIT_PERSONAL_NAME="Pat Personal"
+GIT_PERSONAL_EMAIL="pat@personal.example"
+GIT_WORK_NAME="Pat Work"
+GIT_WORK_EMAIL="pat@work.example"
+GIT_PERSONAL_GITHUB_OWNERS=("pat-home")
+GIT_WORK_GITHUB_OWNERS=("pat-corp" "CorpOrg")
+GIT_WORK_BITBUCKET_OWNERS=("corp-team")
+GIT_PERSONAL_SSH_ALIASES=("github.com-personal")
+GIT_WORK_SSH_ALIASES=("github.com-work")
+GIT_WORK_PATTERNS=("~/work/**" "~/clients/acme")
+GIT_DEFAULT_ROLE="work"

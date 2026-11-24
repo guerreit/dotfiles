@@ -101,8 +101,8 @@ The `./dotfiles setup` command (or `./scripts/setup.sh` directly) orchestrates t
 8. Install VS Code extensions with `scripts/vscode-extensions.sh` (skipped if the `code` CLI is missing).
 9. Apply macOS UI tweaks (`scripts/osx.sh`).
 10. Sync every file under `src/` into `$HOME` with `scripts/sync.sh`, which also:
-   - Generates `.gitconfig`, `.gitconfig.personal`, and `.gitconfig.work` from `.gitconfig.roles`
-   - Removes any global `user.name`/`user.email` so conditional includes stay authoritative
+   - Generates `~/.gitconfig.personal`, `~/.gitconfig.work`, and `~/.gitconfig.role-rules` from `.gitconfig.roles`
+   - Refuses to run if `src/.gitconfig` sets `user.name`/`user.email`, which would override every Git role
    - Copies `src/.ssh_config` into `~/.ssh/config` with secure permissions
    - Backs up changed files under `~/.dotfiles-backup/<timestamp>-sync.<id>`
 11. Display current status through `scripts/git-config-status.sh` so you can confirm the active identity.
@@ -132,11 +132,11 @@ GIT_DEFAULT_ROLE="personal"
 
 After editing the file, run `./dotfiles sync` to regenerate every Git config artifact. The script:
 
-- Writes `~/.gitconfig.personal` and `~/.gitconfig.work`
-- Rebuilds the `includeIf` section inside `~/.gitconfig`
-- Rewrites known GitHub owners to `github.com-personal` or `github.com-work`
-- Wipes any lingering global `user.*` settings that would override conditional includes
-- Validates the generated files before copying them into `$HOME`
+- Writes `~/.gitconfig.personal` and `~/.gitconfig.work` (one `[user]` identity each)
+- Writes `~/.gitconfig.role-rules`: URL rewrites that route known GitHub owners to `github.com-personal` or `github.com-work`, the default identity, and the `includeIf` rules
+- Validates every generated file before anything in `$HOME` changes
+
+`src/.gitconfig` is hand-written and ends with an include of `~/.gitconfig.role-rules`, so the generated rules apply last. Generated files are never committed.
 
 Rules are evaluated whenever Git reads a repository configuration; cloning a
 new repository does not modify `~/.gitconfig`. One `CompanyOrg` entry covers
@@ -200,7 +200,7 @@ Use `./dotfiles status --dry-run` anytime to see which pattern would match the c
 
 - `.zshrc`, `.zprofile`, `.aliases`, `.exports`, `.functions`, `.path`
 - `.vimrc`, `.editorconfig`
-- `.gitconfig` (template), `.gitconfig.roles`, `.gitconfig.personal`, `.gitconfig.work`
+- `.gitconfig` (hand-written; includes the generated `~/.gitconfig.role-rules`), `.gitconfig.roles`
 - `.gitignore_global`, `.gitattributes`, `.stCommitMsg`
 - `.profile` (legacy metadata), `.hushlogin`
 - `.ssh_config`
